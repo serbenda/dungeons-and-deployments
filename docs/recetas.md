@@ -113,6 +113,17 @@ La selección se adapta sola: muestra los héroes de `HERO_ORDER` en columnas. C
 2. Una fila en `OPT_ROWS` con `label`, `show()` (lo que se ve a la derecha) y `change(d)` (con `d` = -1 o 1).
 3. Úsala donde toque leyendo `OPTS.tuOpcion`. Se guarda sola en `localStorage`.
 
+## Añadir una etapa
+
+Ejemplo real: Las Cuevas.
+
+1. **Datos**: sus secciones y cajas (`SECTIONS_3`, `CRATES_3`) y una entrada en `STAGES` con `name`, `sub` (el cartel), `boss` y `story` (`js/data/game-data.js`).
+2. **Decorado**: un archivo en `js/world/` con su función de zonas, su `build` (un canvas prerenderizado con `prng`), su `draw(cx)` animado y sus luces. En `drawLevel()`, `drawLights()` y `ZONE` (`js/world/level.js`), añade el caso de la nueva `stageIdx`.
+3. **Enemigos y jefes**: como en las recetas anteriores. El jefe final se crea en `updatePlay()` según `STAGES[stageIdx].boss`, y al morir llama a `startStory(..., stageClear)`.
+4. **Música**: un tema por zona en `T` (`js/audio/music.js`); `musicFor()` usa el nombre de la zona.
+5. **Historia**: la viñeta de entrada en `STORIES` y una frase por héroe en `HERO_LINES`.
+6. **Pruebas**: `tests/etapa2.test.js` comprueba la coherencia de todas las etapas; el bot de `tools/smoke-test.js` juega todas seguidas.
+
 ## Añadir un archivo de código
 
 1. Créalo en la carpeta que le corresponda de `js/` con `'use strict'` y una línea de resumen.

@@ -2,6 +2,19 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.4.0] - Sin publicar
+
+### Añadido
+- Etapa 2, **Las Cuevas**, a continuación de la primera: Minas de Datos, Cripta de Seguridad, Observatorio y Trono del Mainframe, con su decorado, sus luces y tres temas nuevos.
+- Ocho enemigos nuevos: kobold del SELECT *, troll del legacy, consulta N+1, cofre phishing, ransomware (cifra tu arma), troyano, falso positivo y gnomo del dashboard.
+- Tres jefes nuevos: Troll DBA (`LOCK TABLE` atrapa a quien la pisa), Cancerbero de las 3 AAA (se regenera mientras viva el MFA) y el Lich COBOL (se protege con copias en cinta).
+- Cuatro logros nuevos: BATCH NOCTURNO, MFA ROTO, STOP RUN y UNLOCK TABLES.
+
+### Cambiado
+- Al terminar la etapa 1, START lleva a la etapa 2 conservando vida, vidas y puntuación. Los créditos llegan al final de la etapa 2.
+- La vida del Dragón Negro también depende de la dificultad y del número de jugadores.
+- La prueba de humo juega las dos etapas seguidas.
+
 ## [0.3.0] - Sin publicar
 
 ### Añadido

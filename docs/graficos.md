@@ -119,6 +119,8 @@ Traduce el estado de un actor (`walk`, `punch`, `jump`, `grab`...) y su tiempo e
 
 `js/sprites/monsters.js` pinta a mano los que no son humanoides: gólem, dragón (180×124, con fotogramas de alas, boca, mordisco, cola, vuelo y mareo), slime, murciélago, fantasma, mímico, pod, tótem, objetos y llamas. Los jefes del Sprint 2 (cuerpo y cabezas de la Hidra) están en `js/entities/bosses.js`.
 
+`js/sprites/caves.js` añade los de la etapa 2: el ojo de la consulta N+1, la campana del falso positivo, el cofre phishing, el troyano y la copia en cinta (con bobinas que giran). Los humanoides nuevos (kobold, troll, Troll DBA, ransomware, gnomo y Lich COBOL) no tienen dibujo propio: `reRig(base, cambios, colores)` reutiliza el esqueleto y el estilo de otro personaje con otra escala y otra paleta. Para dibujar un monstruo volador o fantasmal con otro aspecto basta con `look` en `FOES` (`'eye'`, `'bell'`, `'horse'`, `'phish'`).
+
 ## La mazmorra (`js/world/level.js`)
 
 `buildLevel()` pinta **una sola vez** toda la etapa (unos 3.960×200 píxeles) en el canvas `LEVEL`, con `prng(1993)` para que el resultado sea siempre el mismo:
@@ -134,12 +136,23 @@ Traduce el estado de un actor (`walk`, `punch`, `jump`, `grab`...) y su tiempo e
 
 En cada fotograma, `drawLevel(cx)` recorta los 320 píxeles visibles y añade lo animado: LED de switches y discos, paquetes por la bandeja, pantallas de los monitores y la cola de jobs del núcleo de Automation.
 
+## Las Cuevas (`js/world/caves.js`)
+
+La etapa 2 sigue el mismo esquema: `buildCaves()` pinta una vez el canvas `LEVEL2` con `prng(2027)` y `drawCaves(cx)` añade lo animado. `drawLevel()` delega en ella cuando `stageIdx === 1`.
+
+| Zona | Pared | Suelo | Decorado |
+|---|---|---|---|
+| Minas de Datos | Roca cálida | Tierra con raíles | Vigas, vagonetas con tablas, cristales de índice que brillan y carteles «SELECT * FROM mina» |
+| Cripta de Seguridad | Sillares azulados | Losas oscuras | Bóvedas acorazadas, candados y láseres rojos que se encienden y apagan |
+| Observatorio | Roca violeta | Rejilla metálica | Muro de pantallas con gráficas en directo, «99.9% SLA» y balizas de alarma |
+| Trono del Mainframe | Roca verdosa | Suelo técnico | Armarios con bobinas de cinta que giran, el trono y el código COBOL en fósforo verde |
+
 ## Iluminación (`drawLights`)
 
 Se dibuja después de los actores:
 
 1. Una viñeta oscura precalculada (`VIG`).
-2. Con `globalCompositeOperation = 'lighter'` (mezcla aditiva) se suman degradados radiales: antorchas y braseros (con parpadeo), charcos de ácido, rayos de las vidrieras, el aliento del dragón y las partículas con `glow`.
+2. Con `globalCompositeOperation = 'lighter'` (mezcla aditiva) se suman degradados radiales: antorchas y braseros (con parpadeo), charcos de ácido, rayos de las vidrieras, el aliento del dragón y las partículas con `glow`. En Las Cuevas, `caveLights()` suma los cristales, las pantallas, el brillo verde del Mainframe y el tinte rojo de la cripta.
 3. Encima, las llamas y unas motas de polvo en suspensión.
 
 ## Efectos

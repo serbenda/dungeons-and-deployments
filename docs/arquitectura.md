@@ -27,7 +27,7 @@ flowchart LR
 
 ## Carga de los scripts
 
-`index.html` carga 24 scripts clásicos (no módulos ES) en un orden fijo. Comparten el ámbito global: lo que declara uno con `const`, `let` o `function` lo ven todos los demás.
+`index.html` carga 26 scripts clásicos (no módulos ES) en un orden fijo. Comparten el ámbito global: lo que declara uno con `const`, `let` o `function` lo ven todos los demás.
 
 Se eligieron scripts clásicos por dos motivos:
 
@@ -50,18 +50,20 @@ Cada archivo empieza con `'use strict'` y una línea que resume su contenido.
 | `core/pixel.js` | `painter()`, `toCanvas()`, `sprite()` con caché, vectores `D()` y `add()` | `OUTLINE` |
 | `sprites/characters.js` | Esqueletos (`RIGS`), poses (`POSES`), `paintRig()`, `getPose()`, `rigSprite()` | `pixel.js` |
 | `sprites/monsters.js` | Gólem, dragón, slime, murciélago, fantasma, mímico, pod, tótem, objetos y llamas | `pixel.js` |
-| `world/level.js` | Zonas (`ZONE`), antorchas, `buildLevel()`, `drawLevel()`, `drawLights()` | `config.js` |
-| `data/game-data.js` | `HEROES`, `HERO_ORDER`, `HERO_INFO`, `FOES`, `FOOD`, `SECTIONS`, `CRATES` | `LEVEL_END` |
+| `sprites/caves.js` | Etapa 2: esqueletos recoloreados (`reRig()`), ojo N+1, campana, cofre phishing, troyano y copia en cinta | `RIGS` |
+| `world/level.js` | Zonas (`ZONE` según la etapa, `ZONE1`), antorchas, `buildLevel()`, `drawLevel()`, `drawLights()` | `config.js` |
+| `world/caves.js` | Etapa 2: `ZONE2`, `buildCaves()`, `drawCaves()`, `caveLights()` | `LEVEL_END` |
+| `data/game-data.js` | `HEROES`, `HERO_ORDER`, `HERO_INFO`, `FOES`, `FOOD`, `STAGES` y las secciones y cajas de cada etapa | `LEVEL_END` |
 | `audio/sfx.js` | `initAudio()` y `sfx()` | — |
 | `audio/music.js` | Secuenciador `MUSIC` y `musicFor()` | — |
 | `core/input.js` | Teclado, mandos (`pollPads()`), teclas por jugador (`INP`), dispositivos (`DEV_SLOT`), `press()`, `release()`, `pressed()`, código Konami | `cv` |
 | `core/touch.js` | Cruceta analógica, botones táctiles, pantalla completa, vibración, pantalla encendida | `input.js` |
-| `game/state.js` | Variables de la partida, `PLAYERS`, `RUN`, `startGame()`, `joinPlayer()`, `revivePlayer()`, `targetFor()`, `mkFoe()`, `spawnWave()` | — |
+| `game/state.js` | Variables de la partida, `PLAYERS`, `RUN`, `stageIdx`, `startGame()`, `loadStage()`, `joinPlayer()`, `revivePlayer()`, `targetFor()`, `mkFoe()`, `spawnWave()` | — |
 | `core/utils.js` | Partículas, textos flotantes, colisiones, `GRUNTS`, `hostile()` | — |
 | `game/combat.js` | `damage()` (combos), `damageRaw()` (bloqueos y derribos), `breakCrate()` | — |
 | `entities/player.js` | Máquina de estados del jugador, agarres, armas y los cuatro especiales | — |
 | `entities/enemies.js` | IA genérica, murciélago, tótem, gólem, Dragón Negro, `stageClear()` | — |
-| `entities/bosses.js` | Minotauro del Firewall, Hidra RAID y El Revisor | — |
+| `entities/bosses.js` | Minotauro, Hidra RAID y Cancerbero, El Revisor, Troll DBA (y `LOCK TABLE`) y Lich COBOL | — |
 | `ui/story.js` | Viñetas de historia | — |
 | `ui/ranking.js` | Iniciales y ranking en `localStorage` | `localStorage` |
 | `ui/options.js` | `OPTS`, `DIFFS`, `DIFF()` y el menú de opciones | `localStorage` |
@@ -115,7 +117,8 @@ stateDiagram-v2
   play --> story: dragón vencido
   story --> play: El Revisor (sin continuar)
   story --> clear: fin del diálogo final
-  clear --> credits: START
+  clear --> story: START (siguiente etapa)
+  clear --> credits: START (última etapa)
   credits --> initials: entra en el top 5
   credits --> ranking
   over --> initials: entra en el top 5
@@ -134,7 +137,7 @@ stateDiagram-v2
 | `pause` | Espera START | Partida + PAUSA |
 | `continue` | Cuenta atrás de ¿ROLLBACK? | Partida + cuenta atrás |
 | `over` | Espera START y llama a `afterRun()` | Partida + GAME OVER |
-| `clear` | Espera START y pasa a `credits` | Partida + resultados |
+| `clear` | Espera START: `loadStage()` de la siguiente etapa o, si era la última, `credits` | Partida + resultados |
 | `credits` | Avanza los créditos; al terminar (o con START) llama a `afterRun()` | `drawCredits()` |
 | `initials` | `updateInitials()` | Partida + ¡NUEVO RÉCORD! |
 | `ranking` | `updateRanking()` | `drawRanking()` |
@@ -186,7 +189,18 @@ La etapa es una lista de secciones (`SECTIONS` en `data/game-data.js`). Cuando `
 5. Después de la última, si hay `miniboss`, lo crea con su diálogo.
 6. Cuando todo está limpio, muestra `close`, desbloquea la cámara y aparece «GO!».
 
-La última sección (`boss: true`) crea el Dragón Negro. Al vencerlo, si nadie ha continuado aparece El Revisor (`spawnRevisor()`); si no, o al vencerlo a él, el diálogo final da paso a `stageClear()`, que calcula los bonus y desbloquea los logros de final de etapa.
+La última sección (`boss: true`) crea el jefe final de la etapa (`STAGES[i].boss`): el Dragón Negro o el Lich COBOL. Al vencerlo, si nadie ha continuado aparece El Revisor (`spawnRevisor()`); si no, o al vencerlo a él, el diálogo final da paso a `stageClear()`, que calcula los bonus y desbloquea los logros de final de etapa.
+
+## Etapas
+
+`STAGES` (`data/game-data.js`) lista las etapas con sus secciones, cajas, jefe final y viñeta de entrada. `loadStage(i)`:
+
+1. Cambia `stageIdx` y apunta `SECTIONS` y `CRATES` a los de la etapa.
+2. Vacía enemigos, objetos, proyectiles y efectos, y vuelve a crear las cajas.
+3. Devuelve la cámara a 0 y a los jugadores a la entrada, **conservando** vida, vidas y combo máximo.
+4. Muestra el cartel «NIVEL N» y la viñeta de la etapa.
+
+Las dos etapas tienen la misma longitud (`LEVEL_END`), así que comparten coordenadas, cámara y lógica de secciones. Lo que cambia según `stageIdx` es el decorado (`drawLevel()` delega en `drawCaves()`), las luces, las zonas (`ZONE`) y, con ellas, la música.
 
 ## Persistencia
 

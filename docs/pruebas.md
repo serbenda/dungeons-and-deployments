@@ -71,16 +71,32 @@ Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la 
 | El Revisor | Protegido mientras quedan tareas pendientes; solo aparece sin continuar |
 | Héroes completos | Cada héroe tiene esqueleto, frases, ficha y está en la selección |
 
+`tests/etapa2.test.js`:
+
+| Prueba | Qué garantiza |
+|---|---|
+| Datos de las etapas | Secciones en orden, tickets bien formados, enemigos, mímicos, jefes, cajas y viñetas existentes en las dos etapas |
+| `loadStage` | Cambia secciones, cajas y cámara y conserva la vida y las vidas |
+| Paso de etapa | Al terminar la etapa 1, START lleva a Las Cuevas; al terminar la 2, a los créditos |
+| Zonas y música | Las zonas de la etapa 2 tienen su tema y la etapa 1 conserva las suyas |
+| LOCK TABLE | Atrapa al jugador y cinco pulsaciones de A lo liberan |
+| Lich COBOL | No recibe daño mientras existe su copia en cinta |
+| Cancerbero | Es una Hidra con MFA y da su propio logro |
+| Ransomware | Cifra el arma del jugador |
+| Copia en cinta | El HOTFIX no la tumba (tumbada sería invulnerable y el Lich no se podría vencer) |
+
 Para añadir una prueba, crea un `test(...)` en uno de esos archivos o en uno nuevo `tests/*.test.js`.
 
 ## Prueba de humo (end-to-end)
 
 `tools/smoke-test.js` abre el juego en Chromium sin ventana y deja que un **bot** juegue la etapa completa:
 
+- Las **dos etapas** seguidas: al terminar la primera pulsa START y sigue.
 - Con cada uno de los cuatro héroes y en cooperativo (guerrero + bardo, el bot maneja a los dos), en modo invulnerable y en modo normal.
+- Si queda atrapado en un LOCK TABLE, pulsa A hasta liberarse.
 - En modo invulnerable nunca se continúa, así que el bot también tiene que vencer a El Revisor (la salida lo indica con `revisor=OK`).
 - Con varias semillas (`SEEDS`, por defecto `1,2`; en la CI `1,2,3`).
-- Falla si alguna partida no llega a `clear` o si hay errores en la consola.
+- Falla si alguna partida no termina la etapa 2 o si hay errores en la consola.
 
 ```bash
 npm run test:e2e
