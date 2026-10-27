@@ -23,6 +23,11 @@ if (/[?&]debug\b/.test(location.search)) {
   };
 }
 
+// PWA: registra el service worker (solo por http/https; con file:// no existe).
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !/[?&]debug\b/.test(location.search)) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+
 draw();
 if (document.fonts && document.fonts.load) Promise.all([document.fonts.load(F8), document.fonts.load(F16)]).then(draw).catch(() => {});
 requestAnimationFrame(frame);

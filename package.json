@@ -3,15 +3,29 @@
   "version": "0.2.0",
   "private": true,
   "description": "Beat 'em up de fantasía en pixel art: un equipo de desarrollo contra la infraestructura, hasta la Guarida de Automation.",
+  "homepage": "https://serbenda.github.io/dungeons-and-deployments/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/serbenda/dungeons-and-deployments.git"
+  },
+  "bugs": {
+    "url": "https://github.com/serbenda/dungeons-and-deployments/issues"
+  },
   "scripts": {
-    "lint": "node tools/lint.js",
-    "test": "node tools/smoke-test.js",
+    "lint": "npm run lint:project && npm run lint:js",
+    "lint:project": "node tools/lint.js",
+    "lint:js": "eslint .",
+    "test": "node --test \"tests/**/*.test.js\"",
+    "test:e2e": "node tools/smoke-test.js",
     "serve": "python3 -m http.server 8000"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "eslint": "^9.13.0",
+    "globals": "^15.11.0",
     "playwright": "^1.47.0"
   }
 }

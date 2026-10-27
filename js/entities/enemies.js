@@ -37,7 +37,7 @@ function updateFoe(e){
       const attackers = foes.filter(f => f.aggro && f !== e && !f.dead).length;
       if (!e.aggro && e.cool <= 0 && attackers < 2) e.aggro = true;
       const side = e.x < P.x ? -1 : 1;
-      const tx = P.x + side*(e.aggro ? 26 : 74 + e.hover*20), ty = e.aggro ? P.y : clamp(P.y + e.hover*24, FY0, FY1);
+      const tx = clamp(P.x + side*(e.aggro ? 26 : 74 + e.hover*20), camX + 16, camX + W - 16), ty = e.aggro ? P.y : clamp(P.y + e.hover*24, FY0, FY1);
       const dx = tx - e.x, dy = ty - e.y;
       e.x += Math.sign(dx)*Math.min(Math.abs(dx), e.d.spd); e.y += Math.sign(dy)*Math.min(Math.abs(dy), e.d.spd*.6);
       if (!e.d.slowturn) e.face = P.x > e.x ? 1 : -1; else if (++e.turnT > 50) { e.turnT = 0; e.face = P.x > e.x ? 1 : -1; }

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Jugar a Dungeons & Deployments
+    url: https://serbenda.github.io/dungeons-and-deployments/
+    about: La versión publicada del juego.
+  - name: Guía de contribución
+    url: https://github.com/serbenda/dungeons-and-deployments/blob/main/CONTRIBUTING.md
+    about: Cómo preparar el entorno, las ramas y las pruebas.

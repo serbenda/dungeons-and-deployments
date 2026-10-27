@@ -1,0 +1,34 @@
+name: Proponer una idea
+description: Un enemigo, un jefe, un departamento, una mecánica o una referencia geek.
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Tipo de propuesta
+      options:
+        - Enemigo o jefe
+        - Zona o departamento
+        - Mecánica de juego
+        - Gráficos o sonido
+        - Herramientas, documentación o CI
+        - Otra
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: La idea
+      description: Qué propones y qué referencia informática tiene detrás.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Por qué mejora el juego
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Colaboración
+      options:
+        - label: Me gustaría implementarlo yo (ver CONTRIBUTING.md)
