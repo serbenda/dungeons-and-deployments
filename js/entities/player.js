@@ -1,7 +1,15 @@
 // Control del jugador: combo, salto, agarre, armas y especiales.
 'use strict';
 
+/**
+ * Empieza el golpe n del combo (1, 2 o 3; el 3 derriba).
+ * @param {number} n
+ */
 function startPunch(n){ P.state = 'punch'; P.t = 0; P.combo = n; P.buffer = false; P.hitSet = new Set(); P.hitAny = false; sfx('swing'); }
+/**
+ * Recoge el objeto que haya a los pies del jugador: comida, arma, patito o pergamino.
+ * @returns {boolean} true si ha recogido algo.
+ */
 function tryPickup(){
   const it = items.find(i => Math.abs(i.x - P.x) < 16 && Math.abs(i.y - P.y) < 9);
   if (!it) return false;
@@ -29,15 +37,28 @@ function tryPickup(){
   P.state = 'pick'; P.t = 0;
   return true;
 }
+/**
+ * Indica si el jugador puede agarrar a un enemigo al caminar contra él.
+ * @param {object} e
+ * @returns {boolean}
+ */
 function canGrab(e){
   return GRUNTS[e.kind] && !e.d.slime && !e.d.nograb && !e.dead && (e.state === 'walk' || e.state === 'hurt' || e.state === 'windup')
     && Math.abs(e.y - P.y) < 6 && (e.x - P.x)*P.face > 0 && Math.abs(e.x - P.x) < 20 && P.z === 0;
 }
+/**
+ * Suelta al enemigo agarrado.
+ * @param {boolean} thrown true si se ha lanzado.
+ */
 function releaseGrab(thrown){
   const e = P.held; P.held = null;
   if (!e) return;
   if (!thrown && e.state === 'grabbed') { e.state = 'hurt'; e.t = 0; e.x += P.face*8; }
 }
+/**
+ * Lanza al enemigo agarrado; derriba a los que encuentre en su trayectoria.
+ * @param {number} dir -1 o 1.
+ */
 function throwHeld(dir){
   const e = P.held; P.held = null; P.face = dir;
   e.state = 'thrown'; e.vx = dir*4.4; e.vz = 3.2; e.z = 8; e.lying = false; e.t = 0;
@@ -45,12 +66,18 @@ function throwHeld(dir){
   P.state = 'throw'; P.t = 0; sfx('heavy'); score += 100;
   addText('¡A PRODUCCIÓN!', P.x - 50, P.y - 68, C.a, 40);
 }
+/**
+ * Lanza el especial del héroe (RUN JOB o GIT PUSH -F) a cambio de 10 de vida.
+ */
 function doSpecial(){
   if (P.hp <= 10) { addText('SIN VIDA PARA ESO', P.x - 64, P.y - 64, C.r, 40); return; }
   P.hp -= 10; P.state = 'special'; P.t = 0; P.fired = false; sfx('special');
   if (P.hero === 'guerrero') { P.vz = 3.6; addText('rd run -j deploy', P.x - 64, P.y - 80, C.a, 50); }
   else addText('git push --force', P.x - 64, P.y - 80, '#d9b8ff', 50);
 }
+/**
+ * Onda expansiva del especial: daña y derriba a todos los cercanos y rompe cajas.
+ */
 function specialBlast(){
   P.fired = true; shake = 7; hitstop = 4;
   const war = P.hero === 'guerrero', rad = war ? 74 : 88, dmg = war ? 24 : 18;
@@ -61,6 +88,9 @@ function specialBlast(){
   for (const c of crates.slice()) if (Math.abs(c.x - P.x) < rad && Math.abs(c.y - P.y) < 26) breakCrate(c);
   if (!war) { shots = shots.filter(s => s.owner === P); eshots = []; }
 }
+/**
+ * Gasta una vida con el «HOTFIX» (empuja a los enemigos cercanos) o pasa a ¿ROLLBACK?.
+ */
 function loseLife(){
   if (P.lives > 0) {
     P.lives--; P.hp = P.max; P.state = 'getup'; P.t = 0; P.inv = 160; P.weapon = null;
@@ -69,6 +99,10 @@ function loseLife(){
     burst(P.x, P.y - 30, C.g, 24, 2.4, 'rgb(110,231,168)'); sfx('special');
   } else { state = 'continue'; contT = 600; sfx('roar'); }
 }
+/**
+ * Actualiza al jugador: máquina de estados (idle, walk, punch, jump, grab, knee,
+ * throw, special, hurt, down...), físicas del salto y límites de pantalla.
+ */
 function updatePlayer(){
   const p = P;
   if (p.inv > 0) p.inv--;
@@ -177,6 +211,9 @@ function updatePlayer(){
   p.y = clamp(p.y, FY0, FY1);
   p.x = clamp(p.x, camX + 12, camX + W - 12);
 }
+/**
+ * Aterrizaje del jugador tras un salto o un derribo.
+ */
 function playerLand(){
   if (P.state === 'jump') { P.state = 'land'; P.t = 0; sfx('land'); burst(P.x, P.y, '#4b4470', 4, 1); }
   else if (P.state === 'down' && !P.lying) { P.lying = true; P.t = 0; shake = 2; burst(P.x, P.y, '#4b4470', 6); sfx('land'); }

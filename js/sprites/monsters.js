@@ -1,6 +1,12 @@
 // Sprites del gólem, el dragón, los objetos y los enemigos no humanoides.
 'use strict';
 
+/**
+ * Pinta el Gólem Hipervisor.
+ * @param {object} S Pintor.
+ * @param {string} pose walk0, walk1, charge, roar, rest o down.
+ * @param {boolean} angry Runas rojas cuando está enfadado.
+ */
 function paintGolem(S, pose, angry){
   const st = '#a99f86', sS = '#766c58', sL = '#d6cdb2', cr = '#4b4438', rune = angry ? '#ff5d73' : '#6ee7a8', moss = '#4f6b3a';
   if (pose === 'down') {
@@ -30,6 +36,12 @@ function paintGolem(S, pose, angry){
   else if (pose === 'roar') { S.line(54, 30, 62, 8, 10, st); S.disc(62, 6, 7, st); S.px(60, 4, sL); }
   else { S.line(54, 34, 62, 56, 10, st); S.disc(62, 59, 7, st); S.px(60, 56, sL); S.px(61, 55, sL); }
 }
+/**
+ * Sprite de una fuga de memoria (slime).
+ * @param {boolean} small Mini leak.
+ * @param {string} pose n, wind, jump o flat.
+ * @returns {object}
+ */
 function slimeSprite(small, pose){
   const sz = small ? 7 : 11;
   return sprite('slime|' + small + '|' + pose, 40, 36, S => {
@@ -43,6 +55,11 @@ function slimeSprite(small, pose){
     else { S.px(22, cy, OUTLINE); S.px(25, cy, OUTLINE); }
   });
 }
+/**
+ * Sprite del murciélago de paquetes perdidos (con su sobre).
+ * @param {number} f Fotograma de aleteo (0 o 1).
+ * @returns {object}
+ */
 function batSprite(f){
   return sprite('bat|' + f, 40, 30, S => {
     const up = f === 0;
@@ -55,6 +72,11 @@ function batSprite(f){
     S.rect(15, 21, 10, 7, '#ece6f6'); S.line(15, 21, 20, 25, 1, '#8d8468'); S.line(25, 21, 20, 25, 1, '#8d8468'); S.rect(15, 27, 10, 1, '#c9c4ba');
   });
 }
+/**
+ * Sprite de la VM huérfana (fantasma con pantalla).
+ * @param {number} f Fotograma (0 o 1).
+ * @returns {object}
+ */
 function ghostSprite(f){
   return sprite('ghost|' + f, 36, 44, S => {
     const w = f ? 1 : -1;
@@ -66,6 +88,11 @@ function ghostSprite(f){
     S.rect(14, 24, 12, 5, '#2c2440'); S.rect(15, 25, 10, 3, '#5ec8f2'); S.px(16, 26, '#ece6f6'); S.px(18, 26, '#ece6f6');
   });
 }
+/**
+ * Sprite del mímico de disco lleno.
+ * @param {number} open 1 con la boca abierta, 0 disfrazado de cofre.
+ * @returns {object}
+ */
 function mimicSprite(open){
   return sprite('mimic|' + open, 34, 34, S => {
     if (!open) {
@@ -81,6 +108,11 @@ function mimicSprite(open){
     S.rect(12, 6, 3, 3, '#ffd23f'); S.rect(21, 4, 3, 3, '#ffd23f'); S.px(13, 7, '#0b0912'); S.px(22, 5, '#0b0912');
   });
 }
+/**
+ * Sprite de un pod de Kubernetes.
+ * @param {number} f Fotograma (0 o 1).
+ * @returns {object}
+ */
 function podSprite(f){
   return sprite('pod|' + f, 26, 24, S => {
     const b = f ? 1 : 0;
@@ -90,6 +122,10 @@ function podSprite(f){
     S.rect(7, 18 + b, 2, 4 - b, '#1a4a9a'); S.rect(17, 18 + b, 2, 4 - b, '#1a4a9a');
   });
 }
+/**
+ * Sprite del tótem Deployment que genera pods.
+ * @returns {object}
+ */
 function totemSprite(){
   return sprite('totem', 36, 70, S => {
     S.poly([[8, 66], [28, 66], [24, 8], [12, 8]], '#4b5266'); S.poly([[8, 66], [18, 66], [17, 8], [12, 8]], '#3a4052'); S.rect(12, 6, 12, 4, '#6a7290');
@@ -100,8 +136,20 @@ function totemSprite(){
     for (let j = 0; j < 3; j++) S.rect(14, 46 + j*5, 8, 2, '#5ec8f2');
   });
 }
+/**
+ * Sprite cacheado del gólem (ver paintGolem).
+ * @param {string} pose
+ * @param {boolean} angry
+ * @returns {object}
+ */
 function golemSprite(pose, angry){ return sprite('golem|' + pose + '|' + angry, 86, 80, S => paintGolem(S, pose, angry)); }
 
+/**
+ * Pinta el Dragón Negro.
+ * @param {object} S Pintor de 180×124.
+ * @param {{wing: number, mouth: number, lunge: number, tail: number, fly: number, dizzy: number}} f
+ * Fotograma: ala (0-2), boca (0 cerrada, 1 abierta, 2 aliento), mordisco, coletazo, vuelo y mareo.
+ */
 function paintDragon(S, f){
   const B = '#241d36', BS = '#151120', BL = '#3f3760', BE = '#5d5784', BEL = '#857bb5', BONE = '#d8cfb4', MEM = '#2c2344', MEML = '#463a63', ACID = '#6ee7a8';
   const L = f.lunge ? 12 : 0;
@@ -156,8 +204,18 @@ function paintDragon(S, f){
   S.line(36, ny + 14, 30, ny + 30, 1, MEM); S.line(20, ny + 18, 14, ny + 26, 1, MEM);
   S.disc(72, 56, 5, B); S.px(71, 54, BL);
 }
+/**
+ * Sprite cacheado del dragón para un fotograma (ver paintDragon).
+ * @param {object} f
+ * @returns {object}
+ */
 function dragonSprite(f){ return sprite('dragon|' + f.wing + f.mouth + f.lunge + f.tail + f.fly + f.dizzy, 180, 124, S => paintDragon(S, f)); }
 
+/**
+ * Sprite de un objeto del suelo, un barril o un cofre.
+ * @param {string} k pocion, pollo, tortilla, bocata, baculo, martillo, patito, stack, barril o cofre.
+ * @returns {object}
+ */
 function itemSprite(k){
   return sprite('item|' + k, 28, 28, S => {
     switch (k) {
@@ -174,6 +232,11 @@ function itemSprite(k){
     }
   });
 }
+/**
+ * Fotograma de la llama de una antorcha.
+ * @param {number} i 0, 1 o 2.
+ * @returns {object}
+ */
 function flameSprite(i){
   return sprite('flame|' + i, 14, 18, S => {
     const s = [0, 1, -1][i];

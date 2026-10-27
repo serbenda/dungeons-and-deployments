@@ -27,19 +27,6 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(15px,3.6vw,24px);l
 canvas{display:block;width:100%;height:auto;aspect-ratio:320/200;image-rendering:pixelated;image-rendering:crisp-edges;outline:none;touch-action:none}
 canvas:focus-visible{box-shadow:inset 0 0 0 2px var(--rune)}
 .tip{margin:0;color:var(--dim);font-size:18px}
-.touch{display:none;justify-content:space-between;align-items:center;gap:12px;user-select:none;-webkit-user-select:none}
-@media (hover:none) and (pointer:coarse){.touch{display:flex}.keys-only{display:none}}
-.dpad{display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px);gap:4px}
-.touch button{font-family:var(--display);font-size:11px;color:var(--fg);background:var(--panel);border:2px solid var(--line);border-radius:6px;touch-action:none;-webkit-tap-highlight-color:transparent}
-.touch button.on{background:var(--line);border-color:var(--rune)}
-.dpad .u{grid-column:2;grid-row:1}.dpad .l{grid-column:1;grid-row:2}.dpad .r{grid-column:3;grid-row:2}.dpad .d{grid-column:2;grid-row:3}
-.btns{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
-.btns .row{display:flex;gap:10px}
-.btns .big{width:60px;height:60px;border-radius:50%}
-.btns .a{border-color:var(--gold);color:var(--gold)}
-.btns .b{border-color:var(--rune);color:var(--rune)}
-.btns .sp{border-color:var(--ember);color:var(--ember);font-size:9px}
-.btns .start{height:32px;padding:0 14px;font-size:9px}
 .info{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;border-top:2px dashed var(--line);padding-top:16px}
 .info > div{min-width:0}
 h2{font-family:var(--display);font-weight:400;font-size:10px;letter-spacing:.1em;color:var(--ember);margin:0 0 12px;text-transform:uppercase}
@@ -49,3 +36,78 @@ dd{margin:0}
 ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
 li::marker{color:var(--acid);content:"> "}
 code{font-family:var(--body);color:var(--rune)}
+
+/* ------------------------------------------------------------------ mandos táctiles */
+.stage{position:relative}
+.touch{display:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.touch button{font-family:var(--display);color:var(--fg);background:rgba(22,18,31,.85);border:2px solid var(--line);touch-action:none;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.touch button.on{background:var(--line);border-color:var(--rune);transform:scale(.94)}
+
+.pad{position:relative;width:136px;height:136px;border-radius:50%;background:rgba(22,18,31,.85);border:2px solid var(--line);touch-action:none}
+.pad-arrow{position:absolute;width:0;height:0;border:10px solid transparent}
+.pad-up{left:50%;top:10px;margin-left:-10px;border-bottom:14px solid var(--dim);border-top:0}
+.pad-down{left:50%;bottom:10px;margin-left:-10px;border-top:14px solid var(--dim);border-bottom:0}
+.pad-left{top:50%;left:10px;margin-top:-10px;border-right:14px solid var(--dim);border-left:0}
+.pad-right{top:50%;right:10px;margin-top:-10px;border-left:14px solid var(--dim);border-right:0}
+.pad.on-up .pad-up{border-bottom-color:var(--rune)}
+.pad.on-down .pad-down{border-top-color:var(--rune)}
+.pad.on-left .pad-left{border-right-color:var(--rune)}
+.pad.on-right .pad-right{border-left-color:var(--rune)}
+.pad-knob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:var(--line);border:2px solid var(--dim);pointer-events:none;transition:transform .08s ease-out}
+.pad.active .pad-knob{border-color:var(--rune);transition:none}
+
+.sys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.pill{height:32px;padding:0 12px;border-radius:16px;font-size:9px}
+
+.btns{display:grid;grid-template-columns:repeat(2,64px);grid-template-rows:repeat(2,64px);gap:10px 12px}
+.btns .big{width:64px;height:64px;border-radius:50%;font-size:14px}
+.btns .sp{grid-column:1;grid-row:1;border-color:var(--ember);color:var(--ember);font-size:10px}
+.btns .b{grid-column:1;grid-row:2;border-color:var(--rune);color:var(--rune)}
+.btns .a{grid-column:2;grid-row:1 / span 2;align-self:center;width:72px;height:72px;border-color:var(--gold);color:var(--gold);font-size:16px}
+
+/* Modo táctil: el juego ocupa la pantalla y la ficha se oculta (sigue en el README). */
+html.is-touch,html.is-touch body{height:100%;overflow:hidden;overscroll-behavior:none}
+html.is-touch body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+html.is-touch header,html.is-touch .info,html.is-touch .keys-only{display:none}
+html.is-touch .wrap{max-width:none;height:100%;padding:0;gap:0}
+html.is-touch .touch{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+html.is-touch .pad{justify-self:start}
+html.is-touch .btns{justify-self:end}
+html.is-touch .cabinet{border:0;box-shadow:none}
+
+/* Vertical: consola portátil, pantalla arriba y mandos abajo. */
+@media (orientation:portrait){
+  html.is-touch .stage{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top,0px)}
+  html.is-touch .cabinet{border-bottom:3px solid #6b4a26}
+  html.is-touch .touch{flex:1;align-content:center;gap:18px 8px;grid-template-rows:auto auto;
+    padding:20px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+  html.is-touch .sys{grid-column:1 / -1;grid-row:1}
+  html.is-touch .pad{grid-column:1;grid-row:2}
+  html.is-touch .btns{grid-column:3;grid-row:2}
+}
+
+/* Horizontal: pantalla completa con los mandos superpuestos. */
+@media (orientation:landscape){
+  html.is-touch .stage{position:fixed;inset:0;background:#000}
+  html.is-touch .cabinet{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
+  html.is-touch canvas{width:min(100vw,160dvh);max-height:100dvh}
+  html.is-touch .touch{position:absolute;inset:0;pointer-events:none;
+    padding:calc(8px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px))}
+  html.is-touch .touch > *{pointer-events:auto}
+  html.is-touch .touch{grid-template-rows:auto 1fr}
+  html.is-touch .sys{grid-column:2;grid-row:1;align-self:start;opacity:.75}
+  html.is-touch .pad{grid-column:1;grid-row:2;align-self:end;opacity:.62}
+  html.is-touch .btns{grid-column:3;grid-row:2;align-self:end;opacity:.62}
+}
+/* Móviles en horizontal (pantalla panorámica): los botones de sistema van a la franja lateral. */
+@media (orientation:landscape) and (min-aspect-ratio:7/4){
+  html.is-touch .sys{grid-column:1;justify-self:start;flex-direction:column;align-items:flex-start;gap:6px}
+  html.is-touch .pill{height:26px;padding:0 10px;font-size:8px}
+}
+@media (orientation:landscape) and (max-height:430px){
+  .pad{width:116px;height:116px}
+  .pad-knob{width:42px;height:42px;margin:-21px 0 0 -21px}
+  .btns{grid-template-columns:repeat(2,56px);grid-template-rows:repeat(2,56px)}
+  .btns .big{width:56px;height:56px}
+  .btns .a{width:64px;height:64px}
+}

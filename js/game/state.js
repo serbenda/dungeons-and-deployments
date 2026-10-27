@@ -7,6 +7,10 @@ let P, foes = [], items = [], crates = [], shots = [], fx = [], texts = [], camX
 let score = 0, best = 0, credits = 0, contT = 0, stageT = 0, clearT = 0, clearBonus = null, overT = 0, mission = null;
 try { best = parseInt(localStorage.getItem('dnd-arcade-best') || '0', 10) || 0; } catch(e) {}
 
+/**
+ * Empieza una partida nueva con el héroe elegido y lanza la viñeta de introducción.
+ * @param {'guerrero'|'mago'} heroKey
+ */
 function startGame(heroKey){
   const h = HEROES[heroKey];
   P = { kind:'hero', hero:heroKey, h, x:60, y:158, z:0, vz:0, vx:0, face:1, hp:100, max:100, lives:konami ? 8 : 2, duck:0, chain:0, chainT:0, maxChain:0, state:'idle', t:0, inv:90,
@@ -20,11 +24,22 @@ function startGame(heroKey){
   state = 'play';
   startStory('intro');
 }
+/**
+ * Crea un enemigo a partir de su entrada en FOES.
+ * @param {string} kind Clave de FOES.
+ * @param {number} x
+ * @param {number} y
+ * @param {string} [role] Papel especial, p. ej. 'patcher' (el goblin que parchea al gólem).
+ * @returns {object}
+ */
 function mkFoe(kind, x, y, role){
   const d = FOES[kind];
   return { kind, d, x, y, z:0, vz:0, vx:0, face:-1, hp:d.hp, max:d.hp, state:'walk', t:0, cool:60 + Math.random()*60, aggro:false,
            flash:0, role:role || null, hitsTaken:0, hitT:0, turnT:0, blocks:0, lying:false, dead:false, hover:(Math.random()*2 - 1), seed:(Math.random()*32) | 0 };
 }
+/**
+ * Hace aparecer la oleada actual (waveIdx) de la sección actual (secIdx).
+ */
 function spawnWave(){
   const sec = SECTIONS[secIdx];
   sec.waves[waveIdx].forEach(([kind, side, role], i) => {

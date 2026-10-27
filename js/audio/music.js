@@ -1,6 +1,11 @@
 // Secuenciador chiptune y temas de cada zona.
 'use strict';
 
+/**
+ * Secuenciador chiptune. Cada tema de la tabla T define tempo, escala, progresión de
+ * acordes, motivos de melodía, bajo y percusión por pasos de semicorchea.
+ * API: play(nombre), setVol(v), setRate(r) y tick(), que se llama en cada update().
+ */
 const MUSIC = (() => {
   const _ = null, R = 'r';
   const SC = { min:[0,2,3,5,7,8,10], dor:[0,2,3,5,7,9,10], phr:[0,1,3,5,7,8,10], maj:[0,2,4,5,7,9,11], harm:[0,2,3,5,7,8,11] };
@@ -121,6 +126,10 @@ const MUSIC = (() => {
     }
   };
 })();
+/**
+ * Tema que debe sonar según el estado del juego y la zona de la cámara.
+ * @returns {string} Nombre del tema en MUSIC.
+ */
 function musicFor(){
   switch (state) {
     case 'title': case 'select': case 'initials': case 'ranking': return 'title';

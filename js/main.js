@@ -5,6 +5,10 @@
 // sea cual sea la frecuencia de refresco de la pantalla.
 const STEP_MS = 1000/60;
 let last = performance.now(), acc = 0;
+/**
+ * Bucle principal: ejecuta update() a paso fijo y draw() una vez por fotograma.
+ * @param {number} now Marca de tiempo de requestAnimationFrame.
+ */
 function frame(now){
   acc += Math.min(100, now - last); last = now;
   while (acc >= STEP_MS) { update(); acc -= STEP_MS; }

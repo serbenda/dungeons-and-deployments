@@ -1,6 +1,12 @@
 // IA de los enemigos, el gólem y el Dragón Negro.
 'use strict';
 
+/**
+ * Actualiza un enemigo. Enruta a la IA específica (gólem, dragón, jefes, tótem,
+ * murciélagos) y si no, aplica la IA genérica de los enemigos de oleada:
+ * acercarse, como mucho dos atacando a la vez, preparar el golpe y golpear.
+ * @param {object} e
+ */
 function updateFoe(e){
   if (e.flash > 0) e.flash--;
   if (e.hitT > 0) e.hitT--;
@@ -71,6 +77,10 @@ function updateFoe(e){
   }
   e.y = clamp(e.y, FY0, FY1);
 }
+/**
+ * IA del murciélago: vuela en círculo alrededor del jugador y se lanza en picado.
+ * @param {object} e
+ */
 function updateBat(e){
   if (e.state === 'hurt') { if (e.t > 12) { e.state = 'walk'; e.t = 0; } return; }
   if (e.z < 22) e.z += (22 - e.z)*.1;
@@ -87,6 +97,10 @@ function updateBat(e){
     if (e.t > 40) { e.state = 'walk'; e.cool = 80 + Math.random()*60; }
   }
 }
+/**
+ * El tótem Deployment mantiene 3 réplicas de pods: crea una nueva si faltan.
+ * @param {object} e
+ */
 function updateTotem(e){
   if (e.flash > 0) e.flash--;
   const pods = foes.filter(f => f.kind === 'pod' && !f.dead).length;
@@ -96,6 +110,10 @@ function updateTotem(e){
     addText('replica ' + (pods + 1) + '/3', e.x - 40, e.y - 80, '#9fd0ff', 40);
   }
 }
+/**
+ * Aterrizaje de un enemigo lanzado o derribado.
+ * @param {object} e
+ */
 function foeLand(e){
   if (e.state === 'thrown') { e.state = 'down'; const was = e.hp; e.hp -= 20; if (e.hp <= 0) { e.hp = 0; e.dead = true; } e.lying = true; e.t = 0; shake = 3; burst(e.x, e.y, '#4b4470', 8); sfx('heavy'); if (was > 0) score += 200; return; }
   if (e.state === 'down' && !e.lying) { e.lying = true; e.t = 0; burst(e.x, e.y, '#4b4470', 6); sfx('land'); }
@@ -103,12 +121,20 @@ function foeLand(e){
 
 /* --- gólem */
 function mkGolem(x, y){ return { kind:'golem', d:{ name:'GÓLEM HIPERVISOR', short:'HIPERVISOR' }, x, y, z:0, vz:0, vx:0, face:-1, hp:120, max:120, state:'walk', t:0, angry:false, flash:0, hitT:0, hitsTaken:0, tx:x, ty:y, lying:false, dead:false }; }
+/**
+ * Enfada al gólem: desde ese momento embiste a todo el mundo.
+ * @param {string} msg Texto que se muestra.
+ */
 function angerGolem(msg){
   if (!golem || golem.angry || !alive(golem)) return;
   golem.angry = true; golem.state = 'roar'; golem.t = 0; sfx('roar'); shake = 6;
   addText(msg, golem.x - 100, golem.y - 92, C.r, 90);
   addText('¡GRRROOOM!', golem.x - 36, golem.y - 78, C.a, 70);
 }
+/**
+ * IA del gólem: pasea tranquilo o, enfadado, embiste en línea recta.
+ * @param {object} e
+ */
 function updateGolem(e){
   e.y = clamp(e.y, FY0, FY1);
   switch (e.state) {
@@ -154,6 +180,11 @@ function updateGolem(e){
 
 /* --- dragón */
 function mkDragon(x, y){ return { kind:'dragon', d:{ name:'DRAGÓN NEGRO' }, x, y, z:0, vz:0, vx:0, face:-1, hp:440, max:440, state:'enter', t:0, poise:0, flash:0, summoned:false, cool:60, lying:false, dead:false, hitT:0 }; }
+/**
+ * IA del Dragón Negro: aliento de ácido, mordisco, coletazo, vuelo con pisotón,
+ * refuerzos a media vida y secuencia de muerte con cámara lenta.
+ * @param {object} b
+ */
 function updateDragon(b){
   b.y = clamp(b.y, FY0 + 6, FY1);
   const dxp = P.x - b.x, dyp = P.y - b.y;
@@ -226,6 +257,9 @@ function updateDragon(b){
       break; }
   }
 }
+/**
+ * Fin de la etapa: calcula los bonus (tiempo, vida, combo máximo) y pasa a la pantalla final.
+ */
 function stageClear(){
   const secs = Math.floor(stageT/60);
   const timeBonus = Math.max(0, 30000 - secs*100), lifeBonus = P.hp*50 + P.lives*5000, comboBonus = P.maxChain*100;

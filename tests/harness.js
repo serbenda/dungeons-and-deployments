@@ -64,7 +64,11 @@ function loadGame(opts = {}){
     requestAnimationFrame: () => 0,
     addEventListener(){},
     document: {
-      getElementById: () => canvas,
+      // Solo existe el canvas; los mandos táctiles (#pad, #touch...) no están en las pruebas.
+      getElementById: id => (id === 'game' ? canvas : null),
+      documentElement: { classList: { contains: () => false, add(){}, toggle(){} } },
+      visibilityState: 'visible',
+      addEventListener(){},
       createElement: () => fakeCanvas(),
       querySelectorAll: () => []
     }

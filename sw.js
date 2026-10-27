@@ -31,6 +31,7 @@ const ASSETS = [
   './js/audio/sfx.js',
   './js/audio/music.js',
   './js/core/input.js',
+  './js/core/touch.js',
   './js/game/state.js',
   './js/core/utils.js',
   './js/game/combat.js',

@@ -1,6 +1,9 @@
 // Personajes con esqueleto articulado (héroes, goblins, orcos, esqueletos, minotauro) y sus poses.
 'use strict';
 
+/**
+ * Esqueletos de los humanoides: escala, estilo de dibujo, arma y colores.
+ */
 const RIGS = {
   guerrero: { scale:1.12, style:'warrior', weapon:'sword', cols:{
     skin:'#e3a982', skinS:'#b47552', hair:'#6b4426', armor:'#8d96b8', armorS:'#5a6186', armorL:'#d3d9f0', cloth:'#b8323f', clothS:'#7a1d29',
@@ -28,6 +31,11 @@ const RIGS = {
     bone:'#e6e0cf', boneS:'#a59c84', skin:'#e6e0cf', skinS:'#a59c84', eye:'#ff5d73' } }
 };
 RIGS.firewallRoto = Object.assign({}, RIGS.firewall, { shield:false });
+/**
+ * Poses de los humanoides. Ángulos en grados de piernas (bl, fl) y brazos (ba, fa):
+ * [ángulo del segmento superior, ángulo relativo del inferior]. lean es la inclinación
+ * del torso, hip la altura de la cadera y wpn el giro del arma.
+ */
 const POSES = {
   idle0:{ lean:4, hip:0, bl:[-10,-4], fl:[12,-14], ba:[-10,30], fa:[25,55], wpn:60 },
   idle1:{ lean:5, hip:1, bl:[-10,-6], fl:[12,-16], ba:[-8,32], fa:[25,58], wpn:58 },
@@ -54,6 +62,14 @@ const POSES = {
   down:{ down:true, lean:-88, bl:[96,6], fl:[86,0], ba:[-96,0], fa:[-82,0], wpn:0 }
 };
 
+/**
+ * Pinta un arma en la mano de un personaje.
+ * @param {object} S Pintor.
+ * @param {string} type sword, mace, staff, dagger, axe, rustsword, baculo o martillo.
+ * @param {number[]} h Posición de la mano.
+ * @param {number[]} d Dirección del arma.
+ * @param {number} k Escala.
+ */
 function paintWeapon(S, type, h, d, k){
   const at = l => [h[0] + d[0]*l, h[1] + d[1]*l];
   const per = [-d[1], d[0]];
@@ -105,6 +121,15 @@ function paintWeapon(S, type, h, d, k){
   }
 }
 
+/**
+ * Pinta un personaje articulado (cuerpo, cabeza, escudo y arma) en una pose.
+ * Las articulaciones se calculan a partir de los ángulos de la pose.
+ * @param {object} S Pintor de 80×84.
+ * @param {object} rig Entrada de RIGS (escala, estilo, colores y arma).
+ * @param {object} p Pose de POSES (inclinación, cadera y ángulos de piernas y brazos).
+ * @param {string} [weapon] Arma que sustituye a la del esqueleto.
+ * @returns {{hx: number, hy: number, hr: number}} Centro y radio de la cabeza, para los retratos.
+ */
 function paintRig(S, rig, p, weapon){
   const k = rig.scale, c = rig.cols, st = rig.style;
   const TH = 7.4*k, SH = 7.4*k, TO = 10.5*k, UA = 6.2*k, FA = 5.8*k, HR = 7*k;
@@ -288,6 +313,12 @@ function paintRig(S, rig, p, weapon){
   paintWeapon(S, weapon || rig.weapon, fh, D(wa), Math.max(.85, k));
   return { hx:hc[0], hy:hc[1], hr:HR };
 }
+/**
+ * Devuelve una pose por nombre. Admite mezclas 'a~b~k': interpola de la pose a
+ * a la b con el factor k (0..1) y guarda el resultado en POSES.
+ * @param {string} name Por ejemplo 'walk0' o 'walk0~walk1~0.5'.
+ * @returns {object}
+ */
 function getPose(name){
   let p = POSES[name];
   if (p) return p;
@@ -297,6 +328,13 @@ function getPose(name){
   const l2 = (x, y) => [l(x[0], y[0]), l(x[1], y[1])];
   return POSES[name] = { lean:l(a.lean, b.lean), hip:l(a.hip, b.hip), wpn:l(a.wpn, b.wpn), bl:l2(a.bl, b.bl), fl:l2(a.fl, b.fl), ba:l2(a.ba, b.ba), fa:l2(a.fa, b.fa) };
 }
+/**
+ * Sprite cacheado de un personaje en una pose.
+ * @param {string} key Clave de RIGS.
+ * @param {string} pose Nombre de pose (admite mezclas, ver getPose).
+ * @param {string} [weapon]
+ * @returns {object} Sprite (ver sprite()).
+ */
 function rigSprite(key, pose, weapon){
   return sprite('rig|' + key + '|' + pose + '|' + (weapon || ''), 80, 84, S => paintRig(S, RIGS[key], getPose(pose), weapon));
 }

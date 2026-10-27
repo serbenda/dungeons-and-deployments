@@ -1,6 +1,11 @@
 // Jefes de Network (Minotauro del Firewall) y Storage (Hidra RAID).
 'use strict';
 
+/**
+ * IA del Minotauro del Firewall: hachazo, embestida (SYN FLOOD), tormenta de
+ * broadcast al 70 % y ACL: DENY ALL por debajo del 50 % (solo vulnerable por la espalda).
+ * @param {object} e
+ */
 function updateMinotaur(e){
   e.y = clamp(e.y, FY0, FY1);
   if (e.guard > 0) { e.guard--; if (e.guard === 0) addText('ACL: ALLOW', e.x - 40, e.y - 86, '#3ddc84', 40); }
@@ -55,11 +60,19 @@ function updateMinotaur(e){
   }
 }
 
+/**
+ * Cabezas de la Hidra RAID: nombre, etiqueta, color y carril.
+ */
 const HEADS = [
   { name:'DISCO 1', short:'DISCO 1', tag:'D1', col:'#3d6a9a', lane:0 },
   { name:'DISCO DE PARIDAD', short:'PARIDAD', tag:'P', col:'#7a4a9a', lane:1, parity:true },
   { name:'DISCO 2', short:'DISCO 2', tag:'D2', col:'#3d6a9a', lane:2 }
 ];
+/**
+ * Crea la Hidra RAID: el cuerpo (invulnerable) y sus tres cabezas en carriles.
+ * @param {number} x
+ * @returns {object} El cuerpo.
+ */
 function spawnHydra(x){
   const body = mkFoe('hidra', x, 156); body.state = 'idle'; body.face = -1;
   foes.push(body);
@@ -71,6 +84,11 @@ function spawnHydra(x){
   });
   return body;
 }
+/**
+ * IA de una cabeza de la Hidra: muerde en su carril (los discos) o escupe sectores
+ * defectuosos (la paridad). Rota, se reconstruye si la paridad sigue viva.
+ * @param {object} e
+ */
 function updateHead(e){
   const parity = foes.find(f => f.kind === 'cabeza' && f.d.parity && f.body === e.body);
   const parityAlive = parity && parity.state !== 'broken' && !parity.dead;
@@ -109,6 +127,10 @@ function updateHead(e){
       break; }
   }
 }
+/**
+ * El cuerpo de la Hidra muere cuando todas sus cabezas están muertas.
+ * @param {object} b
+ */
 function updateHydra(b){
   const heads = foes.filter(f => f.kind === 'cabeza' && f.body === b);
   if (b.state === 'idle' && heads.every(h => h.dead)) { b.state = 'dying'; b.t = 0; sfx('roar'); shake = 8; addText('ARRAY DEGRADADO: HIDRA ELIMINADA', b.x - 140, b.y - 92, '#ffd23f', 100); score += b.d.score; }
@@ -117,6 +139,10 @@ function updateHydra(b){
     if (b.t > 90) { foes.splice(foes.indexOf(b), 1); if (lastFoe === b) lastFoe = null; }
   }
 }
+/**
+ * Sprite del cuerpo de la Hidra, con sus platos de disco.
+ * @returns {object}
+ */
 function hydraBodySprite(){
   return sprite('hidraBody', 110, 74, S => {
     const rnd = prng(77);
@@ -128,6 +154,13 @@ function hydraBodySprite(){
     for (const x of [12, 18, 24, 90, 96, 102]) S.px(x, 69, '#d8cfb4');
   });
 }
+/**
+ * Sprite de una cabeza de la Hidra.
+ * @param {string} col
+ * @param {number} open
+ * @param {number} broken
+ * @returns {object}
+ */
 function headSprite(col, open, broken){
   return sprite('head|' + col + '|' + open + '|' + broken, 50, 34, S => {
     const c = broken ? '#5d6274' : col, cS = broken ? '#3a3e4c' : mix(col, -.35), cL = broken ? '#7a8098' : mix(col, .3);
@@ -141,6 +174,13 @@ function headSprite(col, open, broken){
     S.px(44, 15, OUTLINE);
   });
 }
+/**
+ * Dibuja una cabeza de la Hidra con su cuello hasta el cuerpo y su etiqueta (D1, D2, P).
+ * @param {object} a
+ * @param {number} sx
+ * @param {number} sy
+ * @param {boolean} fl Destello de golpe.
+ */
 function drawHead(a, sx, sy, fl){
   const b = a.body, bx = b.x - Math.round(camX), by = b.y - 46;
   const hx = sx + (a.ox || 0), hy = sy - 22 + (a.state === 'broken' ? 14 : 0);

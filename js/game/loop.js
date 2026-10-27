@@ -1,6 +1,10 @@
 // Máquina de estados y actualización de cada fotograma.
 'use strict';
 
+/**
+ * Una actualización del juego (60 por segundo). Despacha según `state` y
+ * actualiza la música.
+ */
 function update(){
   t++;
   if (pressed('mute')) muted = !muted;
@@ -32,6 +36,10 @@ function update(){
   MUSIC.setRate(boss && boss.hp < boss.max/2 && state === 'play' ? 1.12 : 1);
   MUSIC.tick();
 }
+/**
+ * Actualización de la partida: jugador, enemigos, proyectiles, cámara, secciones
+ * (bloqueos, oleadas y jefes), partículas y textos.
+ */
 function updatePlay(){
   if (pressed('start')) { state = 'pause'; return; }
   if (flashT > 0) flashT--;
