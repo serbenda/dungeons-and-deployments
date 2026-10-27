@@ -1,16 +1,37 @@
 // Daño, combos, derribos y bloqueos.
 'use strict';
 
+/**
+ * Derriba a un actor: sale despedido y queda tumbado.
+ * @param {object} tg
+ * @param {number} dir -1 o 1.
+ * @param {number} [power=1]
+ */
 function knockdown(tg, dir, power){
   power = power || 1;
   if (tg === P && P.held) releaseGrab(false);
   tg.state = 'down'; tg.lying = false; tg.t = 0; tg.vz = 3.4*power; tg.vx = dir*2.1*power;
 }
+/**
+ * Rangos del combo: golpes necesarios y texto.
+ */
 const RANKS = [[5, 'NICE!'], [10, 'CLEAN CODE'], [20, '10X DEVELOPER'], [35, 'SENIOR'], [50, 'ARQUITECTO']];
+/**
+ * Aplica daño y lleva la cuenta del combo: suma golpes del jugador, muestra el
+ * número de daño y los rangos (NICE!, CLEAN CODE...) y rompe el combo si el
+ * golpeado es el jugador.
+ * @param {object} tg Objetivo.
+ * @param {number} dmg
+ * @param {object} src Origen del golpe (necesita x).
+ * @param {{knock?: boolean, power?: number, pierce?: boolean}} [opt]
+ * knock derriba, pierce atraviesa escudos y bloqueos.
+ * @returns {boolean} true si el golpe ha entrado.
+ */
 function damage(tg, dmg, src, opt){
   const hp0 = tg.hp, ok = damageRaw(tg, dmg, src, opt);
   if (!ok || !P) return ok;
   if (tg === P) {
+    haptic(opt && opt.knock ? 60 : 25);
     if (P.chain >= 5) addText('COMBO ROTO', P.x - 40, P.y - 84, C.r, 40);
     P.chain = 0; P.chainT = 0;
   } else if (src === P && tg.kind !== 'crate') {
@@ -21,6 +42,15 @@ function damage(tg, dmg, src, opt){
   }
   return ok;
 }
+/**
+ * Lógica de daño sin combo: invulnerabilidades, bloqueos (Firewall, ACL del
+ * Minotauro, VMs apagadas), cabezas de la Hidra, tótem, dragón y derribos.
+ * @param {object} tg
+ * @param {number} dmg
+ * @param {object} src
+ * @param {object} [opt]
+ * @returns {boolean}
+ */
 function damageRaw(tg, dmg, src, opt){
   opt = opt || {};
   if (tg.kind === 'crate') { tg.hp--; tg.flash = 8; sfx('break'); spark(tg.x, tg.y - 14); if (tg.hp <= 0) breakCrate(tg); return true; }
@@ -84,6 +114,10 @@ function damageRaw(tg, dmg, src, opt){
   else { tg.state = 'hurt'; tg.t = 0; tg.x += dir*3; if (tg === P) { P.combo = 0; if (P.held) releaseGrab(false); } }
   return true;
 }
+/**
+ * Rompe una caja o barril y deja su objeto en el suelo.
+ * @param {object} c
+ */
 function breakCrate(c){
   crates.splice(crates.indexOf(c), 1);
   burst(c.x, c.y - 10, c.k === 'cofre' ? C.a : '#8a5a2a', 16, 2.2);

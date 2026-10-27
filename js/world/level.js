@@ -1,22 +1,40 @@
 // Mazmorra prerenderizada por departamentos, decorado animado e iluminación.
 'use strict';
 
+/**
+ * Departamento al que pertenece una coordenada x del mundo.
+ * @param {number} x
+ * @returns {'sistemas'|'network'|'storage'|'virtual'|'caas'|'guarida'}
+ */
 const ZONE = x => x < 640 ? 'sistemas' : x < 1280 ? 'network' : x < 1920 ? 'storage' : x < 2560 ? 'virtual' : x < 3200 ? 'caas' : 'guarida';
 const RACKS = [656, 756, 856, 956, 1056, 1156];
 const RACK_LABELS = ['CORE', 'DMZ', 'VLAN 10', 'PROD', 'WIFI', 'VPN'];
 const SHELVES = [1296, 1396, 1496, 1596, 1696, 1796];
 const PILLARS = [1940, 2105, 2270, 2435];
 const AS400X = LEVEL_END + 122;
+/**
+ * Antorchas y braseros: posición y si proyectan luz.
+ */
 const TORCHES = [150, 330, 510, 732, 932, 1132, 1390, 1590, 1790, 1951, 2116, 2281, 2446].map(x => ({ x, y:70 }))
   .concat([2640, 2860, 3080, 3290, 3540, 3800].map(x => ({ x, y:96, brazier:true })));
 const POOLS = [[LEVEL_END - 160, 160, 26], [LEVEL_END + 90, 184, 22], [LEVEL_END + 280, 146, 18]];
 const STORAGE_LEDS = [];
 let LEVEL = null, VIG = null;
+/**
+ * Aclara (f > 0) u oscurece (f < 0) un color.
+ * @param {string} hex
+ * @param {number} f Entre -1 y 1.
+ * @returns {string}
+ */
 function mix(hex, f){
   const [r0, g0, b0] = rgb(hex);
   const m = v => Math.max(0, Math.min(255, Math.round(f > 0 ? v + (255 - v)*f : v*(1 + f))));
   return '#' + [m(r0), m(g0), m(b0)].map(v => v.toString(16).padStart(2, '0')).join('');
 }
+/**
+ * Pinta una sola vez toda la mazmorra en un canvas grande (LEVEL) y prepara la
+ * viñeta de oscuridad (VIG). Usa prng(1993): la mazmorra es siempre igual.
+ */
 function buildLevel(){
   const S = painter(LVW, 200), rnd = prng(1993);
   const pick = a => a[(rnd()*a.length) | 0];
@@ -218,6 +236,11 @@ function buildLevel(){
   g.fillStyle = gr; g.fillRect(0, 0, W, H);
 }
 
+/**
+ * Dibuja la parte visible de la mazmorra y su decorado animado (LED, pantallas,
+ * núcleo de Automation...).
+ * @param {number} cx Posición de la cámara.
+ */
 function drawLevel(cx){
   ctx.drawImage(LEVEL, cx, 0, W, H, 0, 0, W, H);
   // pantallas de la sala de guardia
@@ -262,6 +285,11 @@ function drawLevel(cx){
   }
 }
 
+/**
+ * Dibuja la viñeta y suma la luz de antorchas, ácido y vidrieras con mezcla
+ * aditiva ('lighter'). Después, las llamas y el polvo en suspensión.
+ * @param {number} cx Posición de la cámara.
+ */
 function drawLights(cx){
   ctx.globalCompositeOperation = 'source-over';
   ctx.drawImage(VIG, 0, 0);

@@ -1,10 +1,18 @@
 // Datos del juego: héroes, enemigos, comida, secciones (tickets y oleadas) y cajas.
 'use strict';
 
+/**
+ * Héroes jugables: velocidad, daño de cada golpe del combo y especial.
+ */
 const HEROES = {
   guerrero: { name:'GUERRERO', sub:'DE RUNDECK', rig:'guerrero', spd:1.15, dmg:[8,8,17], special:'RUN JOB', fuerza:5, vel:2 },
   mago: { name:'MAGO', sub:'DESARROLLADOR', rig:'mago', spd:1.4, dmg:[6,6,12], special:'GIT PUSH -F', fuerza:3, vel:4 }
 };
+/**
+ * Enemigos: vida (hp), velocidad (spd), daño (dmg), preparación del golpe en
+ * actualizaciones (wind) y puntos (score). boss, nograb, fly, ghost... activan
+ * comportamientos especiales.
+ */
 const FOES = {
   minotauro: { name:'MINOTAURO DEL FIREWALL', short:'MINOTAURO', rig:'minotauro', boss:true, nograb:true, hp:300, spd:.8, dmg:14, wind:16, score:3000 },
   hidra: { name:'HIDRA RAID', short:'HIDRA', boss:true, nograb:true, hp:1, score:3000 },
@@ -21,10 +29,19 @@ const FOES = {
   slimeS: { name:'MINI LEAK', short:'MINI LEAK', slime:true, small:true, hp:10, spd:1.1, dmg:4, wind:16, score:80 },
   esqueleto: { name:'PROC. ZOMBI', short:'ZOMBI', rig:'esqueleto', hp:30, spd:.75, dmg:7, wind:20, score:250 }
 };
+/**
+ * Comida: vida que cura y puntos.
+ */
 const FOOD = {
   pocion:{ heal:15, score:200, name:'POCIÓN DE CAFÉ' }, pollo:{ heal:35, score:400, name:'POLLO ASADO' },
   tortilla:{ heal:50, score:600, name:'TORTILLA' }, bocata:{ heal:100, score:1000, name:'BOCATA DE CALAMARES' }
 };
+/**
+ * Secciones de la etapa. Al llegar la cámara a `cam` se bloquea la pantalla, se
+ * muestra el ticket `mission` y salen las oleadas `waves` ([tipo, lado, papel]: lado 1
+ * derecha, -1 izquierda, 0 sale del suelo). Al acabar, el jefe `miniboss` si lo hay, y
+ * después se muestra `close`.
+ */
 const SECTIONS = [
   { cam:110, mission:'SYS-101 SALA DE GUARDIA', close:'FUNCIONA EN MI MÁQUINA', waves:[ [['goblin',1],['goblin',1]], [['esqueleto',0],['goblin',1],['goblin',-1]] ] },
   { cam:760, mission:'NET-404 PAQUETES PERDIDOS', close:'SIEMPRE ES EL DNS', miniboss:'minotauro', waves:[ [['murcielago',1],['murcielago',1],['murcielago',-1]], [['firewall',1],['goblin',-1],['murcielago',1]] ] },
@@ -33,6 +50,9 @@ const SECTIONS = [
   { cam:2680, mission:'K8S-503 CRASHLOOPBACKOFF', close:'kubectl delete deploy', totem:[2920, 152], waves:[ [['pod',1],['orco',-1]] ] },
   { cam:LEVEL_END, mission:'AUT-500 GUARIDA DE AUTOMATION', boss:true }
 ];
+/**
+ * Cajas y barriles: [tipo, x, y, objeto que sueltan].
+ */
 const CRATES = [
   ['barril',290,170,'pocion'], ['cofre',560,142,'baculo'], ['barril',990,178,'tortilla'], ['cofre',1220,140,'patito'],
   ['barril',1760,174,'pollo'], ['cofre',1860,140,'stack'], ['barril',2380,142,'pocion'], ['cofre',2500,170,'martillo'],

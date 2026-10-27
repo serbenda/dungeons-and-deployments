@@ -5,6 +5,10 @@ const HERO_LINES = {
   guerrero: { intro:'Mi job de Rundeck lleva tres horas en rojo. Voy a bajar a ver qué pasa.', mino:'Traigo la petición firmada... en un ticket de hace dos años.', dragon:'Los jobs de Automation son de quien los revisa. Y hoy reviso yo.', outro:'Job ejecutado: OK. Y todavía no son las 18:00.' },
   mago: { intro:'En mi máquina funcionaba. Bajaré al CPD a demostrarlo.', mino:'¿Has probado a abrir el puerto 443?', dragon:'Vengo a desplegar. Con tests. Y en viernes.', outro:'Deploy hecho y pipeline en verde. Me voy de fin de semana.' }
 };
+/**
+ * Viñetas de historia. Cada una es una función que devuelve [quién, texto][],
+ * para poder usar el héroe elegido.
+ */
 const STORIES = {
   intro: () => [
     ['narr', 'VIERNES, 17:45. ALGUIEN HA TOCADO PRODUCCIÓN A MANO Y LAS ALERTAS NO PARAN.'],
@@ -25,7 +29,15 @@ const STORIES = {
     ['narr', 'LA GUARIDA DE AUTOMATION VUELVE A ESTAR EN BUENAS MANOS. FIN DE LA ETAPA 1.']]
 };
 let story = null;
+/**
+ * Abre una viñeta de historia y pausa la partida.
+ * @param {string} key Clave de STORIES.
+ * @param {Function} [after] Se llama al cerrarla.
+ */
 function startStory(key, after){ story = { lines:STORIES[key](), i:0, chars:0, after:after || null }; state = 'story'; }
+/**
+ * Avanza el texto tipo máquina de escribir; A, B o START completan o pasan de línea.
+ */
 function updateStory(){
   const ln = story.lines[story.i];
   story.chars += 1.3;
@@ -35,6 +47,12 @@ function updateStory(){
     else { story.chars = 0; sfx('select'); }
   }
 }
+/**
+ * Parte un texto en líneas de como mucho `max` caracteres.
+ * @param {string} s
+ * @param {number} max
+ * @returns {string[]}
+ */
 function wrapText(s, max){
   const out = []; let line = '';
   for (const w of s.split(' ')) { const c = line ? line + ' ' + w : w; if (c.length > max && line) { out.push(line); line = w; } else line = c; }
@@ -42,6 +60,9 @@ function wrapText(s, max){
   return out;
 }
 const SPEAKERS = { narr:'SISTEMA DE ALERTAS', mino:'MINOTAURO DEL FIREWALL', hidra:'HIDRA RAID', dragon:'DRAGÓN NEGRO' };
+/**
+ * Dibuja el cuadro de diálogo con el retrato de quien habla.
+ */
 function drawStory(){
   if (!story) return;
   const [who, text] = story.lines[story.i];

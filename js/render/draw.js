@@ -1,7 +1,23 @@
 // Dibujo de actores, HUD y pantallas.
 'use strict';
 
+/**
+ * Rectángulo relleno con coordenadas redondeadas.
+ * @param {number} x
+ * @param {number} y
+ * @param {number} w
+ * @param {number} h
+ * @param {string} c
+ */
 function r(x, y, w, h, c){ ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
+/**
+ * Texto con la fuente pixelada.
+ * @param {string} s
+ * @param {number} x
+ * @param {number} y
+ * @param {string} col
+ * @param {{center?: boolean, right?: boolean, big?: boolean, outline?: boolean}} [opt]
+ */
 function txt(s, x, y, col, opt){
   opt = opt || {};
   ctx.font = opt.big ? F16 : F8; ctx.textBaseline = 'top';
@@ -12,6 +28,13 @@ function txt(s, x, y, col, opt){
   if (opt.outline) { ctx.fillStyle = OUTLINE; for (const [ox, oy] of [[-1,0],[1,0],[0,-1],[0,1],[1,1],[2,2]]) ctx.fillText(s, tx + ox, y + oy); }
   ctx.fillStyle = col; ctx.fillText(s, tx, y);
 }
+/**
+ * Texto dorado con degradado y sombra, para títulos.
+ * @param {string} s
+ * @param {number} x Centro.
+ * @param {number} y
+ * @param {boolean} [big]
+ */
 function goldText(s, x, y, big){
   ctx.font = big ? F16 : F8; ctx.textBaseline = 'top';
   const w = ctx.measureText(s).width, tx = Math.round(x - w/2);
@@ -20,6 +43,17 @@ function goldText(s, x, y, big){
   g.addColorStop(0, '#fff3c4'); g.addColorStop(.45, '#f4b860'); g.addColorStop(1, '#a8561f');
   ctx.fillStyle = g; ctx.fillText(s, tx, y);
 }
+/**
+ * Dibuja un sprite apoyado en el suelo, volteado si mira a la izquierda.
+ * @param {object} spr Sprite.
+ * @param {number} sx
+ * @param {number} sy
+ * @param {number} face -1 o 1.
+ * @param {number} ox Ancla horizontal dentro del sprite.
+ * @param {number} base Ancla vertical (los pies).
+ * @param {boolean} flash Usa la versión blanca.
+ * @param {number} [alpha]
+ */
 function blit(spr, sx, sy, face, ox, base, flash, alpha){
   const img = flash ? spr.f : spr.c;
   if (alpha !== undefined) ctx.globalAlpha = alpha;
@@ -27,10 +61,20 @@ function blit(spr, sx, sy, face, ox, base, flash, alpha){
   else ctx.drawImage(img, Math.round(sx - ox), Math.round(sy - base));
   ctx.globalAlpha = 1;
 }
+/**
+ * Pose de reposo con respiración (mezcla idle0 e idle1).
+ * @param {object} a
+ * @returns {string}
+ */
 function breathe(a){
   const ph = ((t + (a.seed || 0)*7) >> 4) % 4;
   return ph === 0 ? 'idle0' : ph === 2 ? 'idle1' : 'idle0~idle1~0.5';
 }
+/**
+ * Nombre de la pose de un humanoide según su estado y su tiempo en él.
+ * @param {object} a
+ * @returns {string}
+ */
 function rigPose(a){
   const tt = a === P ? P.t : t + (a.seed || 0)*4;
   switch (a.state) {
@@ -64,7 +108,19 @@ function rigPose(a){
     default: return 'idle0';
   }
 }
+/**
+ * Sombra elíptica en el suelo.
+ * @param {number} sx
+ * @param {number} y
+ * @param {number} w
+ */
 function shadow(sx, y, w){ ctx.fillStyle = 'rgba(4,2,8,.5)'; ctx.beginPath(); ctx.ellipse(Math.round(sx), Math.round(y), w/2, Math.max(2, w/8), 0, 0, Math.PI*2); ctx.fill(); }
+/**
+ * Estela del arma durante el golpe del jugador.
+ * @param {object} a
+ * @param {number} sx
+ * @param {number} sy
+ */
 function slashArc(a, sx, sy){
   if (a.state !== 'punch') return;
   const fin = a.combo === 3, t0 = fin ? 7 : 3, t1 = fin ? 11 : 7;
@@ -80,6 +136,12 @@ function slashArc(a, sx, sy){
   ctx.beginPath(); ctx.arc(0, 0, rad + 3, lo, hi); ctx.stroke();
   ctx.restore();
 }
+/**
+ * Dibuja cualquier actor: cajas, objetos, proyectiles, dragón, gólem, jefes,
+ * enemigos especiales y humanoides (con poses mezcladas en las transiciones).
+ * @param {object} a
+ * @param {number} cx Posición de la cámara.
+ */
 function drawActor(a, cx){
   const sx = a.x - cx, sy = a.y - a.z;
   if (a.kind === 'crate') { shadow(sx, a.y, 24); blit(itemSprite(a.k), sx + (a.flash > 0 && (a.flash >> 1) % 2 ? 1 : 0), a.y, 1, 14, 25, false); return; }
@@ -192,11 +254,29 @@ function drawActor(a, cx){
 }
 
 const NEON = '#3ddc84', NEOND = '#0c1510', NEONT = '#8dffbf';
+/**
+ * Panel con borde verde neón, el estilo de toda la interfaz.
+ * @param {number} x
+ * @param {number} y
+ * @param {number} w
+ * @param {number} h
+ * @param {string} [fill]
+ */
 function panel(x, y, w, h, fill){ r(x, y, w, h, NEON); r(x + 1, y + 1, w - 2, h - 2, fill || NEOND); r(x + 1, y + h - 1, w - 2, 1, '#1f7a46'); }
+/**
+ * Retrato de un personaje: recorta su cabeza del sprite.
+ * @param {string} rig
+ * @param {number} x
+ * @param {number} y
+ * @param {number} s Tamaño.
+ */
 function portrait(rig, x, y, s){
   const ps = rigSprite(rig, 'idle0'), m = ps.meta, half = Math.round(m.hr*1.7);
   ctx.drawImage(ps.c, Math.round(m.hx - half), Math.round(m.hy - half), half*2, half*2, x, y, s, s);
 }
+/**
+ * Dibuja el marcador: retrato, vida, vidas, arma, oro, nivel, enemigo actual y ticket.
+ */
 function drawHUD(){
   ctx.fillStyle = 'rgba(6,8,7,.72)'; ctx.fillRect(0, 0, W, 31);
   panel(2, 2, 142, 27);
@@ -229,6 +309,9 @@ function drawHUD(){
   }
 }
 
+/**
+ * Dibuja la pantalla de título con su marquesina.
+ */
 function drawTitle(){
   const cx = 2150 + Math.sin(t/400)*120;
   drawLevel(cx);
@@ -250,6 +333,9 @@ function drawTitle(){
   txt(mq + mq, -off, 188, NEONT);
   if (konamiT > 0 || konami) { panel(60, 104, 200, 14, '#3a1028'); txt(konami ? '¡CÓDIGO KONAMI! 9 VIDAS' : '', 160, 107, '#ffd23f', { center:true }); if (konamiT > 0) konamiT--; }
 }
+/**
+ * Dibuja la selección de personaje.
+ */
 function drawSelect(){
   const cx = LEVEL_END + 60;
   drawLevel(cx);
@@ -276,6 +362,10 @@ function drawSelect(){
   if (konamiT > 0) { konamiT--; panel(60, 92, 200, 16, '#3a1028'); txt('¡CÓDIGO KONAMI! 9 VIDAS', 160, 96, '#ffd23f', { center:true }); }
 }
 
+/**
+ * Datos de la barra del jefe activo (Dragón, Minotauro o Hidra), o null.
+ * @returns {{name: string, frac: number, hl: boolean}|null}
+ */
 function bossBar(){
   if (boss && boss.state !== 'enter') return { name:'DRAGÓN NEGRO', frac:boss.hp/boss.max, hl:boss.state === 'stagger' };
   const m = foes.find(f => f.kind === 'minotauro' && !f.dead);
@@ -284,6 +374,9 @@ function bossBar(){
   if (heads.length && heads.some(h => !h.dead)) return { name:'HIDRA RAID', frac:heads.reduce((a, h) => a + (h.dead ? 0 : h.hp), 0)/heads.reduce((a, h) => a + h.max, 0), hl:false };
   return null;
 }
+/**
+ * Dibuja un fotograma completo según el estado.
+ */
 function draw(){
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.imageSmoothingEnabled = false;
