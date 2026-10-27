@@ -1,6 +1,21 @@
 // Canvas, resolución, paleta y fuentes.
 'use strict';
 
+// Semilla opcional (index.html?debug&seed=42): sustituye Math.random por un
+// generador determinista para que una partida se pueda reproducir exactamente.
+// Va en el primer script para que afecte a todo el juego.
+(() => {
+  const m = /[?&]seed=(\d+)/.exec(location.search);
+  if (!m) return;
+  let a = Number(m[1]) >>> 0;
+  Math.random = () => {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let x = Math.imul(a ^ (a >>> 15), a | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0)/4294967296;
+  };
+})();
+
 const cv = document.getElementById('game');
 const ctx = cv.getContext('2d');
 ctx.imageSmoothingEnabled = false;
