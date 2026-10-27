@@ -23,7 +23,8 @@ if (/[?&]debug\b/.test(location.search)) {
     get state(){ return state; }, set state(v){ state = v; },
     get P(){ return P; }, get foes(){ return foes; }, get items(){ return items; }, get crates(){ return crates; },
     get camX(){ return camX; }, get secIdx(){ return secIdx; }, get boss(){ return boss; }, get score(){ return score; },
-    held, pressedQ, update, draw
+    get PLAYERS(){ return PLAYERS; }, get RUN(){ return RUN; }, get credits(){ return credits; },
+    held, pressedQ, INP, update, draw, startGame
   };
 }
 

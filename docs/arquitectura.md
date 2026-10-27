@@ -7,7 +7,7 @@ El juego es una web estática: HTML, CSS y JavaScript sin dependencias ni compil
 ```mermaid
 flowchart LR
   subgraph Entrada
-    K[Teclado<br>input.js] --> Q[held / pressedQ]
+    K[Teclado y mandos<br>input.js] --> Q[INP: teclas<br>por jugador]
     T[Mandos táctiles<br>touch.js] --> Q
   end
   Q --> U[update<br>loop.js]
@@ -27,7 +27,7 @@ flowchart LR
 
 ## Carga de los scripts
 
-`index.html` carga 21 scripts clásicos (no módulos ES) en un orden fijo. Comparten el ámbito global: lo que declara uno con `const`, `let` o `function` lo ven todos los demás.
+`index.html` carga 24 scripts clásicos (no módulos ES) en un orden fijo. Comparten el ámbito global: lo que declara uno con `const`, `let` o `function` lo ven todos los demás.
 
 Se eligieron scripts clásicos por dos motivos:
 
@@ -51,21 +51,24 @@ Cada archivo empieza con `'use strict'` y una línea que resume su contenido.
 | `sprites/characters.js` | Esqueletos (`RIGS`), poses (`POSES`), `paintRig()`, `getPose()`, `rigSprite()` | `pixel.js` |
 | `sprites/monsters.js` | Gólem, dragón, slime, murciélago, fantasma, mímico, pod, tótem, objetos y llamas | `pixel.js` |
 | `world/level.js` | Zonas (`ZONE`), antorchas, `buildLevel()`, `drawLevel()`, `drawLights()` | `config.js` |
-| `data/game-data.js` | `HEROES`, `FOES`, `FOOD`, `SECTIONS`, `CRATES` | `LEVEL_END` |
+| `data/game-data.js` | `HEROES`, `HERO_ORDER`, `HERO_INFO`, `FOES`, `FOOD`, `SECTIONS`, `CRATES` | `LEVEL_END` |
 | `audio/sfx.js` | `initAudio()` y `sfx()` | — |
 | `audio/music.js` | Secuenciador `MUSIC` y `musicFor()` | — |
-| `core/input.js` | Teclado, `held`, `pressedQ`, `press()`, `release()`, `pressed()`, código Konami | `cv` |
+| `core/input.js` | Teclado, mandos (`pollPads()`), teclas por jugador (`INP`), dispositivos (`DEV_SLOT`), `press()`, `release()`, `pressed()`, código Konami | `cv` |
 | `core/touch.js` | Cruceta analógica, botones táctiles, pantalla completa, vibración, pantalla encendida | `input.js` |
-| `game/state.js` | Variables de la partida, `startGame()`, `mkFoe()`, `spawnWave()` | — |
+| `game/state.js` | Variables de la partida, `PLAYERS`, `RUN`, `startGame()`, `joinPlayer()`, `revivePlayer()`, `targetFor()`, `mkFoe()`, `spawnWave()` | — |
 | `core/utils.js` | Partículas, textos flotantes, colisiones, `GRUNTS`, `hostile()` | — |
 | `game/combat.js` | `damage()` (combos), `damageRaw()` (bloqueos y derribos), `breakCrate()` | — |
-| `entities/player.js` | Máquina de estados del jugador, agarres, armas y especiales | — |
+| `entities/player.js` | Máquina de estados del jugador, agarres, armas y los cuatro especiales | — |
 | `entities/enemies.js` | IA genérica, murciélago, tótem, gólem, Dragón Negro, `stageClear()` | — |
-| `entities/bosses.js` | Minotauro del Firewall e Hidra RAID | — |
+| `entities/bosses.js` | Minotauro del Firewall, Hidra RAID y El Revisor | — |
 | `ui/story.js` | Viñetas de historia | — |
 | `ui/ranking.js` | Iniciales y ranking en `localStorage` | `localStorage` |
-| `game/loop.js` | `update()` y `updatePlay()` | — |
-| `render/draw.js` | Dibujo de actores, HUD y pantallas, `draw()` | — |
+| `ui/options.js` | `OPTS`, `DIFFS`, `DIFF()` y el menú de opciones | `localStorage` |
+| `ui/achievements.js` | `ACHIEVEMENTS`, `unlock()`, pantalla y avisos de logros | `localStorage` |
+| `ui/credits.js` | Créditos finales con estadísticas y elenco | — |
+| `game/loop.js` | `update()`, menú del título, selección para dos, uniones y `updatePlay()` | — |
+| `render/draw.js` | Dibujo de actores, HUD (uno o dos jugadores) y pantallas, `drawScene()` y `draw()` | — |
 | `main.js` | Bucle `requestAnimationFrame`, modo `?debug`, registro del service worker | todo |
 
 ## Bucle principal
@@ -93,7 +96,11 @@ La variable global `state` decide qué hace `update()` y qué dibuja `draw()`:
 ```mermaid
 stateDiagram-v2
   [*] --> title
-  title --> select: START
+  title --> select: JUGAR
+  title --> options: OPCIONES
+  options --> title
+  title --> logros: LOGROS
+  logros --> title
   title --> ranking: demo tras 9 s
   ranking --> title
   ranking --> select: START en la demo
@@ -106,23 +113,29 @@ stateDiagram-v2
   continue --> play: inserta crédito
   continue --> over: cuenta atrás a 0
   play --> story: dragón vencido
+  story --> play: El Revisor (sin continuar)
   story --> clear: fin del diálogo final
-  clear --> initials: entra en el top 5
+  clear --> credits: START
+  credits --> initials: entra en el top 5
+  credits --> ranking
   over --> initials: entra en el top 5
-  clear --> ranking
   over --> ranking
   initials --> ranking
 ```
 
 | Estado | Actualiza | Dibuja |
 |---|---|---|
-| `title` | Espera START; a los 9 s pasa a la demo del ranking | `drawTitle()` |
-| `select` | Elección de héroe | `drawSelect()` |
+| `title` | Menú JUGAR · OPCIONES · LOGROS; a los 9 s pasa a la demo del ranking | `drawTitle()` |
+| `options` | `updateOptions()` | `drawOptions()` |
+| `logros` | `updateAchievements()` | `drawAchievements()` |
+| `select` | `updateSelect()`: uno o dos cursores | `drawSelect()` |
 | `story` | `updateStory()` | Partida congelada + `drawStory()` |
 | `play` | `updatePlay()` | Partida |
 | `pause` | Espera START | Partida + PAUSA |
 | `continue` | Cuenta atrás de ¿ROLLBACK? | Partida + cuenta atrás |
-| `over` / `clear` | Espera START y llama a `afterRun()` | Partida + resultados |
+| `over` | Espera START y llama a `afterRun()` | Partida + GAME OVER |
+| `clear` | Espera START y pasa a `credits` | Partida + resultados |
+| `credits` | Avanza los créditos; al terminar (o con START) llama a `afterRun()` | `drawCredits()` |
 | `initials` | `updateInitials()` | Partida + ¡NUEVO RÉCORD! |
 | `ranking` | `updateRanking()` | `drawRanking()` |
 
@@ -146,7 +159,19 @@ stateDiagram-v2
 
 ## Actores
 
-Todos los actores son objetos planos con, al menos, `kind`, `x`, `y`, `z`, `hp`, `max`, `state`, `t` (actualizaciones en el estado actual) y `face`. El jugador es `P`, los enemigos están en `foes`, las cajas en `crates`, los objetos del suelo en `items` y los proyectiles en `shots` (del jugador) y `eshots` (de enemigos).
+Todos los actores son objetos planos con, al menos, `kind`, `x`, `y`, `z`, `hp`, `max`, `state`, `t` (actualizaciones en el estado actual) y `face`. Los jugadores están en `PLAYERS` (`kind: 'hero'`, con `slot` 0 o 1), los enemigos en `foes`, las cajas en `crates`, los objetos del suelo en `items` y los proyectiles en `shots` (del jugador) y `eshots` (de enemigos).
+
+### El jugador «actual» (`P`)
+
+Casi todo el código del jugador y de los enemigos habla de `P`. En vez de pasar el jugador a cada función, `updatePlay()` cambia `P` según lo que se esté actualizando:
+
+```js
+for (const p of PLAYERS) { P = p; ctxSlot = p.slot; updatePlayer(); }   // cada jugador con sus teclas
+for (const e of foes) { P = targetFor(e); updateFoe(e); }               // cada enemigo contra su objetivo
+P = PLAYERS[0];                                                          // fuera de ahí, el jugador 1
+```
+
+Así, `updatePlayer()` mueve al jugador que toca y `pressed()` solo lee sus teclas, y la IA de cada enemigo persigue y golpea a su objetivo sin saber que hay dos jugadores. Los ataques de área (aliento del dragón, embestidas, pisotones) recorren `activePlayers()` para dar a todos los que alcancen. `damage()` reconoce a los jugadores con `isHero()`, no comparando con `P`.
 
 Cada actor tiene su propia máquina de estados en un `switch (e.state)`. Los estados más comunes son `walk`, `windup` (preparando un golpe), `attack`, `hurt`, `down` (derribado; `lying` indica que ya ha caído) y `getup`.
 
@@ -161,7 +186,7 @@ La etapa es una lista de secciones (`SECTIONS` en `data/game-data.js`). Cuando `
 5. Después de la última, si hay `miniboss`, lo crea con su diálogo.
 6. Cuando todo está limpio, muestra `close`, desbloquea la cámara y aparece «GO!».
 
-La última sección (`boss: true`) crea el Dragón Negro. Al vencerlo, el diálogo final da paso a `stageClear()`.
+La última sección (`boss: true`) crea el Dragón Negro. Al vencerlo, si nadie ha continuado aparece El Revisor (`spawnRevisor()`); si no, o al vencerlo a él, el diálogo final da paso a `stageClear()`, que calcula los bonus y desbloquea los logros de final de etapa.
 
 ## Persistencia
 
@@ -171,5 +196,7 @@ Solo se guarda en el navegador:
 |---|---|
 | `dnd-arcade-ranking` | Top 5 de iniciales y puntos (JSON) |
 | `dnd-arcade-best` | Mejor puntuación (compatibilidad con versiones anteriores) |
+| `dnd-arcade-options` | Opciones: volúmenes, dificultad, destellos y vibración (JSON) |
+| `dnd-arcade-logros` | Logros desbloqueados con su fecha (JSON) |
 
 Todos los accesos van en `try/catch`: en modo incógnito o con el almacenamiento bloqueado el juego funciona igual, sin guardar.

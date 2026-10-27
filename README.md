@@ -20,7 +20,7 @@
 ---
 
 > Viernes, 17:45. Alguien ha tocado producción a mano y las alertas no paran.<br>
-> Elige al **Guerrero de Rundeck** o al **Mago Desarrollador**, cierra el ticket de cada departamento y derrota al **Dragón Negro** antes del fin de semana.
+> Elige al **Guerrero de Rundeck**, al **Mago Desarrollador**, a la **Pícara del Frontend** o al **Bardo Scrum Master** (o a dos, en cooperativo), cierra el ticket de cada departamento y derrota al **Dragón Negro** antes del fin de semana. Y si llegas sin continuar, prepárate para **El Revisor**.
 
 ## Índice
 
@@ -39,26 +39,33 @@
 
 | | |
 |---|---|
+| 👥 **Cooperativo para dos** | Teclado compartido, dos mandos o teclado y mando. El segundo jugador se une en cualquier momento pulsando START |
+| 🦸 **Cuatro héroes** | Guerrero de Rundeck, Mago Desarrollador, Pícara del Frontend y Bardo Scrum Master, cada uno con su especial |
 | 🎮 **Recreativa de verdad** | Combos de 3 golpes, saltos y patadas, agarres y lanzamientos, especiales que cuestan vida, armas con usos limitados y comida escondida en barriles |
 | 🏢 **Cinco departamentos** | Sistemas, Network, Storage, Virtualización y CaaS, cada uno con su decorado, sus enemigos y su ticket (`NET-404`, `K8S-503`...) |
-| 👹 **Jefes con mecánicas** | Minotauro del Firewall (`ACL: DENY ALL`), Hidra RAID (se reconstruye mientras viva la paridad) y el Dragón Negro |
+| 👹 **Jefes con mecánicas** | Minotauro del Firewall (`ACL: DENY ALL`), Hidra RAID (se reconstruye mientras viva la paridad), el Dragón Negro y El Revisor, jefe secreto que no deja pasar nada sin la Definition of Done |
 | 🤓 **Humor geek** | Goblins del ClickOps, VMs huérfanas, pods en CrashLoopBackOff, «SIEMPRE ES EL DNS», el patito de goma y el pergamino de Stack Overflow |
 | 🎨 **Pixel art generado por código** | Personajes articulados con animación interpolada, mazmorra con iluminación dinámica. Ni una sola imagen |
 | 🎵 **Banda sonora chiptune** | Un tema original por departamento, sintetizado en directo con Web Audio |
+| 🕹️ **Mandos** | Xbox, PlayStation y cualquier mando estándar por USB o Bluetooth |
 | 📱 **Móvil y tableta** | Cruceta analógica, botones grandes, pantalla completa, vibración y diseño vertical u horizontal |
+| ⚙️ **Opciones** | Volumen de música y efectos, tres dificultades, modo sin destellos y vibración |
+| 🏅 **16 logros** | «SIEMPRE ES EL DNS», «PAIR PROGRAMMING», «SIN ROLLBACK»... y créditos finales con las estadísticas de la partida |
 | 📶 **Sin conexión** | PWA instalable: se añade a la pantalla de inicio y funciona sin internet |
 | 🏆 **Ranking** | Top 5 con iniciales, como en los salones recreativos |
 
 ## Cómo se juega
 
-| Teclado | Móvil | Acción |
-|---|---|---|
-| ←↑→↓ / WASD | Cruceta | Moverse (arriba y abajo cambian de carril) |
-| Z · J · Espacio | **A** | Atacar (combo de 3), coger objetos |
-| X · K | **B** | Saltar (A en el aire: patada) |
-| C · L | **SP** | Especial: cuesta 10 de vida |
-| Enter | START | Empezar, pausa, insertar crédito |
-| M | SONIDO | Silenciar |
+| Teclado | Mando | Móvil | Acción |
+|---|---|---|---|
+| ←↑→↓ / WASD | Cruceta o stick | Cruceta | Moverse (arriba y abajo cambian de carril) |
+| Z · J · Espacio | A · ✕ | **A** | Atacar (combo de 3), coger objetos |
+| X · K | B · ○ | **B** | Saltar (A en el aire: patada) |
+| C · L | X · Y · □ · △ | **SP** | Especial: cuesta 10 de vida |
+| Enter | START | START | Empezar, pausa, insertar crédito |
+| M | SELECT | SONIDO | Silenciar |
+
+**Dos jugadores:** pulsa **2** en el teclado o **START** en un mando, en la selección o en plena partida. En un mismo teclado, el jugador 1 usa flechas, Z, X, C y Enter, y el jugador 2, WASD, J, K y L.
 
 **Trucos:** camina contra un enemigo para agarrarlo y lánzalo contra los demás. Al Firewall, por la espalda. A la Hidra, primero la paridad. Y hay un código secreto en la pantalla de título.
 
@@ -68,10 +75,12 @@ Todos los números del juego (vida, daño, puntos) están en el [documento de di
 
 | | |
 |---|---|
-| ![Pantalla de título](docs/img/titulo.png) | ![Selección de personaje](docs/img/seleccion.png) |
+| ![Pantalla de título](docs/img/titulo.png) | ![Selección para dos jugadores](docs/img/seleccion.png) |
+| ![Cooperativo contra el Caballero Firewall](docs/img/cooperativo.png) | ![El Revisor y sus tareas pendientes](docs/img/revisor.png) |
 | ![Viñeta de historia](docs/img/historia.png) | ![Sala de guardia con combo](docs/img/sistemas.png) |
 | ![Minotauro del Firewall](docs/img/minotauro.png) | ![Hidra RAID](docs/img/hidra.png) |
 | ![Forja de contenedores](docs/img/caas.png) | ![Guarida de Automation](docs/img/automation.png) |
+| ![Logros](docs/img/logros.png) | ![Opciones](docs/img/opciones.png) |
 
 <div align="center">
 
@@ -117,6 +126,7 @@ spawnHydra(camX + 262) // invocar a la Hidra RAID
 - **Motor de pixel art propio**: pintor por píxeles, contorno automático, caché de sprites y esqueletos con poses interpoladas.
 - **Web Audio API**: efectos sintetizados y secuenciador chiptune.
 - **PWA**: manifest y service worker (primero la red, caché sin conexión).
+- **Gamepad API** para mandos.
 - **Pointer Events, Fullscreen, Vibration y Screen Wake Lock** para móvil.
 - **Node.js** solo para desarrollo: `node:test`, ESLint 9 y Playwright.
 - **GitHub Actions** para CI y despliegue en GitHub Pages.
@@ -130,14 +140,14 @@ spawnHydra(camX + 262) // invocar a la Hidra RAID
 ├── css/styles.css          Estilos de la página y de los mandos táctiles
 ├── img/                    Iconos y vista previa para redes sociales
 ├── js/
-│   ├── core/               Configuración, motor de píxeles, teclado, táctil y utilidades
+│   ├── core/               Configuración, motor de píxeles, teclado, mandos, táctil y utilidades
 │   ├── sprites/            Personajes articulados y monstruos
 │   ├── world/              Mazmorra e iluminación
 │   ├── data/               Héroes, enemigos, objetos y secciones
 │   ├── audio/              Efectos y música
 │   ├── game/               Estado, combate y bucle
 │   ├── entities/           Jugador, enemigos y jefes
-│   ├── ui/                 Historia y ranking
+│   ├── ui/                 Historia, ranking, opciones, logros y créditos
 │   ├── render/             Dibujo, HUD y pantallas
 │   └── main.js             Arranque
 ├── tests/                  Pruebas unitarias (node:test)
@@ -174,7 +184,7 @@ flowchart LR
 
 - **Lint**: sintaxis, orden de carga, coherencia entre `index.html`, el service worker y el manifest, y ESLint.
 - **Unit tests**: datos, poses, combos, jefes, ranking, semillas y música, cargando el juego en un contexto aislado.
-- **Smoke test**: un bot juega la etapa completa con los dos héroes y varias semillas; cualquier atasco o error de consola hace fallar la CI, con una URL para reproducirlo.
+- **Smoke test**: un bot juega la etapa completa con cada héroe y en cooperativo, con varias semillas; cualquier atasco o error de consola hace fallar la CI, con una URL para reproducirlo.
 - **Dependabot** mantiene al día las acciones y las dependencias de desarrollo.
 
 ## Hoja de ruta
@@ -182,11 +192,14 @@ flowchart LR
 - [x] Etapa 1 completa: cinco departamentos, tres jefes, historia y ranking
 - [x] Música chiptune, combos y animaciones interpoladas
 - [x] Móvil, tableta y PWA sin conexión
-- [ ] Cooperativo para dos jugadores y soporte de mando (Gamepad API)
-- [ ] Nuevos héroes: la Pícara del Frontend y el Bardo Scrum Master
-- [ ] Menú de opciones: volumen, dificultad, teclas y modo sin destellos
-- [ ] El Revisor, jefe secreto que exige la Definition of Done
-- [ ] Etapa 2: Las Cuevas
+- [x] Cooperativo para dos jugadores y soporte de mando (Gamepad API)
+- [x] Nuevos héroes: la Pícara del Frontend y el Bardo Scrum Master
+- [x] Menú de opciones: volumen, dificultad y modo sin destellos
+- [x] El Revisor, jefe secreto que exige la Definition of Done
+- [x] Logros y créditos finales con estadísticas
+- [ ] Etapa 2: Las Cuevas (Bases de datos, Seguridad y Monitorización)
+- [ ] Cambiar las teclas desde el menú de opciones
+- [ ] Modo jefes: solo los combates contra jefes, con su propio ranking
 
 ## Contribuir
 

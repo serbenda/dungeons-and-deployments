@@ -91,10 +91,27 @@ Y llámalo con `startStory('db', alTerminar)`. Quien habla puede ser `narr`, `he
 
 ## Añadir un héroe
 
-1. Su aspecto en `RIGS` y sus datos en `HEROES` (incluidas sus frases en `HERO_LINES`).
-2. En la selección (`drawSelect()` y el caso `select` de `update()`), cambia la lista `['guerrero', 'mago']` y el `sel = 1 - sel` por un índice que recorra todos.
-3. Su especial en `doSpecial()` y `specialBlast()`.
-4. Añádelo a `HEROES` del bot en `tools/smoke-test.js` para que la CI lo pruebe.
+Ejemplo real: la Pícara del Frontend.
+
+1. **Aspecto** en `RIGS` (`js/sprites/characters.js`). Si su estilo es nuevo (`style:'rogue'`), añade sus colores de piernas y brazos en `legC` y `armC` de `paintRig()`, sus detalles del torso y su cabeza. Si su arma es nueva, añádela en `paintWeapon()`.
+2. **Datos** en `HEROES`, su posición en `HERO_ORDER` y su ficha de tres líneas en `HERO_INFO` (`js/data/game-data.js`).
+3. **Frases** en `HERO_LINES` (`js/ui/story.js`): `intro`, `mino`, `dragon` y `outro`.
+4. **Especial**: el texto en `doSpecial()` y el efecto en el caso `special` de `updatePlayer()` (por ejemplo, `picaraDash()` o `bardDaily()`).
+5. Añádelo a `TEAMS` en `tools/smoke-test.js` para que la CI juegue con él. La prueba unitaria «cada héroe tiene esqueleto, frases, descripción...» comprueba que no falte nada.
+
+La selección se adapta sola: muestra los héroes de `HERO_ORDER` en columnas. Con más de cuatro, habrá que estrechar las tarjetas en `drawSelect()`.
+
+## Añadir un logro
+
+1. Una entrada `[clave, NOMBRE, 'Cómo se consigue.']` en `ACHIEVEMENTS` (`js/ui/achievements.js`). La descripción debe caber en la tarjeta (unos 33 caracteres).
+2. Llama a `unlock('clave')` donde ocurra: es seguro llamarla muchas veces, solo cuenta la primera.
+3. Si depende de la partida entera (como «sin continuar»), guarda el dato en `RUN` (`startGame()`) y comprueba en `stageClear()`.
+
+## Añadir una opción
+
+1. Su valor por defecto en `OPTS_DEFAULT` (`js/ui/options.js`).
+2. Una fila en `OPT_ROWS` con `label`, `show()` (lo que se ve a la derecha) y `change(d)` (con `d` = -1 o 1).
+3. Úsala donde toque leyendo `OPTS.tuOpcion`. Se guarda sola en `localStorage`.
 
 ## Añadir un archivo de código
 

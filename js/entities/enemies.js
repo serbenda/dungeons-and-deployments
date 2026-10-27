@@ -25,6 +25,7 @@ function updateFoe(e){
   if (e.kind === 'cabeza') return updateHead(e);
   if (e.kind === 'hidra') return updateHydra(e);
   if (e.kind === 'totem') return updateTotem(e);
+  if (e.kind === 'revisor') return updateRevisor(e);
   if (e.d.fly && (e.state === 'walk' || e.state === 'dive' || e.state === 'hurt')) { updateBat(e); e.y = clamp(e.y, FY0, FY1); return; }
   if (e.d.ghost) { e.ph = (e.ph || (e.seed*7)) + 1; e.hidden = (e.ph % 240) > 160 && (e.state === 'walk'); }
   switch (e.state) {
@@ -41,7 +42,7 @@ function updateFoe(e){
       }
       if ((P.state === 'down' && P.lying) || state !== 'play') { e.x += e.hover*.4; break; }
       const attackers = foes.filter(f => f.aggro && f !== e && !f.dead).length;
-      if (!e.aggro && e.cool <= 0 && attackers < 2) e.aggro = true;
+      if (!e.aggro && e.cool <= 0 && attackers < 1 + activePlayers().length) e.aggro = true;
       const side = e.x < P.x ? -1 : 1;
       const tx = clamp(P.x + side*(e.aggro ? 26 : 74 + e.hover*20), camX + 16, camX + W - 16), ty = e.aggro ? P.y : clamp(P.y + e.hover*24, FY0, FY1);
       const dx = tx - e.x, dy = ty - e.y;
@@ -53,7 +54,7 @@ function updateFoe(e){
     case 'windup': if (e.t >= e.d.wind) { e.state = 'attack'; e.t = 0; e.hitDone = false; sfx('swing'); } break;
     case 'attack': {
       if ((e.d.slime || e.d.hopper) && e.t < 8) e.x += e.face*1.6;
-      if (e.t <= 6 && !e.hitDone && inFront(e, P, 22)) { e.hitDone = true; damage(P, e.d.dmg, e, { knock: e.kind === 'orco' && e.combo === 2 }); }
+      if (e.t <= 6 && !e.hitDone) for (const q of activePlayers()) if (inFront(e, q, 22)) { e.hitDone = true; damage(q, e.d.dmg, e, { knock: e.kind === 'orco' && e.combo === 2 }); }
       if (e.t > 12) {
         if (e.kind === 'orco' && e.combo === 1 && Math.random() < .6) { e.state = 'windup'; e.t = 8; e.combo = 2; }
         else { e.state = 'walk'; e.aggro = false; e.cool = 50 + Math.random()*70; }
@@ -65,7 +66,7 @@ function updateFoe(e){
       if (!e.lying) {
         e.x += e.vx;
         if (e.state === 'thrown') {
-          for (const o of foes) { if (o === e || !alive(o)) continue; if (Math.abs(o.x - e.x) < 14 + halfW(o) && Math.abs(o.y - e.y) < 10 && o.state !== 'down') damage(o, 20, P, { knock:true, pierce:true }); }
+          for (const o of foes) { if (o === e || !alive(o)) continue; if (Math.abs(o.x - e.x) < 14 + halfW(o) && Math.abs(o.y - e.y) < 10 && o.state !== 'down') damage(o, 20, e.thrower || P, { knock:true, pierce:true }); }
           for (const c of crates.slice()) if (Math.abs(c.x - e.x) < 16 && Math.abs(c.y - e.y) < 10) breakCrate(c);
         }
       } else if (e.dead) {
@@ -127,7 +128,7 @@ function mkGolem(x, y){ return { kind:'golem', d:{ name:'GÓLEM HIPERVISOR', sho
  */
 function angerGolem(msg){
   if (!golem || golem.angry || !alive(golem)) return;
-  golem.angry = true; golem.state = 'roar'; golem.t = 0; sfx('roar'); shake = 6;
+  golem.angry = true; if (RUN) RUN.golemAngry = true; golem.state = 'roar'; golem.t = 0; sfx('roar'); shake = 6;
   addText(msg, golem.x - 100, golem.y - 92, C.r, 90);
   addText('¡GRRROOOM!', golem.x - 36, golem.y - 78, C.a, 70);
 }
@@ -147,7 +148,7 @@ function updateGolem(e){
         e.moving = Math.abs(dx) > 1 || Math.abs(dy) > 1;
         break;
       }
-      const targets = [P].filter(x => x.state !== 'down' && state === 'play').concat(foes.filter(f => f !== e && alive(f) && f.kind !== 'dragon' && f.state !== 'down'));
+      const targets = activePlayers().filter(x => x.state !== 'down' && state === 'play').concat(foes.filter(f => f !== e && alive(f) && f.kind !== 'dragon' && f.state !== 'down'));
       let tg = null, bd = 1e9;
       for (const o of targets) { const d = Math.abs(o.x - e.x) + Math.abs(o.y - e.y)*2; if (d < bd) { bd = d; tg = o; } }
       if (!tg) break;
@@ -162,8 +163,8 @@ function updateGolem(e){
     case 'charge': {
       e.x += e.face*3.2;
       if (e.t % 6 === 0) { burst(e.x - e.face*16, e.y, '#4b4470', 3, 1); shake = 1.5; }
-      for (const o of [P].concat(foes)) {
-        if (o === e || e.hitSet.has(o) || (o !== P && !alive(o)) || o.kind === 'dragon') continue;
+      for (const o of activePlayers().concat(foes)) {
+        if (o === e || e.hitSet.has(o) || (!isHero(o) && !alive(o)) || o.kind === 'dragon') continue;
         const dx = (o.x - e.x)*e.face;
         if (dx > 0 && dx < 36 && Math.abs(o.y - e.y) < 12 && (o.z || 0) < 20) { e.hitSet.add(o); damage(o, 16, e, { knock:true, power:1.3, pierce:true }); }
       }
@@ -215,22 +216,19 @@ function updateDragon(b){
     case 'breathWind': if (b.t > 38) { b.state = 'breath'; b.t = 0; sfx('roar'); } break;
     case 'breath': {
       for (let i = 0; i < 3; i++) fx.push({ x:mouthX + b.face*Math.random()*8, y:b.y - 66 + Math.random()*6, vx:b.face*(3 + Math.random()*2.5), vy:(Math.random() - .5)*.8 + .62, life:30 + (Math.random()*20 | 0), col: Math.random() < .5 ? C.g : C.gd, big:true, glow:'rgb(110,231,168)' });
-      const dx = (P.x - mouthX)*b.face;
-      if (b.t % 12 === 0 && dx > -10 && dx < 190 && Math.abs(P.y - b.y) < 9 && P.z < 30) { if (damage(P, 5, b)) P.x += b.face*4; }
+      if (b.t % 12 === 0) for (const q of activePlayers()) { const dx = (q.x - mouthX)*b.face; if (dx > -10 && dx < 190 && Math.abs(q.y - b.y) < 9 && q.z < 30 && damage(q, 5, b)) q.x += b.face*4; }
       if (b.t % 12 === 0) for (const f of foes) if (f.kind !== 'dragon' && alive(f)) { const fdx = (f.x - mouthX)*b.face; if (fdx > -10 && fdx < 190 && Math.abs(f.y - b.y) < 9) damage(f, 5, b); }
       if (b.t > 70) { b.state = 'idle'; b.cool = 70; b.poise = 0; }
       break; }
     case 'biteWind': if (b.t > 20) { b.state = 'bite'; b.t = 0; b.hitDone = false; sfx('heavy'); addText('SEGFAULT', b.x - 32, b.y - 116, C.r, 36); } break;
     case 'bite': {
       if (b.t < 8) b.x += b.face*2.2;
-      const dx = (P.x - b.x)*b.face;
-      if (!b.hitDone && b.t < 10 && dx > 30 && dx < 112 && Math.abs(dyp) < 13 && P.z < 30) { b.hitDone = true; damage(P, 15, b, { knock:true, power:1.2 }); }
+      if (!b.hitDone && b.t < 10) for (const q of activePlayers()) { const dx = (q.x - b.x)*b.face; if (dx > 30 && dx < 112 && Math.abs(q.y - b.y) < 13 && q.z < 30) { b.hitDone = true; damage(q, 15, b, { knock:true, power:1.2 }); } }
       if (b.t > 22) { b.state = 'idle'; b.cool = 50; b.poise = 0; }
       break; }
     case 'tailWind': if (b.t > 16) { b.state = 'tail'; b.t = 0; b.hitDone = false; sfx('heavy'); } break;
     case 'tail': {
-      const dx = (P.x - b.x)*-b.face;
-      if (!b.hitDone && b.t < 10 && dx > 0 && dx < 92 && Math.abs(dyp) < 13 && P.z < 20) { b.hitDone = true; damage(P, 11, b, { knock:true }); }
+      if (!b.hitDone && b.t < 10) for (const q of activePlayers()) { const dx = (q.x - b.x)*-b.face; if (dx > 0 && dx < 92 && Math.abs(q.y - b.y) < 13 && q.z < 20) { b.hitDone = true; damage(q, 11, b, { knock:true }); } }
       if (b.t > 20) { b.state = 'idle'; b.cool = 40; b.face *= -1; }
       break; }
     case 'flyUp': b.z += 4; if (b.z > 140) { b.state = 'hover'; b.t = 0; } break;
@@ -243,7 +241,7 @@ function updateDragon(b){
       if (b.z <= 0) {
         b.z = 0; b.state = 'land'; b.t = 0; shake = 10; sfx('boom'); burst(b.x, b.y, '#6b5850', 24, 3); addText('KERNEL PANIC', b.x - 48, b.y - 70, C.r, 60);
         fx.push({ ring:true, x:b.x, y:b.y, r:8, max:70, col:C.g, life:20 });
-        if (Math.abs(P.x - b.x) < 60 && Math.abs(P.y - b.y) < 16 && P.z < 10) damage(P, 18, b, { knock:true, power:1.4 });
+        for (const q of activePlayers()) if (Math.abs(q.x - b.x) < 60 && Math.abs(q.y - b.y) < 16 && q.z < 10) damage(q, 18, b, { knock:true, power:1.4 });
         for (const f of foes) if (f !== b && alive(f) && Math.abs(f.x - b.x) < 60 && Math.abs(f.y - b.y) < 16) damage(f, 18, b, { knock:true });
       }
       break; }
@@ -253,7 +251,7 @@ function updateDragon(b){
       if (b.z > 0) b.z = Math.max(0, b.z - 6);
       if (b.t % 6 === 0) { burst(b.x + (Math.random() - .5)*90, b.y - Math.random()*90, Math.random() < .5 ? C.g : C.a, 10, 2.2, 'rgb(255,190,110)'); sfx('boom'); }
       shake = 3;
-      if (b.t > 150) { foes.splice(foes.indexOf(b), 1); boss = null; startStory('outro', stageClear); }
+      if (b.t > 150) { foes.splice(foes.indexOf(b), 1); boss = null; if (revisorUnlocked()) startStory('revisor', spawnRevisor); else startStory('outro', stageClear); }
       break; }
   }
 }
@@ -261,9 +259,15 @@ function updateDragon(b){
  * Fin de la etapa: calcula los bonus (tiempo, vida, combo máximo) y pasa a la pantalla final.
  */
 function stageClear(){
-  const secs = Math.floor(stageT/60);
-  const timeBonus = Math.max(0, 30000 - secs*100), lifeBonus = P.hp*50 + P.lives*5000, comboBonus = P.maxChain*100;
-  clearBonus = { secs, timeBonus, lifeBonus, comboBonus, maxChain:P.maxChain };
+  const secs = Math.floor(stageT/60), act = activePlayers();
+  const maxChain = Math.max(0, ...PLAYERS.map(p => p.maxChain));
+  const timeBonus = Math.max(0, 30000 - secs*100), lifeBonus = act.reduce((a, p) => a + p.hp*50 + p.lives*5000, 0), comboBonus = maxChain*100;
+  clearBonus = { secs, timeBonus, lifeBonus, comboBonus, maxChain, revisor:RUN.revisor };
+  unlock('viernes');
+  if (RUN.continues === 0) unlock('rollback');
+  if (secs < 480) unlock('expres');
+  if (PLAYERS.length > 1) unlock('pair');
+  if (OPTS.diff === 2) unlock('oncall');
   score += timeBonus + lifeBonus + comboBonus;
   if (score > best) { best = score; try { localStorage.setItem('dnd-arcade-best', String(best)); } catch(e) {} }
   state = 'clear'; clearT = 0; sfx('coin');

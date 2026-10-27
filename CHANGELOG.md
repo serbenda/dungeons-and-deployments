@@ -2,6 +2,23 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.3.0] - Sin publicar
+
+### Añadido
+- Cooperativo para dos jugadores: teclado compartido (tecla 2), mandos o teclado y mando. El jugador 2 puede unirse en plena partida con START.
+- Soporte de mandos con la Gamepad API (Xbox, PlayStation y mandos estándar).
+- Dos héroes nuevos: la Pícara del Frontend (`!IMPORTANT`, carga en línea recta) y el Bardo Scrum Master (`DAILY`, cura a todo el equipo).
+- El Revisor, jefe secreto tras el Dragón Negro si se llega sin continuar: se protege con las tareas pendientes de la Definition of Done.
+- Menú de opciones: volumen de música y efectos, dificultad (BECARIO, SENIOR, GUARDIA 24/7), destellos y vibración.
+- 16 logros con su pantalla y avisos.
+- Créditos finales con las estadísticas de la partida y el elenco.
+- Menú en la pantalla de título: JUGAR, OPCIONES y LOGROS.
+
+### Cambiado
+- La selección muestra los cuatro héroes y una ficha por jugador.
+- En cooperativo los enemigos tienen un 50 % más de vida y pueden atacar tres a la vez.
+- La prueba de humo juega con los cuatro héroes y en cooperativo.
+
 ## [0.2.0] - Sin publicar
 
 ### Añadido

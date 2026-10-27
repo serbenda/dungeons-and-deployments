@@ -42,7 +42,7 @@ function updateInitials(){
 function updateRanking(){
   rankShow.t++;
   if ((rankShow.t > 40 && (pressed('start') || pressed('atk'))) || rankShow.t > 420) {
-    if (rankShow.attract && rankShow.t <= 420) { state = 'select'; sel = 0; sfx('coin'); }
+    if (rankShow.attract && rankShow.t <= 420) { enterSelect(); sfx('coin'); }
     else state = 'title';
     titleT = 0; rankShow = null;
   }

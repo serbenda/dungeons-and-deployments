@@ -10,7 +10,7 @@ const IS_TOUCH = document.documentElement.classList.contains('is-touch');
  * @param {number} ms Duración en milisegundos.
  */
 function haptic(ms){
-  if (IS_TOUCH && !muted && navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
+  if (IS_TOUCH && !muted && OPTS.vibration && navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
 }
 
 // ------------------------------------------------------------------ cruceta analógica
@@ -29,7 +29,7 @@ let padPointer = null;
 function setPadDir(k, on){
   if (on === padDirs[k]) return;
   padDirs[k] = on;
-  if (on) press(k); else release(k);
+  if (on) press(k, 'touch'); else release(k, 'touch');
   if (pad) pad.classList.toggle('on-' + k, on);
 }
 
@@ -79,10 +79,10 @@ document.querySelectorAll('#touch button[data-k]').forEach(b => {
     e.preventDefault();
     if (b.setPointerCapture) b.setPointerCapture(e.pointerId);
     b.classList.add('on');
-    press(k);
+    press(k, 'touch');
     haptic(8);
   });
-  const up = () => { b.classList.remove('on'); release(k); };
+  const up = () => { b.classList.remove('on'); release(k, 'touch'); };
   b.addEventListener('pointerup', up);
   b.addEventListener('pointercancel', up);
   b.addEventListener('lostpointercapture', up);
@@ -91,14 +91,14 @@ document.querySelectorAll('#touch button[data-k]').forEach(b => {
 
 // ------------------------------------------------------------------ tocar la pantalla
 // Fuera de la partida, tocar la pantalla hace de botón A: empieza, pasa diálogos,
-// inserta crédito... En la selección, tocar una mitad elige ese héroe.
+// inserta crédito... En la selección, tocar un héroe lo elige y volver a tocarlo lo confirma.
 cv.addEventListener('pointerdown', e => {
   if (!IS_TOUCH) return;
   e.preventDefault();
   initAudio(); if (actx && actx.state === 'suspended') actx.resume();
   if (state === 'select') {
-    const half = e.offsetX < cv.clientWidth/2 ? 0 : 1;
-    if (half === sel) pressedQ.atk = true; else { sel = half; sfx('select'); }
+    const i = clamp(Math.floor(e.offsetX/(cv.clientWidth/HERO_ORDER.length)), 0, HERO_ORDER.length - 1);
+    if (i === selP[0].i) pressedQ.atk = true; else { selP[0].i = i; sfx('select'); }
   } else if (state !== 'play' && state !== 'pause' && state !== 'initials') {
     pressedQ.atk = true;
   }

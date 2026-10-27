@@ -23,7 +23,7 @@ const KILL_MSGS = ['SIGKILL', 'EXIT 1', '404', 'SEGFAULT', 'OOM KILLED', 'TIMEOU
 /**
  * Mensajes específicos al eliminar a cada tipo de enemigo.
  */
-const KILL_BY = { minotauro:['FIREWALL DESACTIVADO'], murcielago:['PACKET LOSS', 'TTL EXPIRED', '100% LOSS'], firewall:['ACL BORRADA', 'PORT OPEN'], mimico:['DISCO FORMATEADO', 'QUOTA OK'], fantasma:['VM ELIMINADA', 'SNAPSHOT BORRADO'], pod:['CrashLoopBackOff', 'OOMKilled', 'Evicted'], slime:['malloc() x2'], slimeS:['free()', 'GC'] };
+const KILL_BY = { minotauro:['FIREWALL DESACTIVADO'], murcielago:['PACKET LOSS', 'TTL EXPIRED', '100% LOSS'], firewall:['ACL BORRADA', 'PORT OPEN'], mimico:['DISCO FORMATEADO', 'QUOTA OK'], fantasma:['VM ELIMINADA', 'SNAPSHOT BORRADO'], pod:['CrashLoopBackOff', 'OOMKilled', 'Evicted'], slime:['malloc() x2'], slimeS:['free()', 'GC'], pendiente:['HECHO'] };
 const HURT_MSGS = ['ERROR 500', 'WARN', '503', 'EXCEPTION', 'NullPointer'];
 /**
  * Añade un texto flotante que sube y se desvanece.
@@ -78,7 +78,7 @@ const alive = e => !e.dead && e.hp > 0;
 /**
  * Tipos que cuentan como enemigos de oleada (ver hostile()).
  */
-const GRUNTS = { minotauro:1, cabeza:1, goblin:1, orco:1, esqueleto:1, slime:1, slimeS:1, murcielago:1, firewall:1, mimico:1, fantasma:1, pod:1, totem:1 };
+const GRUNTS = { minotauro:1, cabeza:1, goblin:1, orco:1, esqueleto:1, slime:1, slimeS:1, murcielago:1, firewall:1, mimico:1, fantasma:1, pod:1, totem:1, pendiente:1, revisor:1 };
 /**
  * Enemigos de oleada vivos (los de GRUNTS). La sección no se cierra hasta que no queda ninguno.
  * @returns {object[]}
