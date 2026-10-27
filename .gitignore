@@ -1,0 +1,7 @@
+node_modules/
+package-lock.json
+_site/
+test-results/
+.DS_Store
+Thumbs.db
+*.log
