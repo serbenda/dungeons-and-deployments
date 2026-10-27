@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Prueba de humo: abre el juego en Chromium sin ventana, comprueba que carga sin
-// errores y deja que un bot juegue la etapa completa con cada héroe y en cooperativo.
+// errores y deja que un bot juegue las dos etapas con cada héroe y en cooperativo.
 //
 //   npm run test:e2e                         # usa file:// sobre index.html
 //   BASE_URL=http://localhost:8000/ npm run test:e2e
@@ -16,7 +16,7 @@ const { pathToFileURL } = require('url');
 const { chromium } = require('playwright');
 
 const BASE_URL = process.env.BASE_URL || pathToFileURL(path.join(__dirname, '..', 'index.html')).href;
-const MAX_FRAMES = 60*60*20; // 20 minutos de juego simulado como mucho
+const MAX_FRAMES = 60*60*40; // 40 minutos de juego simulado como mucho (dos etapas)
 const SEEDS = (process.env.SEEDS || '1,2').split(',').map(Number);
 // Una partida por héroe y una en cooperativo.
 const TEAMS = [['guerrero'], ['mago'], ['picara'], ['bardo'], ['guerrero', 'bardo']];
@@ -38,8 +38,9 @@ function playStage([heroes, god, maxFrames]){
   const drive = (P, H, Q) => {
     for (const k of ['left', 'right', 'up', 'down']) H[k] = false;
     if (P.out) { if (i % 30 === 0) Q.start = true; return; }
+    if (P.state === 'stuck') { if (i % 3 === 0) Q.atk = true; return; }
     if (god) P.inv = Math.max(P.inv, 2);
-    const enemies = g.foes.filter(e => !e.dead && e.hp > 0 && (e.kind !== 'golem' || e.angry) && e.state !== 'rise' && !e.hidden && e.kind !== 'hidra' && !(e.kind === 'revisor' && e.guarded));
+    const enemies = g.foes.filter(e => !e.dead && e.hp > 0 && (e.kind !== 'golem' || e.angry) && e.state !== 'rise' && !e.hidden && e.kind !== 'hidra' && !(e.kind === 'revisor' && e.guarded) && !(e.kind === 'lich' && e.shielded));
     let target = null, best = 1e9;
     for (const e of enemies) { const d = Math.abs(e.x - P.x) + Math.abs(e.y - P.y)*2; if (d < best) { best = d; target = e; } }
     // Solo objetos visibles: la cámara nunca retrocede, lo que queda a la izquierda se pierde.
@@ -67,15 +68,20 @@ function playStage([heroes, god, maxFrames]){
     }
   };
   for (i = 0; i < maxFrames; i++) {
-    if (g.state === 'clear' || g.state === 'over') break;
+    if (g.state === 'over') break;
+    if (g.state === 'clear') {
+      if (g.stageIdx >= 1) break;                      // última etapa: fin
+      for (let k = 0; k < 160; k++) g.update();
+      g.pressedQ.start = true; g.update(); continue;
+    }
     if (g.state === 'continue') { continues++; g.pressedQ.start = true; }
     if (g.state === 'story') { if (i % 3 === 0) g.pressedQ.atk = true; g.update(); continue; }
     for (const p of g.PLAYERS) drive(p, g.INP[p.slot].held, g.INP[p.slot].q);
     g.update();
     if (i % 4 === 0) g.draw();
   }
-  const r = { hero: heroes.join('+'), god, state: g.state, frames: i, section: g.secIdx, score: g.score, continues, revisor: !!(g.RUN && g.RUN.revisor) };
-  if (g.state !== 'clear') {
+  const r = { hero: heroes.join('+'), god, state: g.state, stage: g.stageIdx + 1, frames: i, section: g.secIdx, score: g.score, continues, revisor: !!(g.RUN && g.RUN.revisor) };
+  if (g.state !== 'clear' || g.stageIdx < 1) {
     r.player = g.PLAYERS.map(p => ({ x: Math.round(p.x), y: Math.round(p.y), state: p.state, hp: p.hp, out: p.out }));
     r.camX = Math.round(g.camX);
     r.foes = g.foes.map(e => ({ kind: e.kind, state: e.state, x: Math.round(e.x), y: Math.round(e.y), hp: e.hp, dead: !!e.dead, guarded: e.guarded }));
@@ -110,9 +116,9 @@ async function run(browser, team, god, seed){
 
   let failed = false;
   for (const r of results) {
-    const ok = r.state === 'clear' && !r.errors.length;
+    const ok = r.state === 'clear' && r.stage === 2 && !r.errors.length;
     if (!ok) failed = true;
-    console.log(`${ok ? 'OK ' : 'ERR'} semilla=${r.seed} ${r.hero.padEnd(14)} ${r.god ? 'invulnerable' : 'normal      '} estado=${r.state} sección=${r.section} fotogramas=${r.frames} oro=${r.score} continues=${r.continues}${r.revisor ? ' revisor=OK' : ''}`);
+    console.log(`${ok ? 'OK ' : 'ERR'} semilla=${r.seed} ${r.hero.padEnd(14)} ${r.god ? 'invulnerable' : 'normal      '} estado=${r.state} etapa=${r.stage} sección=${r.section} fotogramas=${r.frames} oro=${r.score} continues=${r.continues}${r.revisor ? ' revisor=OK' : ''}`);
     if (!ok) {
       console.log(`    Reproducir: ${r.url}`);
       if (r.errors.length) console.log('    Errores: ' + r.errors.join(' | '));
