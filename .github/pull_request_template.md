@@ -9,6 +9,7 @@
 ## Comprobaciones
 
 - [ ] `npm run lint` pasa
-- [ ] `npm test` pasa
-- [ ] Probado en el navegador (teclado y, si aplica, táctil)
-- [ ] README y CHANGELOG actualizados si hace falta
+- [ ] `npm test` pasa (pruebas unitarias)
+- [ ] `npm run test:e2e` pasa (prueba de humo)
+- [ ] Probado en el navegador con teclado y en modo táctil (`?touch`)
+- [ ] Documentación (JSDoc, `docs/`) y CHANGELOG actualizados si hace falta

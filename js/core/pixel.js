@@ -2,9 +2,33 @@
 'use strict';
 
 const RGB = {};
+/**
+ * Convierte un color #rrggbb en [r, g, b] (con caché).
+ * @param {string} hex
+ * @returns {number[]}
+ */
 function rgb(hex){ let v = RGB[hex]; if (v) return v; const n = parseInt(hex.slice(1), 16); v = [(n >> 16) & 255, (n >> 8) & 255, n & 255]; RGB[hex] = v; return v; }
+/**
+ * Crea un canvas fuera de pantalla.
+ * @param {number} w
+ * @param {number} h
+ * @returns {HTMLCanvasElement}
+ */
 function mkCanvas(w, h){ const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+/**
+ * Generador pseudoaleatorio determinista (mulberry32). Se usa para que la mazmorra
+ * sea siempre igual sin depender de Math.random.
+ * @param {number} seed
+ * @returns {() => number} Función que devuelve números en [0, 1).
+ */
 function prng(seed){ let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let x = a; x = Math.imul(x ^ (x >>> 15), x | 1); x ^= x + Math.imul(x ^ (x >>> 7), x | 61); return ((x ^ (x >>> 14)) >>> 0)/4294967296; }; }
+/**
+ * Crea un lienzo de píxeles en memoria con primitivas de dibujo: px, rect, disc,
+ * ell, line y poly. Cada píxel guarda un color #rrggbb o null (transparente).
+ * @param {number} w
+ * @param {number} h
+ * @returns {object} Pintor con el búfer `buf` y las primitivas.
+ */
 function painter(w, h){
   const buf = new Array(w*h).fill(null);
   const S = {
@@ -30,6 +54,13 @@ function painter(w, h){
   };
   return S;
 }
+/**
+ * Vuelca un pintor a un canvas. Con `outline` añade el contorno oscuro alrededor
+ * de los píxeles pintados y genera una copia blanca para el destello de golpe.
+ * @param {object} S Pintor creado con painter().
+ * @param {boolean} outline
+ * @returns {{c: HTMLCanvasElement, f: HTMLCanvasElement|null, w: number, h: number}}
+ */
 function toCanvas(S, outline){
   const { w, h, buf } = S;
   let out = buf;
@@ -54,7 +85,28 @@ function toCanvas(S, outline){
   return { c, f, w, h };
 }
 const SPR = new Map();
+/**
+ * Devuelve un sprite cacheado por clave; si no existe, lo pinta con `fn` una sola vez.
+ * Lo que devuelva `fn` se guarda en `sprite.meta` (p. ej. la posición de la cabeza).
+ * @param {string} key Clave única: cambia cualquier parámetro visual, cambia la clave.
+ * @param {number} w
+ * @param {number} h
+ * @param {(S: object) => any} fn Función que pinta sobre el pintor.
+ * @returns {{c: HTMLCanvasElement, f: HTMLCanvasElement, w: number, h: number, meta: any}}
+ */
 function sprite(key, w, h, fn){ let s = SPR.get(key); if (!s) { const S = painter(w, h); const meta = fn(S); s = toCanvas(S, true); s.meta = meta; SPR.set(key, s); } return s; }
 
+/**
+ * Vector unitario para un ángulo en grados (0° apunta hacia abajo, 90° hacia delante).
+ * @param {number} a Ángulo en grados.
+ * @returns {number[]} [x, y]
+ */
 const D = a => [Math.sin(a*Math.PI/180), Math.cos(a*Math.PI/180)];
+/**
+ * Desplaza el punto `a` una longitud `l` en la dirección `d`.
+ * @param {number[]} a
+ * @param {number[]} d
+ * @param {number} l
+ * @returns {number[]}
+ */
 const add = (a, d, l) => [a[0] + d[0]*l, a[1] + d[1]*l];

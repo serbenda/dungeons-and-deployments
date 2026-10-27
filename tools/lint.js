@@ -1,6 +1,9 @@
 #!/usr/bin/env node
-// Lint: comprueba la sintaxis de todos los scripts y que index.html carga cada archivo
-// de js/ exactamente una vez.
+// Lint del proyecto:
+// - sintaxis de todos los scripts (node --check),
+// - index.html carga cada archivo de js/ una sola vez y js/main.js el último,
+// - la lista de precarga del service worker (sw.js) coincide con index.html,
+// - existen todos los archivos que citan index.html, sw.js y el manifest.
 'use strict';
 
 const fs = require('fs');
@@ -14,7 +17,8 @@ const walk = dir => fs.readdirSync(dir, { withFileTypes: true }).flatMap(d => {
 });
 
 let failed = false;
-for (const file of [...walk(path.join(root, 'js')), ...walk(path.join(root, 'tools'))]) {
+const fail = msg => { failed = true; console.error('ERR ' + msg); };
+for (const file of [...walk(path.join(root, 'js')), ...walk(path.join(root, 'tools')), ...walk(path.join(root, 'tests')), path.join(root, 'sw.js')]) {
   try { execFileSync(process.execPath, ['--check', file], { stdio: 'pipe' }); }
   catch (e) { failed = true; console.error(`ERR ${path.relative(root, file)}\n${e.stderr}`); }
 }
@@ -28,6 +32,20 @@ for (const f of loaded) {
   if (loaded.indexOf(f) !== loaded.lastIndexOf(f)) { failed = true; console.error(`ERR ${f} se carga dos veces`); }
 }
 if (loaded[loaded.length - 1] !== 'js/main.js') { failed = true; console.error('ERR js/main.js debe ser el último script'); }
+
+// Service worker: debe precargar exactamente los scripts de index.html, y todo lo que cita debe existir.
+const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
+const assets = [...sw.matchAll(/'\.\/([^']*)'/g)].map(m => m[1]).filter(Boolean);
+for (const f of loaded) if (!assets.includes(f)) fail(`sw.js no precarga ${f}`);
+for (const f of assets) {
+  if (f.startsWith('js/') && !loaded.includes(f)) fail(`sw.js precarga ${f}, que index.html no carga`);
+  if (!fs.existsSync(path.join(root, f))) fail(`sw.js precarga ${f}, que no existe`);
+}
+
+// Recursos locales citados en index.html y en el manifest.
+const refs = [...html.matchAll(/(?:href|src)="(?!https?:|#|mailto:)([^"]+)"/g)].map(m => m[1]);
+const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.webmanifest'), 'utf8'));
+for (const f of [...refs, ...manifest.icons.map(i => i.src)]) if (!fs.existsSync(path.join(root, f))) fail(`falta el archivo ${f}`);
 
 console.log(failed ? 'Hay errores.' : `OK: ${onDisk.length} scripts del juego revisados.`);
 process.exit(failed ? 1 : 0);

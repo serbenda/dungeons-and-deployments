@@ -1,6 +1,9 @@
 // Personajes con esqueleto articulado (héroes, goblins, orcos, esqueletos, minotauro) y sus poses.
 'use strict';
 
+/**
+ * Esqueletos de los humanoides: escala, estilo de dibujo, arma y colores.
+ */
 const RIGS = {
   guerrero: { scale:1.12, style:'warrior', weapon:'sword', cols:{
     skin:'#e3a982', skinS:'#b47552', hair:'#6b4426', armor:'#8d96b8', armorS:'#5a6186', armorL:'#d3d9f0', cloth:'#b8323f', clothS:'#7a1d29',
@@ -28,6 +31,21 @@ const RIGS = {
     bone:'#e6e0cf', boneS:'#a59c84', skin:'#e6e0cf', skinS:'#a59c84', eye:'#ff5d73' } }
 };
 RIGS.firewallRoto = Object.assign({}, RIGS.firewall, { shield:false });
+RIGS.picara = { scale:1.0, style:'rogue', weapon:'dagger', cols:{
+  skin:'#e8b48e', skinS:'#b47552', hair:'#ff6fae', hairS:'#c23f7e', armor:'#2f8f8a', armorS:'#1f5f5c', armorL:'#7fe0d8', cloth:'#3a2a4a', clothS:'#261a32',
+  boot:'#2a1e16', belt:'#6b4a26', metal:'#a9b2cf', metalL:'#f2f5ff', gold:'#f4b860', scarf:'#ff8ad0' } };
+RIGS.bardo = { scale:1.06, style:'bard', weapon:'lute', cols:{
+  skin:'#d9a07a', skinS:'#a26a48', hair:'#8a4a26', robe:'#2f7a46', robeS:'#1f5a32', trim:'#ffd27a', cloth:'#3a3550', clothS:'#26223a',
+  boot:'#3d2a20', belt:'#7a4f22', metal:'#9aa3c2', metalL:'#e9eefc', gold:'#ffd27a', hat:'#b8323f', hatS:'#7a1d29', feather:'#f5efe0' } };
+RIGS.revisor = Object.assign({}, RIGS.clerigo, { scale:1.3, cols:Object.assign({}, RIGS.clerigo.cols, {
+  robe:'#e6e0d4', robeS:'#a59c84', trim:'#3ddc84', hair:'#c9c2b0', cloth:'#2c3a30', clothS:'#1c2620', gold:'#3ddc84', shield:'#1f7a46', shieldL:'#8dffbf' }) });
+RIGS.pendiente = Object.assign({}, RIGS.goblin, { cols:Object.assign({}, RIGS.goblin.cols, {
+  skin:'#d9c25a', skinS:'#a08a2e', armor:'#3a5a8a', armorS:'#26406a', armorL:'#7fa8e0', eye:'#ff5d73' }) });
+/**
+ * Poses de los humanoides. Ángulos en grados de piernas (bl, fl) y brazos (ba, fa):
+ * [ángulo del segmento superior, ángulo relativo del inferior]. lean es la inclinación
+ * del torso, hip la altura de la cadera y wpn el giro del arma.
+ */
 const POSES = {
   idle0:{ lean:4, hip:0, bl:[-10,-4], fl:[12,-14], ba:[-10,30], fa:[25,55], wpn:60 },
   idle1:{ lean:5, hip:1, bl:[-10,-6], fl:[12,-16], ba:[-8,32], fa:[25,58], wpn:58 },
@@ -54,6 +72,14 @@ const POSES = {
   down:{ down:true, lean:-88, bl:[96,6], fl:[86,0], ba:[-96,0], fa:[-82,0], wpn:0 }
 };
 
+/**
+ * Pinta un arma en la mano de un personaje.
+ * @param {object} S Pintor.
+ * @param {string} type sword, mace, staff, dagger, axe, rustsword, baculo o martillo.
+ * @param {number[]} h Posición de la mano.
+ * @param {number[]} d Dirección del arma.
+ * @param {number} k Escala.
+ */
 function paintWeapon(S, type, h, d, k){
   const at = l => [h[0] + d[0]*l, h[1] + d[1]*l];
   const per = [-d[1], d[0]];
@@ -96,6 +122,12 @@ function paintWeapon(S, type, h, d, k){
       const top = at(15.5); S.disc(top[0], top[1], 2.8, '#5ec8f2'); S.px(top[0] - 1, top[1] - 1, '#e9f8ff');
       ln(add(at(12), per, -2), add(at(12), per, 2), 1, '#f4b860');
       break; }
+    case 'lute': {
+      ln(at(-4), at(6), 2, '#6b4a26');
+      for (const l of [-3, -1.5]) S.px(...add(at(l), per, 1.6), '#f4b860');
+      const b = at(10); S.ell(b[0], b[1], 4.6, 4.6, '#c98a3a'); S.ell(b[0] - .5, b[1] - .5, 3.4, 3.4, '#e0a454');
+      S.disc(b[0], b[1], 1.2, '#3a2216'); ln(at(3), at(13), 1, '#f5efe0');
+      break; }
     case 'martillo': {
       ln(at(-4), at(12), 2, '#5a3a22');
       const a1 = at(10), a2 = at(16);
@@ -105,6 +137,15 @@ function paintWeapon(S, type, h, d, k){
   }
 }
 
+/**
+ * Pinta un personaje articulado (cuerpo, cabeza, escudo y arma) en una pose.
+ * Las articulaciones se calculan a partir de los ángulos de la pose.
+ * @param {object} S Pintor de 80×84.
+ * @param {object} rig Entrada de RIGS (escala, estilo, colores y arma).
+ * @param {object} p Pose de POSES (inclinación, cadera y ángulos de piernas y brazos).
+ * @param {string} [weapon] Arma que sustituye a la del esqueleto.
+ * @returns {{hx: number, hy: number, hr: number}} Centro y radio de la cabeza, para los retratos.
+ */
 function paintRig(S, rig, p, weapon){
   const k = rig.scale, c = rig.cols, st = rig.style;
   const TH = 7.4*k, SH = 7.4*k, TO = 10.5*k, UA = 6.2*k, FA = 5.8*k, HR = 7*k;
@@ -124,8 +165,8 @@ function paintRig(S, rig, p, weapon){
   const [be, bh] = limb(shB, p.ba[0], p.ba[1], UA, FA);
   const [fe, fh] = limb(shF, p.fa[0], p.fa[1], UA, FA);
   const seg = (a, b, th, col) => S.line(a[0], a[1], b[0], b[1], th, col);
-  const legC = { mage:[c.clothS, c.cloth], warrior:[c.armorS, c.armor], cleric:[c.clothS, c.cloth], goblin:[c.clothS, c.cloth], orc:[c.clothS, c.cloth], minotaur:[c.clothS, c.cloth], skeleton:[c.boneS, c.bone] }[st];
-  const armC = { mage:[c.robeS, c.robe], warrior:[c.armorS, c.armor], cleric:[c.robeS, c.robe], goblin:[c.skinS, c.skin], orc:[c.skinS, c.skin], minotaur:[c.skinS, c.skin], skeleton:[c.boneS, c.bone] }[st];
+  const legC = { rogue:[c.clothS, c.cloth], bard:[c.clothS, c.cloth], mage:[c.clothS, c.cloth], warrior:[c.armorS, c.armor], cleric:[c.clothS, c.cloth], goblin:[c.clothS, c.cloth], orc:[c.clothS, c.cloth], minotaur:[c.clothS, c.cloth], skeleton:[c.boneS, c.bone] }[st];
+  const armC = { rogue:[c.armorS, c.armor], bard:[c.robeS, c.robe], mage:[c.robeS, c.robe], warrior:[c.armorS, c.armor], cleric:[c.robeS, c.robe], goblin:[c.skinS, c.skin], orc:[c.skinS, c.skin], minotaur:[c.skinS, c.skin], skeleton:[c.boneS, c.bone] }[st];
   const hand = sk ? c.bone : st === 'warrior' ? c.metal : c.skin;
   const boot = (f, col) => {
     if (sk) { S.rect(f[0] - 1, f[1] - 1, 4, 2, c.bone); return; }
@@ -147,7 +188,7 @@ function paintRig(S, rig, p, weapon){
     for (let i = 0; i < 3; i++) { const q = add(neck, up, -(3 + i*3)*k); seg(add(q, nrm, -3*k), add(q, nrm, 3*k), 1, i === 1 ? c.boneS : c.bone); }
     S.rect(hip[0] - 3, hip[1] - 1, 7, 2, c.boneS);
   } else {
-    const robed = st === 'cleric' || st === 'mage';
+    const robed = st === 'cleric' || st === 'mage' || st === 'bard';
     const tc = robed ? c.robe : c.armor, ts = robed ? c.robeS : c.armorS, tl = robed ? c.trim : c.armorL;
     if (robed) {
       const hemC = add(hip, D(lean*.3), (st === 'mage' ? 13 : 10)*k);
@@ -166,6 +207,19 @@ function paintRig(S, rig, p, weapon){
       const pm = add(hip, D(lean*.2), 4*k); S.poly([[pm[0] - 1.5, pm[1] - 2.5], [pm[0] + 2.5, pm[1]], [pm[0] - 1.5, pm[1] + 2.5]], '#ece6f6');
       const ch = add(neck, up, -5); S.px(ch[0], ch[1], c.gold); S.px(ch[0] + 1, ch[1] + 1, c.gold); S.px(ch[0] - 1, ch[1] + 1, c.gold);
       S.disc(shF[0], shF[1], 2.8, c.metal); S.px(shF[0] - 1, shF[1] - 1, c.metalL); S.px(shF[0], shF[1] - 2, c.metalL);
+    }
+    if (st === 'rogue') {
+      // Pañuelo al cuello que ondea hacia atrás y cinturón con bolsitas.
+      const nk = add(neck, up, -1);
+      seg(add(nk, nrm, -sw), add(nk, nrm, sw), 2, c.scarf);
+      seg(add(nk, nrm, -sw), add(add(nk, nrm, -sw - 5*k), up, -3), 2, c.scarf);
+      for (const o of [-2.5, 2]) { const b0 = add(add(hip, nrm, o*k), up, 1.5); S.rect(b0[0] - 1, b0[1] - 1, 3, 3, c.belt); }
+      const lg = add(neck, up, -6*k); S.px(lg[0], lg[1], c.armorL); S.px(lg[0] + 1, lg[1] + 1, c.armorL); S.px(lg[0] - 1, lg[1] + 1, c.armorL);
+    }
+    if (st === 'bard') {
+      // Pósits del tablero Scrum pegados a la túnica.
+      const cols = ['#ffd23f', '#ff8ad0', '#7fe0d8'];
+      for (let i = 0; i < 3; i++) { const q = add(add(neck, up, -(3.5 + i*3.2)*k), nrm, (i % 2 ? -1.5 : 1.2)*k); S.rect(q[0] - 1, q[1] - 1, 3, 3, cols[i]); }
     }
     if (st === 'cleric') {
       const ch = add(neck, up, -5*k);
@@ -215,6 +269,24 @@ function paintRig(S, rig, p, weapon){
     seg(h0, h1, 2, '#e6dcc0'); seg(h1, h2, 1, '#e6dcc0');
     const bd = add(add(hc, nrm, HR*.3), up, -HR*.66); S.disc(bd[0], bd[1], HR*.42, c.hair); S.px(bd[0] + nrm[0]*3, bd[1] + 1, c.hair);
     eyes(OUTLINE, '#ffffff'); blush('#e88a74');
+  } else if (st === 'rogue') {
+    cap(c.hair, -HR*.15);
+    // Coleta rosa hacia atrás y cinta en la frente.
+    const t0 = add(add(hc, nrm, -HR*.85), up, HR*.35), t1 = add(add(t0, nrm, -4*k), up, -3*k), t2 = add(add(t1, nrm, -2*k), up, -4*k);
+    seg(t0, t1, 3, c.hair); seg(t1, t2, 2, c.hairS);
+    seg(add(add(hc, nrm, -HR), up, HR*.3), add(add(hc, nrm, HR), up, HR*.3), 1, c.armorL);
+    eyes(OUTLINE, '#ffffff'); blush('#ff8ad0');
+    const m = add(add(hc, nrm, HR*.55), up, -HR*.55); S.px(m[0], m[1], c.skinS);
+  } else if (st === 'bard') {
+    cap(c.hair, -HR*.35);
+    // Gorro con pluma.
+    const b0 = add(add(hc, up, HR*.5), nrm, -HR*1.1), b1 = add(add(hc, up, HR*.55), nrm, HR*1.1), top = add(add(hc, up, HR*1.35), nrm, -HR*.2);
+    S.poly([b0, b1, add(top, nrm, HR*.6), top, add(add(hc, up, HR*1.1), nrm, -HR*1.2)], c.hat);
+    seg(b0, b1, 1, c.hatS);
+    const f0 = add(add(hc, up, HR*.9), nrm, -HR*.8), f1 = add(add(f0, up, 6*k), nrm, -4*k);
+    seg(f0, f1, 2, c.feather); S.px(f1[0], f1[1], '#ffd23f');
+    eyes(OUTLINE, '#ffffff'); blush('#e88a74');
+    const bd = add(add(hc, nrm, HR*.35), up, -HR*.75); S.disc(bd[0], bd[1], HR*.36, c.hair);
   } else if (st === 'cleric') {
     cap(c.hair, -HR*.2);
     seg(add(add(hc, nrm, -HR), up, HR*.3), add(add(hc, nrm, HR), up, HR*.3), 1, c.gold);
@@ -288,6 +360,12 @@ function paintRig(S, rig, p, weapon){
   paintWeapon(S, weapon || rig.weapon, fh, D(wa), Math.max(.85, k));
   return { hx:hc[0], hy:hc[1], hr:HR };
 }
+/**
+ * Devuelve una pose por nombre. Admite mezclas 'a~b~k': interpola de la pose a
+ * a la b con el factor k (0..1) y guarda el resultado en POSES.
+ * @param {string} name Por ejemplo 'walk0' o 'walk0~walk1~0.5'.
+ * @returns {object}
+ */
 function getPose(name){
   let p = POSES[name];
   if (p) return p;
@@ -297,6 +375,13 @@ function getPose(name){
   const l2 = (x, y) => [l(x[0], y[0]), l(x[1], y[1])];
   return POSES[name] = { lean:l(a.lean, b.lean), hip:l(a.hip, b.hip), wpn:l(a.wpn, b.wpn), bl:l2(a.bl, b.bl), fl:l2(a.fl, b.fl), ba:l2(a.ba, b.ba), fa:l2(a.fa, b.fa) };
 }
+/**
+ * Sprite cacheado de un personaje en una pose.
+ * @param {string} key Clave de RIGS.
+ * @param {string} pose Nombre de pose (admite mezclas, ver getPose).
+ * @param {string} [weapon]
+ * @returns {object} Sprite (ver sprite()).
+ */
 function rigSprite(key, pose, weapon){
   return sprite('rig|' + key + '|' + pose + '|' + (weapon || ''), 80, 84, S => paintRig(S, RIGS[key], getPose(pose), weapon));
 }

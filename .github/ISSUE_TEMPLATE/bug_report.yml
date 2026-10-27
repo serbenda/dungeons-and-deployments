@@ -1,0 +1,50 @@
+name: Informar de un fallo
+description: Algo no funciona como debería en el juego.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Gracias por avisar. Cuanto más concreto, antes se arregla.
+  - type: textarea
+    id: what
+    attributes:
+      label: Qué ha pasado
+      description: Describe el fallo y qué esperabas que pasara.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducirlo
+      description: Personaje, zona o ticket, y qué hiciste justo antes.
+      placeholder: |
+        1. Elijo al Mago Desarrollador
+        2. Llego a NET-404
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: seed
+    attributes:
+      label: URL con semilla (opcional)
+      description: Si lo reproduces con index.html?debug&seed=N, pega la URL; así el fallo se repite siempre igual.
+  - type: dropdown
+    id: device
+    attributes:
+      label: Dispositivo
+      options:
+        - Ordenador con teclado
+        - Móvil o tableta (mandos táctiles)
+        - Mando de juego
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Navegador y versión
+      placeholder: Chrome 130, Firefox 132, Safari 18...
+  - type: textarea
+    id: console
+    attributes:
+      label: Errores de la consola (opcional)
+      render: text

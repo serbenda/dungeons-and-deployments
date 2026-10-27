@@ -5,6 +5,10 @@
 // sea cual sea la frecuencia de refresco de la pantalla.
 const STEP_MS = 1000/60;
 let last = performance.now(), acc = 0;
+/**
+ * Bucle principal: ejecuta update() a paso fijo y draw() una vez por fotograma.
+ * @param {number} now Marca de tiempo de requestAnimationFrame.
+ */
 function frame(now){
   acc += Math.min(100, now - last); last = now;
   while (acc >= STEP_MS) { update(); acc -= STEP_MS; }
@@ -19,8 +23,14 @@ if (/[?&]debug\b/.test(location.search)) {
     get state(){ return state; }, set state(v){ state = v; },
     get P(){ return P; }, get foes(){ return foes; }, get items(){ return items; }, get crates(){ return crates; },
     get camX(){ return camX; }, get secIdx(){ return secIdx; }, get boss(){ return boss; }, get score(){ return score; },
-    held, pressedQ, update, draw
+    get PLAYERS(){ return PLAYERS; }, get stageIdx(){ return stageIdx; }, get RUN(){ return RUN; }, get credits(){ return credits; },
+    held, pressedQ, INP, update, draw, startGame
   };
+}
+
+// PWA: registra el service worker (solo por http/https; con file:// no existe).
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !/[?&]debug\b/.test(location.search)) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
 
 draw();

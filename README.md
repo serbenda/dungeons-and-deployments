@@ -1,232 +1,224 @@
-# Dungeons & Deployments
+<div align="center">
+
+# 🐉 Dungeons & Deployments
+
+**Un beat 'em up de fantasía en pixel art en el que un equipo de desarrollo<br>se abre camino por las catacumbas del CPD y las cuevas del Mainframe.**
 
 [![CI](https://github.com/serbenda/dungeons-and-deployments/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/serbenda/dungeons-and-deployments/actions/workflows/ci.yml)
+[![Deploy](https://github.com/serbenda/dungeons-and-deployments/actions/workflows/pages.yml/badge.svg)](https://github.com/serbenda/dungeons-and-deployments/actions/workflows/pages.yml)
+![Versión](https://img.shields.io/github/package-json/v/serbenda/dungeons-and-deployments?label=versi%C3%B3n&color=f4b860)
+![Sin dependencias](https://img.shields.io/badge/dependencias-0-3ddc84)
+![PWA](https://img.shields.io/badge/PWA-sin%20conexi%C3%B3n-5ec8f2)
+![Móvil](https://img.shields.io/badge/m%C3%B3vil%20y%20tableta-t%C3%A1ctil-ff8a3d)
 
-Beat 'em up de fantasía en pixel art en el que un equipo de desarrollo se abre camino por las catacumbas del CPD: de los goblins del ClickOps al Dragón Negro que se ha adueñado de la Guarida de Automation.
+### [▶ Jugar ahora](https://serbenda.github.io/dungeons-and-deployments/)
 
-HTML5, canvas y JavaScript puro, sin dependencias ni paso de compilación. Todos los gráficos y la música se generan por código.
+<img src="docs/img/gameplay.gif" alt="Partida: combate en la sala de guardia, el Minotauro del Firewall, la Hidra RAID y el Dragón Negro" width="640">
 
-**Jugar:** https://serbenda.github.io/dungeons-and-deployments/
+</div>
 
-![Pantalla de título](docs/titulo.png)
+---
+
+> Viernes, 17:45. Alguien ha tocado producción a mano y las alertas no paran.<br>
+> Elige al **Guerrero de Rundeck**, al **Mago Desarrollador**, a la **Pícara del Frontend** o al **Bardo Scrum Master** (o a dos, en cooperativo), cierra el ticket de cada departamento y derrota al **Dragón Negro** antes del fin de semana. Y si llegas sin continuar, prepárate para **El Revisor**.
+>
+> Lunes, 03:00. Un batch nocturno sale de **Las Cuevas**, donde nadie baja desde 1987. Al fondo te espera el **Lich COBOL**.
 
 ## Índice
 
-- [El juego](#el-juego)
-- [Controles](#controles)
-- [Desarrollo en local](#desarrollo-en-local)
+- [Características](#características)
+- [Cómo se juega](#cómo-se-juega)
+- [Capturas](#capturas)
+- [Inicio rápido para desarrolladores](#inicio-rápido-para-desarrolladores)
+- [Tecnología](#tecnología)
 - [Estructura del proyecto](#estructura-del-proyecto)
-- [Arquitectura](#arquitectura)
-- [Guías rápidas](#guías-rápidas)
-- [Pruebas](#pruebas)
-- [Despliegue en GitHub Pages](#despliegue-en-github-pages)
-- [Flujo de trabajo](#flujo-de-trabajo)
+- [Documentación](#documentación)
+- [Calidad y CI](#calidad-y-ci)
+- [Hoja de ruta](#hoja-de-ruta)
+- [Contribuir](#contribuir)
 
-## El juego
-
-Viernes, 17:45. Alguien ha tocado producción a mano. Elige personaje y cierra el ticket de cada departamento antes del fin de semana.
-
-| Personaje | Estilo | Especial |
-|---|---|---|
-| **Guerrero de Rundeck** | Lento y pegón, espada con runas | `RUN JOB`: golpe al suelo que tumba a todos |
-| **Mago Desarrollador** | Rápido, el remate lanza un `console.log()` | `GIT PUSH -F`: explosión arcana |
-
-| Zona | Ticket | Enemigos | Jefe |
-|---|---|---|---|
-| Sistemas | `SYS-101` Sala de guardia | Goblins del ClickOps, procesos zombi | |
-| Network | `NET-404` Paquetes perdidos | Murciélagos de paquetes perdidos, Caballero Firewall | Minotauro del Firewall |
-| Storage | `STO-100` Disco al 100% | Mímicos de disco lleno, fugas de memoria | Hidra RAID |
-| Virtualización | `VIR-007` VMs huérfanas | VMs huérfanas fantasma, Gólem Hipervisor | |
-| CaaS | `K8S-503` CrashLoopBackOff | Pods que reaparecen hasta destruir el Deployment | |
-| Automation | `AUT-500` Guarida de Automation | | Dragón Negro |
+## Características
 
 | | |
 |---|---|
-| ![Historia](docs/historia.png) | ![Sala de guardia](docs/sistemas.png) |
-| ![Minotauro del Firewall](docs/minotauro.png) | ![Hidra RAID](docs/hidra.png) |
-| ![CaaS](docs/caas.png) | ![Guarida de Automation](docs/automation.png) |
+| 👥 **Cooperativo para dos** | Teclado compartido, dos mandos o teclado y mando. El segundo jugador se une en cualquier momento pulsando START |
+| 🦸 **Cuatro héroes** | Guerrero de Rundeck, Mago Desarrollador, Pícara del Frontend y Bardo Scrum Master, cada uno con su especial |
+| 🎮 **Recreativa de verdad** | Combos de 3 golpes, saltos y patadas, agarres y lanzamientos, especiales que cuestan vida, armas con usos limitados y comida escondida en barriles |
+| 🗺️ **Dos etapas** | **Las Catacumbas**: Sistemas, Network, Storage, Virtualización y CaaS. **Las Cuevas**: Bases de datos, Seguridad y Monitorización. Cada zona con su decorado, sus enemigos, su música y su ticket (`NET-404`, `DB-500`, `SEC-666`...) |
+| 👹 **Siete jefes** | Minotauro del Firewall (`ACL: DENY ALL`), Hidra RAID (se reconstruye mientras viva la paridad), Dragón Negro, Troll DBA (`LOCK TABLE`), Cancerbero de las 3 AAA (MFA), Lich COBOL (copia en cinta) y El Revisor, jefe secreto que no deja pasar nada sin la Definition of Done |
+| 🤓 **Humor geek** | Goblins del ClickOps, VMs huérfanas, pods en CrashLoopBackOff, consultas N+1, cofres phishing, ransomware, falsos positivos a las 3:00, «SIEMPRE ES EL DNS», el patito de goma y el pergamino de Stack Overflow |
+| 🎨 **Pixel art generado por código** | Personajes articulados con animación interpolada, mazmorra con iluminación dinámica. Ni una sola imagen |
+| 🎵 **Banda sonora chiptune** | Un tema original por departamento, sintetizado en directo con Web Audio |
+| 🕹️ **Mandos** | Xbox, PlayStation y cualquier mando estándar por USB o Bluetooth |
+| 📱 **Móvil y tableta** | Cruceta analógica, botones grandes, pantalla completa, vibración y diseño vertical u horizontal |
+| ⚙️ **Opciones** | Volumen de música y efectos, tres dificultades, modo sin destellos y vibración |
+| 🏅 **20 logros** | «SIEMPRE ES EL DNS», «PAIR PROGRAMMING», «SIN ROLLBACK»... y créditos finales con las estadísticas de la partida |
+| 📶 **Sin conexión** | PWA instalable: se añade a la pantalla de inicio y funciona sin internet |
+| 🏆 **Ranking** | Top 5 con iniciales, como en los salones recreativos |
 
-Además: música chiptune por departamento, combos con rangos (`NICE!` … `ARQUITECTO`), viñetas de historia, ranking con iniciales, botín geek (el patito de goma, el pergamino de Stack Overflow…) y un código secreto en la pantalla de título.
+## Cómo se juega
 
-## Controles
+| Teclado | Mando | Móvil | Acción |
+|---|---|---|---|
+| ←↑→↓ / WASD | Cruceta o stick | Cruceta | Moverse (arriba y abajo cambian de carril) |
+| Z · J · Espacio | A · ✕ | **A** | Atacar (combo de 3), coger objetos |
+| X · K | B · ○ | **B** | Saltar (A en el aire: patada) |
+| C · L | X · Y · □ · △ | **SP** | Especial: cuesta 10 de vida |
+| Enter | START | START | Empezar, pausa, insertar crédito |
+| M | SELECT | SONIDO | Silenciar |
 
-| Teclado | Táctil | Acción |
-|---|---|---|
-| Flechas / WASD | Cruceta | Moverse (arriba y abajo para la profundidad) |
-| Z · J · Espacio | A | Atacar (combo de 3), coger objetos, pasar diálogos |
-| X · K | B | Saltar; atacar en el aire para la patada |
-| C · L | SP | Especial (cuesta 10 de vida) |
-| Enter | START | Insertar crédito, empezar, pausa |
-| M | | Silenciar música y sonido |
+**Dos jugadores:** pulsa **2** en el teclado o **START** en un mando, en la selección o en plena partida. En un mismo teclado, el jugador 1 usa flechas, Z, X, C y Enter, y el jugador 2, WASD, J, K y L.
 
-## Desarrollo en local
+**Trucos:** camina contra un enemigo para agarrarlo y lánzalo contra los demás. Al Firewall, por la espalda. A la Hidra, primero la paridad. Y hay un código secreto en la pantalla de título.
 
-No hace falta instalar nada para jugar ni para editar:
+Todos los números del juego (vida, daño, puntos) están en el [documento de diseño](docs/diseno-del-juego.md).
+
+## Capturas
+
+| | |
+|---|---|
+| ![Pantalla de título](docs/img/titulo.png) | ![Selección para dos jugadores](docs/img/seleccion.png) |
+| ![Cooperativo contra el Caballero Firewall](docs/img/cooperativo.png) | ![El Revisor y sus tareas pendientes](docs/img/revisor.png) |
+| ![Viñeta de historia](docs/img/historia.png) | ![Sala de guardia con combo](docs/img/sistemas.png) |
+| ![Minotauro del Firewall](docs/img/minotauro.png) | ![Hidra RAID](docs/img/hidra.png) |
+| ![Forja de contenedores](docs/img/caas.png) | ![Guarida de Automation](docs/img/automation.png) |
+| ![Minas de Datos](docs/img/minas.png) | ![Cripta de Seguridad](docs/img/cripta.png) |
+| ![Cancerbero de las 3 AAA](docs/img/cancerbero.png) | ![Observatorio](docs/img/observatorio.png) |
+| ![Lich COBOL y su copia en cinta](docs/img/lich.png) | ![Créditos finales](docs/img/creditos.png) |
+| ![Logros](docs/img/logros.png) | ![Opciones](docs/img/opciones.png) |
+
+<div align="center">
+
+![En móvil y tableta](docs/img/movil.png)
+
+</div>
+
+## Inicio rápido para desarrolladores
+
+**Jugar en local** no necesita instalar nada:
 
 ```bash
 git clone https://github.com/serbenda/dungeons-and-deployments.git
 cd dungeons-and-deployments
+python3 -m http.server 8000        # o abre index.html directamente
 ```
 
-Abre `index.html` en el navegador o, mejor, sírvelo por HTTP para trabajar igual que en GitHub Pages:
+Y abre http://localhost:8000/. Para probar el modo táctil en el ordenador: http://localhost:8000/?touch.
 
-```bash
-python3 -m http.server 8000
-# http://localhost:8000/
-```
-
-Para las pruebas automáticas necesitas Node.js 18 o superior (ver [Pruebas](#pruebas)).
-
-## Estructura del proyecto
-
-```
-.
-├── index.html               Página: lienzo, mandos táctiles y ficha del juego
-├── css/
-│   └── styles.css           Estilos de la página (no del juego)
-├── js/                      Código del juego, cargado en este orden
-│   ├── core/
-│   │   ├── config.js        Canvas, resolución (320×200), paleta y fuentes
-│   │   ├── pixel.js         Motor de pixel art y caché de sprites
-│   │   ├── input.js         Teclado, mandos táctiles y código Konami
-│   │   └── utils.js         Partículas, textos flotantes y colisiones
-│   ├── sprites/
-│   │   ├── characters.js    Personajes articulados y sus poses
-│   │   └── monsters.js      Gólem, dragón, objetos y enemigos no humanoides
-│   ├── world/
-│   │   └── level.js         Mazmorra prerenderizada, decorado e iluminación
-│   ├── data/
-│   │   └── game-data.js     Héroes, enemigos, comida, secciones y cajas
-│   ├── audio/
-│   │   ├── sfx.js           Efectos de sonido (WebAudio)
-│   │   └── music.js         Secuenciador chiptune y temas
-│   ├── game/
-│   │   ├── state.js         Estado de la partida, enemigos y oleadas
-│   │   ├── combat.js        Daño, combos, derribos y bloqueos
-│   │   └── loop.js          Máquina de estados y actualización por fotograma
-│   ├── entities/
-│   │   ├── player.js        Control del jugador
-│   │   ├── enemies.js       IA de enemigos, gólem y Dragón Negro
-│   │   └── bosses.js        Minotauro del Firewall e Hidra RAID
-│   ├── ui/
-│   │   ├── story.js         Viñetas de historia
-│   │   └── ranking.js       Ranking con iniciales
-│   ├── render/
-│   │   └── draw.js          Dibujo de actores, HUD y pantallas
-│   └── main.js              Arranque y modo depuración
-├── tools/
-│   ├── lint.js              Sintaxis y orden de carga de los scripts
-│   └── smoke-test.js        Prueba de humo con un bot que juega la etapa
-├── docs/                    Capturas del README
-└── .github/                 CI, despliegue a Pages y plantilla de PR
-```
-
-## Arquitectura
-
-### Carga de scripts
-
-El juego usa **scripts clásicos** (no módulos ES) que comparten el ámbito global, así funciona tanto en GitHub Pages como abriendo `index.html` con `file://`. Cada archivo empieza con `'use strict'`.
-
-El orden de los `<script>` en `index.html` importa: un archivo solo puede usar **al cargarse** lo que declaran los anteriores. Dentro de funciones se puede usar cualquier cosa, porque se ejecutan cuando ya está todo cargado. Por eso `js/main.js` va el último: es el único que arranca el juego.
-
-### Bucle y estados
-
-`js/main.js` ejecuta un bucle de paso fijo: `update()` corre 60 veces por segundo y `draw()` una vez por fotograma de pantalla. `update()` (en `js/game/loop.js`) despacha según la variable global `state`:
-
-```mermaid
-stateDiagram-v2
-  [*] --> title
-  title --> select: START
-  title --> ranking: demo tras unos segundos
-  ranking --> title
-  select --> story: elige héroe
-  story --> play
-  play --> pause: START
-  pause --> play
-  play --> story: llega un jefe
-  play --> continue: sin vidas
-  continue --> play: inserta crédito
-  continue --> over: cuenta atrás a 0
-  play --> clear: dragón vencido
-  clear --> initials: récord
-  over --> initials: récord
-  clear --> ranking
-  over --> ranking
-  initials --> ranking
-```
-
-### Coordenadas
-
-- `x`: posición horizontal en el mundo (la etapa mide `LEVEL_END + 320` píxeles). La cámara es `camX`.
-- `y`: profundidad, entre `FY0` y `FY1`. Dos actores solo chocan si su `y` es parecida. Los actores se dibujan ordenados por `y`.
-- `z`: altura sobre el suelo (saltos, vuelos, derribos).
-
-### Secciones y tickets
-
-La etapa avanza por las secciones de `SECTIONS` (`js/data/game-data.js`). Cuando la cámara llega a `cam`, la pantalla se bloquea, aparece el ticket `mission` y salen las oleadas `waves`. Con todas limpias (y el jefe `miniboss`, si lo hay) se muestra `close` y se desbloquea el avance.
-
-### Gráficos
-
-No hay imágenes: todo se pinta por código.
-
-- `painter(w, h)` (`js/core/pixel.js`) da primitivas de píxel: `px`, `rect`, `disc`, `ell`, `line`, `poly`.
-- `sprite(clave, w, h, fn)` pinta una vez, añade el contorno oscuro y una versión blanca para el destello de golpe, y lo guarda en caché por `clave`.
-- Los humanoides usan un **esqueleto articulado** (`RIGS` y `POSES` en `js/sprites/characters.js`). Una pose como `'walk0~walk1~0.5'` es la mezcla al 50 % de dos poses: así salen los fotogramas intermedios.
-- La mazmorra se pinta una sola vez en un lienzo grande (`buildLevel`) y cada fotograma se recorta la parte visible. Las luces se suman encima con `globalCompositeOperation = 'lighter'`.
-
-### Sonido
-
-Todo se sintetiza con WebAudio. `sfx(nombre)` lanza efectos cortos. `MUSIC` es un secuenciador por pasos de semicorchea: cada tema define tempo, escala, progresión de acordes, motivos de melodía, bajo y percusión. `musicFor()` elige el tema según el estado y la zona.
-
-## Guías rápidas
-
-**Añadir un enemigo**
-1. Define sus datos en `FOES` (`js/data/game-data.js`): `hp`, `spd`, `dmg`, `wind`, `score` y `rig` si es humanoide.
-2. Si es humanoide, añade su esqueleto en `RIGS`. Si no, crea su sprite en `js/sprites/monsters.js` y un caso en `drawActor` (`js/render/draw.js`).
-3. Añade su `kind` a `GRUNTS` (`js/core/utils.js`) para que cuente como enemigo de la oleada.
-4. Si necesita IA propia, enrútala al principio de `updateFoe` (`js/entities/enemies.js`).
-5. Ponlo en alguna oleada de `SECTIONS`.
-
-**Añadir una sección o ticket:** añade una entrada a `SECTIONS` con `cam`, `mission`, `close` y `waves`. Cada oleada es una lista de `[tipo, lado]`, donde el lado es `1` (derecha), `-1` (izquierda) o `0` (sale del suelo).
-
-**Añadir un diálogo:** añade una entrada a `STORIES` (`js/ui/story.js`) y llama a `startStory('clave', callback)`.
-
-**Añadir un tema musical:** añade una entrada a la tabla `T` de `js/audio/music.js` y devuélvela desde `musicFor()`.
-
-### Modo depuración
-
-Abre `index.html?debug` y tendrás `window.dnd` en la consola, con acceso al estado de la partida:
-
-```js
-dnd.P.hp = 100;      // vida al máximo
-dnd.state            // estado actual
-dnd.foes             // enemigos en pantalla
-```
-
-## Pruebas
-
-`tools/smoke-test.js` abre el juego en Chromium sin ventana, comprueba que no hay errores y deja que un bot juegue la etapa entera con los dos héroes, en modo invulnerable y en modo normal.
+**Desarrollar con pruebas** (Node.js 20 o superior):
 
 ```bash
 npm install
 npx playwright install chromium
-npm test                                   # sobre file://
-BASE_URL=http://localhost:8000/ npm test   # contra un servidor
-npm run lint                               # sintaxis y orden de carga
+
+npm run lint        # estructura del proyecto + ESLint
+npm test            # pruebas unitarias (sin navegador, ~3 s)
+npm run test:e2e    # un bot juega la etapa completa en Chromium
 ```
 
-La CI (`.github/workflows/ci.yml`) ejecuta en cada push y en cada PR el job **Lint** y, si pasa, el job **Smoke test (Chromium)**.
+**Depurar:** abre `index.html?debug&seed=42` y tendrás `window.dnd` en la consola, con una partida reproducible.
 
-## Despliegue en GitHub Pages
+```js
+dnd.P.hp = 100;        // vida al máximo
+camX = 2600;           // saltar a la Forja de contenedores
+spawnHydra(camX + 262) // invocar a la Hidra RAID
+```
 
-El workflow **Deploy to GitHub Pages** (`.github/workflows/pages.yml`) publica el juego en cada push a `main`. Para activarlo una sola vez: *Settings → Pages → Build and deployment → Source: GitHub Actions*.
+## Tecnología
 
-Todas las rutas son relativas, así que funciona igual en `https://serbenda.github.io/dungeons-and-deployments/` que en local.
+- **HTML5 Canvas 2D** a 320×200, escalado sin suavizado.
+- **JavaScript puro** (ES2022) en scripts clásicos: sin dependencias, sin empaquetador, sin compilación.
+- **Motor de pixel art propio**: pintor por píxeles, contorno automático, caché de sprites y esqueletos con poses interpoladas.
+- **Web Audio API**: efectos sintetizados y secuenciador chiptune.
+- **PWA**: manifest y service worker (primero la red, caché sin conexión).
+- **Gamepad API** para mandos.
+- **Pointer Events, Fullscreen, Vibration y Screen Wake Lock** para móvil.
+- **Node.js** solo para desarrollo: `node:test`, ESLint 9 y Playwright.
+- **GitHub Actions** para CI y despliegue en GitHub Pages.
 
-## Flujo de trabajo
+## Estructura del proyecto
 
-- `main`: lo publicado en GitHub Pages.
-- `development`: integración. Las funcionalidades nuevas se trabajan aquí o en ramas `feature/...` que salen de `development`.
-- Se fusiona a `main` mediante Pull Request, con la CI en verde.
+```
+├── index.html              Página y orden de carga de los scripts
+├── manifest.webmanifest    PWA: nombre, iconos, pantalla completa
+├── sw.js                   Service worker (juego sin conexión)
+├── css/styles.css          Estilos de la página y de los mandos táctiles
+├── img/                    Iconos y vista previa para redes sociales
+├── js/
+│   ├── core/               Configuración, motor de píxeles, teclado, mandos, táctil y utilidades
+│   ├── sprites/            Personajes articulados y monstruos (de cada etapa)
+│   ├── world/              Mazmorra, Las Cuevas e iluminación
+│   ├── data/               Héroes, enemigos, objetos y secciones
+│   ├── audio/              Efectos y música
+│   ├── game/               Estado, combate y bucle
+│   ├── entities/           Jugador, enemigos y jefes
+│   ├── ui/                 Historia, ranking, opciones, logros y créditos
+│   ├── render/             Dibujo, HUD y pantallas
+│   └── main.js             Arranque
+├── tests/                  Pruebas unitarias (node:test)
+├── tools/                  Lint del proyecto y prueba de humo
+├── docs/                   Documentación técnica y capturas
+└── .github/                CI, despliegue, Dependabot y plantillas
+```
 
-Más detalles en [CONTRIBUTING.md](CONTRIBUTING.md) y los cambios de cada versión en [CHANGELOG.md](CHANGELOG.md).
+Cada archivo empieza con una línea que resume su contenido, y cada función y tabla de datos tiene su comentario JSDoc.
+
+## Documentación
+
+| Guía | Contenido |
+|---|---|
+| [Arquitectura](docs/arquitectura.md) | Carga de scripts, bucle de paso fijo, máquina de estados, coordenadas y secciones |
+| [Diseño del juego](docs/diseno-del-juego.md) | Héroes, enemigos, jefes, etapa, objetos y puntuación, con todos los números |
+| [Gráficos](docs/graficos.md) | Motor de píxeles, esqueletos y poses, mazmorra e iluminación |
+| [Audio](docs/audio.md) | Efectos y formato de los temas del secuenciador |
+| [Controles, móvil y PWA](docs/controles-y-movil.md) | Teclas lógicas, cruceta analógica, disposición táctil e instalación |
+| [Recetas](docs/recetas.md) | Paso a paso: enemigos, jefes, secciones, objetos, diálogos, temas y héroes |
+| [Pruebas](docs/pruebas.md) | Lint, pruebas unitarias, prueba de humo, semillas y modo depuración |
+| [Despliegue y versiones](docs/despliegue-y-versiones.md) | Ramas, CI, GitHub Pages, caché de la PWA y publicación de versiones |
+
+## Calidad y CI
+
+```mermaid
+flowchart LR
+  PR[Push o PR] --> L[Lint<br>estructura + ESLint]
+  PR --> U[Unit tests<br>node:test]
+  L --> S[Smoke test<br>bot en Chromium]
+  U --> S
+  M[Merge a main] --> D[Deploy to<br>GitHub Pages]
+```
+
+- **Lint**: sintaxis, orden de carga, coherencia entre `index.html`, el service worker y el manifest, y ESLint.
+- **Unit tests**: datos, poses, combos, jefes, ranking, semillas y música, cargando el juego en un contexto aislado.
+- **Smoke test**: un bot juega las dos etapas seguidas con cada héroe y en cooperativo, con varias semillas; cualquier atasco o error de consola hace fallar la CI, con una URL para reproducirlo.
+- **Dependabot** mantiene al día las acciones y las dependencias de desarrollo.
+
+## Hoja de ruta
+
+- [x] Etapa 1 completa: cinco departamentos, tres jefes, historia y ranking
+- [x] Música chiptune, combos y animaciones interpoladas
+- [x] Móvil, tableta y PWA sin conexión
+- [x] Cooperativo para dos jugadores y soporte de mando (Gamepad API)
+- [x] Nuevos héroes: la Pícara del Frontend y el Bardo Scrum Master
+- [x] Menú de opciones: volumen, dificultad y modo sin destellos
+- [x] El Revisor, jefe secreto que exige la Definition of Done
+- [x] Logros y créditos finales con estadísticas
+- [x] Etapa 2: Las Cuevas (Bases de datos, Seguridad y Monitorización) con el Lich COBOL
+- [ ] Etapa 3: La Nube
+- [ ] Cambiar las teclas desde el menú de opciones
+- [ ] Modo jefes: solo los combates contra jefes, con su propio ranking
+
+## Contribuir
+
+Las contribuciones son bienvenidas. Antes de empezar, lee la [guía de contribución](CONTRIBUTING.md) y el [código de conducta](CODE_OF_CONDUCT.md).
+
+- ¿Un fallo? [Abre un issue](https://github.com/serbenda/dungeons-and-deployments/issues/new/choose) con la plantilla; si puedes, con una URL `?debug&seed=N` que lo reproduzca.
+- ¿Una idea de enemigo o de referencia geek? Usa la plantilla de propuestas.
+- ¿Una vulnerabilidad? Sigue la [política de seguridad](SECURITY.md).
+
+Los cambios de cada versión están en el [CHANGELOG](CHANGELOG.md).
+
+<div align="center">
+
+Hecho con ☕, pixel art y demasiados tickets por [@serbenda](https://github.com/serbenda)
+
+</div>

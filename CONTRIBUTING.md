@@ -12,16 +12,21 @@
 ```bash
 npm install
 npx playwright install chromium
-npm run lint    # sintaxis y orden de carga de los scripts
-npm test        # el bot juega la etapa completa
+npm run lint        # estructura del proyecto y ESLint
+npm test            # pruebas unitarias
+npm run test:e2e    # el bot juega la etapa completa
 ```
 
-Prueba también el cambio a mano en el navegador. Con `index.html?debug` tienes `window.dnd` en la consola.
+Si el cambio añade lógica nueva, añade también su prueba en `tests/`. Las [recetas](docs/recetas.md) explican paso a paso los cambios más habituales.
+
+Prueba también el cambio a mano en el navegador, con teclado y en modo táctil (`index.html?touch` o las herramientas de dispositivo móvil del navegador). Con `index.html?debug&seed=N` tienes `window.dnd` en la consola y una partida reproducible.
 
 ## Estilo de código
 
 - JavaScript sin dependencias ni compilación. Cada archivo empieza con `'use strict'` y un comentario de una línea que explica qué contiene.
-- Los scripts comparten ámbito global y se cargan en el orden de `index.html`. Si un archivo nuevo necesita algo **al cargarse**, colócalo después del archivo que lo declara. Si añades un archivo, añade su `<script>` en `index.html` (`npm run lint` lo comprueba).
+- Los scripts comparten ámbito global y se cargan en el orden de `index.html` (ver [Arquitectura](docs/arquitectura.md)). Si un archivo nuevo necesita algo **al cargarse**, colócalo después del archivo que lo declara. Si añades un archivo, añade su `<script>` en `index.html` y su ruta en `ASSETS` de `sw.js` (`npm run lint` lo comprueba).
+- Documenta cada función nueva con un comentario JSDoc: qué hace, sus parámetros y lo que devuelve.
+- Si cambias un número de equilibrio (vida, daño, tiempos), actualiza el [documento de diseño](docs/diseno-del-juego.md).
 - Sangría de 2 espacios, comillas simples y punto y coma (ver `.editorconfig`).
 - Nombres de funciones y variables en inglés. Textos del juego, comentarios y documentación en castellano.
 - Los gráficos se pintan por código: usa `sprite()` con una clave única para que se cacheen.

@@ -2,14 +2,26 @@
 'use strict';
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-';
+/**
+ * Ranking inicial (geek) cuando el navegador no tiene uno guardado.
+ */
 const DEFAULT_RANK = [['LTS', 60000], ['K8S', 45000], ['SSH', 30000], ['DNS', 20000], ['GIT', 10000]];
 let ranking = DEFAULT_RANK.map(([n, s]) => ({ n, s })), entry = null, rankShow = null, titleT = 0;
 try { const saved = JSON.parse(localStorage.getItem('dnd-arcade-ranking') || 'null'); if (Array.isArray(saved) && saved.length) ranking = saved.slice(0, 5); } catch(e) {}
+/**
+ * Guarda el ranking en localStorage (si el navegador lo permite).
+ */
 const saveRanking = () => { try { localStorage.setItem('dnd-arcade-ranking', JSON.stringify(ranking)); } catch(e) {} };
+/**
+ * Tras ganar o perder: pide iniciales si la puntuación entra en el top 5 o enseña el ranking.
+ */
 function afterRun(){
   if (score > ranking[ranking.length - 1].s) { entry = { l:[0, 0, 0], pos:0 }; state = 'initials'; sfx('coin'); }
   else { rankShow = { t:0, hi:-1, attract:false }; state = 'ranking'; }
 }
+/**
+ * Introducción de iniciales: arriba y abajo cambian la letra; A confirma.
+ */
 function updateInitials(){
   if (pressed('up')) { entry.l[entry.pos] = (entry.l[entry.pos] + 1) % LETTERS.length; sfx('select'); }
   if (pressed('down')) { entry.l[entry.pos] = (entry.l[entry.pos] + LETTERS.length - 1) % LETTERS.length; sfx('select'); }
@@ -24,14 +36,20 @@ function updateInitials(){
     }
   }
 }
+/**
+ * Pantalla de ranking: vuelve al título o, en modo demo, deja empezar a jugar.
+ */
 function updateRanking(){
   rankShow.t++;
   if ((rankShow.t > 40 && (pressed('start') || pressed('atk'))) || rankShow.t > 420) {
-    if (rankShow.attract && rankShow.t <= 420) { state = 'select'; sel = 0; sfx('coin'); }
+    if (rankShow.attract && rankShow.t <= 420) { enterSelect(); sfx('coin'); }
     else state = 'title';
     titleT = 0; rankShow = null;
   }
 }
+/**
+ * Dibuja la pantalla de ¡NUEVO RÉCORD!.
+ */
 function drawInitials(){
   ctx.fillStyle = 'rgba(11,9,18,.92)'; ctx.fillRect(0, 31, W, H - 31);
   goldText('¡NUEVO RÉCORD!', 160, 44, true);
@@ -44,6 +62,11 @@ function drawInitials(){
   }
   txt('ARRIBA/ABAJO: LETRA · A: OK', 160, 146, '#a39bc2', { center:true });
 }
+/**
+ * Dibuja la tabla del ranking.
+ * @param {number} y0
+ * @param {number} hi Fila que parpadea (la recién añadida) o -1.
+ */
 function drawRankingTable(y0, hi){
   panel(48, y0, 224, 100, '#0a120d');
   goldText('RANKING DE DEVS', 160, y0 + 6, false);
@@ -52,6 +75,9 @@ function drawRankingTable(y0, hi){
     txt((i + 1) + '.', 64, y, '#a39bc2'); txt(e.n, 96, y, col); txt(String(e.s).padStart(7, '0'), 256, y, col, { right:true });
   });
 }
+/**
+ * Dibuja la pantalla de ranking con la mazmorra de fondo.
+ */
 function drawRanking(){
   const cx = 2150 + Math.sin(t/400)*120;
   drawLevel(cx); drawLights(cx);
