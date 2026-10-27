@@ -82,7 +82,10 @@ function update(){
       else if (contT <= 0) { state = 'over'; overT = 0; if (score > best) { best = score; try { localStorage.setItem('dnd-arcade-best', String(best)); } catch(e) {} } }
       break; }
     case 'over': if (++overT > 120 && (pressed('start') || pressed('atk'))) afterRun(); break;
-    case 'clear': if (++clearT > 150 && (pressed('start') || pressed('atk'))) { state = 'credits'; creditsT = 0; } break;
+    case 'clear': if (++clearT > 150 && (pressed('start') || pressed('atk'))) {
+      if (stageIdx < STAGES.length - 1) { loadStage(stageIdx + 1); sfx('go'); }
+      else { state = 'credits'; creditsT = 0; }
+    } break;
     case 'credits': if (++creditsT > CREDITS_LEN || (creditsT > 60 && (pressed('start') || pressed('atk')))) afterRun(); break;
   }
   clearPressed();
@@ -90,6 +93,20 @@ function update(){
   MUSIC.setVol((state === 'pause' ? .35 : 1)*OPTS.music/8);
   MUSIC.setRate(boss && boss.hp < boss.max/2 && state === 'play' ? 1.12 : 1);
   MUSIC.tick();
+}
+/**
+ * Hace aparecer al jefe de sección con su cartel y su viñeta.
+ * @param {'minotauro'|'hidra'|'dba'|'cancerbero'} name
+ */
+function spawnMiniboss(name){
+  if (name === 'minotauro' || name === 'dba') {
+    const m = mkFoe(name, camX + W + 30, 158); m.state = 'enter'; m.face = -1; foes.push(m); lastFoe = m;
+    banner = { a:'¡JEFE!', b:m.d.name, t:140 };
+  } else {
+    lastFoe = spawnHydra(camX + 262, name === 'cancerbero' ? CERBERUS : null);
+    banner = { a:'¡JEFE!', b:lastFoe.d.name, t:140 }; sfx('roar'); shake = 6;
+  }
+  startStory(name === 'minotauro' ? 'mino' : name);
 }
 /**
  * Actualización de la partida: jugador, enemigos, proyectiles, cámara, secciones
@@ -116,6 +133,7 @@ function updatePlay(){
   ctxSlot = -1; P = PLAYERS[0];
   if (state !== 'play') return;
   for (const e of foes.slice()) { P = targetFor(e); updateFoe(e); }
+  updateLocks();
   P = PLAYERS[0];
   if (state !== 'play') return;
   for (const s of shots.slice()) {
@@ -145,10 +163,11 @@ function updatePlay(){
     locked = true; waveIdx = 0;
     const sec = SECTIONS[secIdx];
     mission = { text: sec.mission, t: 200 };
-    if (sec.boss) { boss = mkDragon(camX + W + 80, 158); foes.push(boss); banner = { a:'¡CUIDADO!', b:'GUARIDA DE AUTOMATION', t:150 }; startStory('dragon'); }
+    if (sec.boss && STAGES[stageIdx].boss === 'lich') { boss = mkLich(camX + W + 40, 156); foes.push(boss); banner = { a:'¡CUIDADO!', b:'TRONO DEL MAINFRAME', t:150 }; startStory('lich'); }
+    else if (sec.boss) { boss = mkDragon(camX + W + 80, 158); foes.push(boss); banner = { a:'¡CUIDADO!', b:'GUARIDA DE AUTOMATION', t:150 }; startStory('dragon'); }
     else {
       if (sec.golem) { golem = mkGolem(camX + 215, 152); foes.push(golem); addText('Un GÓLEM HIPERVISOR vigila la granja...', camX + 4, 58, C.u, 120); }
-      if (sec.mimics) for (const [x, y] of sec.mimics) { const m = mkFoe('mimico', x, y); m.state = 'sleep'; m.face = -1; foes.push(m); }
+      if (sec.mimics) for (const [x, y, kind] of sec.mimics) { const m = mkFoe(kind || 'mimico', x, y); m.state = 'sleep'; m.face = -1; foes.push(m); }
       if (sec.totem) { const tt = mkFoe('totem', sec.totem[0], sec.totem[1]); tt.state = 'idle'; tt.t = 60; foes.push(tt); }
       spawnWave();
     }
@@ -159,8 +178,7 @@ function updatePlay(){
       if (waveIdx < sec.waves.length - 1) { waveIdx++; spawnWave(); }
       else if (sec.miniboss && !mbDone[secIdx]) {
         mbDone[secIdx] = true;
-        if (sec.miniboss === 'minotauro') { const m = mkFoe('minotauro', camX + W + 30, 158); m.state = 'enter'; m.face = -1; foes.push(m); lastFoe = m; banner = { a:'¡JEFE!', b:'MINOTAURO DEL FIREWALL', t:140 }; startStory('mino'); }
-        else { const h = spawnHydra(camX + 262); lastFoe = h; banner = { a:'¡JEFE!', b:'HIDRA RAID', t:140 }; sfx('roar'); shake = 6; startStory('hidra'); }
+        spawnMiniboss(sec.miniboss);
       }
       else if (!(golem && golem.angry && alive(golem))) {
         locked = false; mission = { text: sec.close, t: 200, closed:true }; goT = 200; sfx('go');

@@ -10,15 +10,16 @@
 function updateFoe(e){
   if (e.flash > 0) e.flash--;
   if (e.hitT > 0) e.hitT--;
-  if (e.kind !== 'dragon' && e.kind !== 'cabeza' && e.kind !== 'hidra' && !(e.d.fly && e.state !== 'down' && e.state !== 'thrown') && e.state !== 'grabbed' && (e.z > 0 || e.vz > 0)) {
+  if (e.kind !== 'dragon' && e.kind !== 'cabeza' && e.kind !== 'hidra' && !(e.kind === 'lich' && e.state !== 'down') && !(e.d.fly && e.state !== 'down' && e.state !== 'thrown') && e.state !== 'grabbed' && (e.z > 0 || e.vz > 0)) {
     e.vz -= .36; e.z += e.vz;
     if (e.z <= 0) { e.z = 0; e.vz = 0; foeLand(e); }
   }
   e.t++;
-  if (e.kind !== 'dragon' && e.kind !== 'hidra' && e.kind !== 'cabeza' && e.kind !== 'totem') {
+  if (e.kind !== 'dragon' && e.kind !== 'hidra' && e.kind !== 'cabeza' && e.kind !== 'totem' && e.kind !== 'cinta') {
     if (e.x > camX + 12 && e.x < camX + W - 12) e.seen = true;
     if (e.seen && locked && e.state !== 'charge' && !(e.kind === 'golem' && e.state === 'charge')) e.x = clamp(e.x, camX + 10, camX + W - 10);
   }
+  if (e.kind === 'cinta' || e.kind === 'totem') { e.state = 'idle'; e.z = 0; e.vz = 0; e.lying = false; }   // estáticos: nunca caen
   if (e.kind === 'golem') return updateGolem(e);
   if (e.kind === 'dragon') return updateDragon(e);
   if (e.kind === 'minotauro') return updateMinotaur(e);
@@ -26,10 +27,13 @@ function updateFoe(e){
   if (e.kind === 'hidra') return updateHydra(e);
   if (e.kind === 'totem') return updateTotem(e);
   if (e.kind === 'revisor') return updateRevisor(e);
+  if (e.kind === 'dba') return updateDba(e);
+  if (e.kind === 'lich') return updateLich(e);
+  if (e.kind === 'cinta') return;
   if (e.d.fly && (e.state === 'walk' || e.state === 'dive' || e.state === 'hurt')) { updateBat(e); e.y = clamp(e.y, FY0, FY1); return; }
   if (e.d.ghost) { e.ph = (e.ph || (e.seed*7)) + 1; e.hidden = (e.ph % 240) > 160 && (e.state === 'walk'); }
   switch (e.state) {
-    case 'sleep': if (Math.abs(P.x - e.x) < 60 && Math.abs(P.y - e.y) < 30 || e.hp < e.max) { e.state = 'walk'; e.cool = 20; sfx('roar'); addText('¡DISCO AL 100%!', e.x - 56, e.y - 50, '#ffd27a', 50); } break;
+    case 'sleep': if (Math.abs(P.x - e.x) < 60 && Math.abs(P.y - e.y) < 30 || e.hp < e.max) { e.state = 'walk'; e.cool = 20; sfx('roar'); addText(e.kind === 'phishing' ? '¡HAS GANADO UN IPHONE!' : '¡DISCO AL 100%!', e.x - 70, e.y - 50, '#ffd27a', 50); } break;
     case 'rise': if (e.t > 45) { e.state = 'walk'; e.t = 0; if (e.kind === 'esqueleto') addText('¡PROCESO ZOMBI!', e.x - 52, e.y - 62, C.r, 40); } break;
     case 'walk': {
       if (e.cool > 0) e.cool--;
@@ -180,7 +184,7 @@ function updateGolem(e){
 }
 
 /* --- dragón */
-function mkDragon(x, y){ return { kind:'dragon', d:{ name:'DRAGÓN NEGRO' }, x, y, z:0, vz:0, vx:0, face:-1, hp:440, max:440, state:'enter', t:0, poise:0, flash:0, summoned:false, cool:60, lying:false, dead:false, hitT:0 }; }
+function mkDragon(x, y){ const hp = Math.round(440*foeHpMul()); return { kind:'dragon', d:{ name:'DRAGÓN NEGRO' }, x, y, z:0, vz:0, vx:0, face:-1, hp, max:hp, state:'enter', t:0, poise:0, flash:0, summoned:false, cool:60, lying:false, dead:false, hitT:0 }; }
 /**
  * IA del Dragón Negro: aliento de ácido, mordisco, coletazo, vuelo con pisotón,
  * refuerzos a media vida y secuencia de muerte con cámara lenta.
@@ -263,7 +267,7 @@ function stageClear(){
   const maxChain = Math.max(0, ...PLAYERS.map(p => p.maxChain));
   const timeBonus = Math.max(0, 30000 - secs*100), lifeBonus = act.reduce((a, p) => a + p.hp*50 + p.lives*5000, 0), comboBonus = maxChain*100;
   clearBonus = { secs, timeBonus, lifeBonus, comboBonus, maxChain, revisor:RUN.revisor };
-  unlock('viernes');
+  unlock(stageIdx === 0 ? 'viernes' : 'cuevas');
   if (RUN.continues === 0) unlock('rollback');
   if (secs < 480) unlock('expres');
   if (PLAYERS.length > 1) unlock('pair');

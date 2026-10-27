@@ -6,6 +6,10 @@ Todos los números de esta guía salen del código. Los tiempos están en **actu
 
 Viernes, 17:45. Alguien ha tocado producción a mano. Un equipo de desarrollo baja a las catacumbas del CPD y cierra el ticket de cada departamento hasta llegar a la Guarida de Automation, donde el Dragón Negro se ha adueñado de todos los jobs.
 
+Lunes, 03:00. Un batch nocturno sale de **Las Cuevas**, más abajo todavía, donde nadie baja desde 1987: Bases de datos, Seguridad, Monitorización y, al fondo, el Trono del Mainframe del Lich COBOL.
+
+El juego tiene dos etapas seguidas (`STAGES`). Al terminar la primera, START lleva a la segunda conservando vida, vidas y puntuación.
+
 Las bromas giran en torno a la informática: tickets, ClickOps, DNS, RAID, VMs huérfanas, CrashLoopBackOff… Nunca sobre personas.
 
 ## Héroes
@@ -128,6 +132,31 @@ Mecánica RAID: una cabeza de disco rota se **reconstruye** en 420 actualizacion
 
 La música del jefe acelera un 12 % por debajo de la mitad de la vida.
 
+### Troll DBA (Bases de datos)
+
+| Dato | Valor |
+|---|---|
+| Vida | 340 |
+| Martillazos | 15; cada tercer golpe, `DROP TABLE`: onda expansiva de 56 px (10, derriba) |
+| `LOCK TABLE` | Cada 5-7 s marca una zona en el suelo bajo su objetivo. Al armarse (40 actualizaciones), quien esté dentro queda **atrapado**: 5 pulsaciones de A para liberarse (o 2,5 s) |
+| Refuerzos | Al 50 %, tres consultas N+1 |
+
+### Cancerbero de las 3 AAA (Seguridad)
+
+La misma mecánica que la Hidra RAID con otras cabezas: **AUTENTICACIÓN**, **MFA** y **AUTORIZACIÓN**. Mientras viva la del MFA, las otras se «reautentican» (se reconstruyen). Es una variante de `spawnHydra()` (`CERBERUS`).
+
+### Lich COBOL (Trono del Mainframe)
+
+| Dato | Valor |
+|---|---|
+| Vida | 520 |
+| `//JCL JOB` | Tres proyectiles en abanico (8 cada uno) |
+| `SUBMIT BATCH` | Levanta dos procesos zombi a los lados del objetivo (si hay menos de dos) |
+| `IPL` | Desaparece y reaparece en el otro lado de la pantalla |
+| Báculo | 14, derriba, si estás cerca |
+| Copia en cinta | Al 60 % y al 25 % invoca una **COPIA EN CINTA** (90 de vida) en el lado contrario y no recibe daño hasta que se destruye |
+| Final | 8.000 puntos, cámara lenta y «STOP RUN» |
+
 ### El Revisor (jefe secreto)
 
 Aparece después del Dragón Negro **solo si se ha llegado sin continuar** (`revisorUnlocked()`). Exige la Definition of Done.
@@ -141,7 +170,7 @@ Aparece después del Dragón Negro **solo si se ha llegado sin continuar** (`rev
 | Expuesto | Sin pendientes, «LGTM... ¿SEGURO?»: pelea con la maza (13, derriba) durante 8 segundos y vuelve a pedir cambios |
 | Final | 10.000 puntos y «APPROVED · MERGE» |
 
-## La etapa
+## Etapa 1: Las Catacumbas
 
 | Sección | Cámara | Ticket | Oleadas | Extra | Al cerrar |
 |---|---|---|---|---|---|
@@ -153,6 +182,30 @@ Aparece después del Dragón Negro **solo si se ha llegado sin continuar** (`rev
 | Automation | 3520 | `AUT-500 GUARIDA DE AUTOMATION` | — | Dragón Negro | — |
 
 Zonas del decorado por x del mundo: Sistemas 0–639, Network 640–1279, Storage 1280–1919, Virtualización 1920–2559, CaaS 2560–3199 y Guarida desde 3200.
+
+## Etapa 2: Las Cuevas
+
+| Sección | Cámara | Ticket | Oleadas | Extra | Al cerrar |
+|---|---|---|---|---|---|
+| Bases de datos | 110 | `DB-101 DEADLOCK EN LA MINA` | 2 kobolds · zombi + kobold + N+1 | — | `COMMIT;` |
+| Bases de datos | 760 | `DB-500 CONSULTAS N+1` | 3 N+1 · troll + kobold | Troll DBA | `CREATE INDEX` |
+| Seguridad | 1400 | `SEC-403 ACCESO DENEGADO` | ransomware + kobold · 2 troyanos + ransomware | 2 cofres phishing | MÍNIMO PRIVILEGIO |
+| Seguridad | 2040 | `SEC-666 DÍA CERO` | ransomware + troyano + Firewall | Cancerbero | PARCHE APLICADO |
+| Monitorización | 2680 | `MON-200 ALERTAS A LAS 3:00` | 2 falsos positivos + gnomo · gnomo + troll + falso positivo | — | ALERTA SILENCIADA |
+| Mainframe | 3520 | `MF-001 TRONO DEL MAINFRAME` | — | Lich COBOL | — |
+
+Zonas por x: Minas de Datos 0–1279, Cripta de Seguridad 1280–2559, Observatorio 2560–3199 y Trono del Mainframe desde 3200 (`ZONE2`).
+
+| Enemigo | Vida | Velocidad | Daño | Puntos | Comportamiento |
+|---|---|---|---|---|---|
+| Kobold del SELECT * | 40 | 1,05 | 7 | 200 | Básico, algo más duro que el goblin |
+| Troll del Legacy | 110 | 0,7 | 12 | 600 | Lento y con maza |
+| Consulta N+1 | 12 | 1,5 | 4 | 120 | Ojo volador: vuela en círculo y se lanza en picado. Vienen en grupo |
+| Cofre phishing | 44 | 1,0 | 9 | 450 | Dormido con «¡PREMIO!» hasta que te acercas. «¡HAS GANADO UN IPHONE!» |
+| Ransomware | 50 | 0,85 | 9 | 450 | Si te golpea con un arma en la mano, la cifra y la pierdes |
+| Troyano | 36 | 0,85 | 7 | 350 | Caballo de madera que se vuelve invisible a ratos, como la VM huérfana |
+| Falso positivo | 14 | 1,5 | 5 | 150 | Campana de alarma voladora |
+| Gnomo del dashboard | 34 | 1,1 | 6 | 220 | Rápido y pequeño |
 
 ## Objetos
 
@@ -200,7 +253,7 @@ Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SS
 
 ## Logros
 
-16 logros en `ACHIEVEMENTS` (`js/ui/achievements.js`), guardados en el navegador. Se ven desde el título (LOGROS) y aparece un aviso al conseguir cada uno.
+20 logros en `ACHIEVEMENTS` (`js/ui/achievements.js`), guardados en el navegador. Se ven desde el título (LOGROS) y aparece un aviso al conseguir cada uno.
 
 | Logro | Cómo |
 |---|---|
@@ -211,12 +264,16 @@ Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SS
 | 10X DEVELOPER · ARQUITECTO | Combo de 20 · de 50 |
 | A PRODUCCIÓN | Lanzar 10 enemigos en una partida |
 | RUBBER DUCK DEBUGGING · COPIAR Y PEGAR | Coger el patito · el pergamino de Stack Overflow |
-| DESPLIEGUE EN VIERNES | Terminar la etapa |
-| SIN ROLLBACK | Terminarla sin continuar |
-| HOTFIX EXPRÉS | Terminarla en menos de 8 minutos |
-| PAIR PROGRAMMING | Terminarla en cooperativo |
+| DESPLIEGUE EN VIERNES | Terminar la etapa 1 |
+| SIN ROLLBACK | Terminar una etapa sin haber continuado |
+| HOTFIX EXPRÉS | Terminar una etapa en menos de 8 minutos |
+| PAIR PROGRAMMING | Terminar una etapa en cooperativo |
 | APPROVED | Derrotar a El Revisor |
-| GUARDIA SUPERADA | Terminarla en GUARDIA 24/7 |
+| GUARDIA SUPERADA | Terminar una etapa en GUARDIA 24/7 |
+| BATCH NOCTURNO | Terminar la etapa 2 |
+| MFA ROTO | Romper la cabeza del MFA del Cancerbero |
+| STOP RUN | Derrotar al Lich COBOL |
+| UNLOCK TABLES | Liberarse de un LOCK TABLE |
 | MODO DIOS | Código Konami |
 
 ## Secretos

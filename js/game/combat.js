@@ -36,6 +36,7 @@ function damage(tg, dmg, src, opt){
     if (tg.chain >= 5) addText('COMBO ROTO', tg.x - 40, tg.y - 84, C.r, 40);
     tg.chain = 0; tg.chainT = 0;
     if (RUN) RUN.hitsTaken++;
+    if (src && src.kind === 'ransom' && tg.weapon) { tg.weapon = null; addText('ARMA CIFRADA: PAGA 1 BTC', tg.x - 90, tg.y - 84, '#ffd23f', 60); }
   } else if (isHero(src) && tg.kind !== 'crate') {
     src.chain++; src.chainT = 120; if (src.chain > src.maxChain) src.maxChain = src.chain;
     const real = Math.max(0, Math.min(dmg, hp0));
@@ -67,16 +68,17 @@ function damageRaw(tg, dmg, src, opt){
     if (t - (tg.msgT || 0) > 30) { tg.msgT = t; addText('ACL: DENY', tg.x - 36, tg.y - 66, '#ff8a3d', 36); }
     return false;
   }
-  if (tg.kind === 'hidra') { if (isHero(src) && t - (tg.msgT || 0) > 50) { tg.msgT = t; addText('¡ATACA LAS CABEZAS!', tg.x - 72, tg.y - 80, '#ffd27a', 40); } return false; }
+  if (tg.kind === 'hidra') { if (isHero(src) && t - (tg.msgT || 0) > 50) { tg.msgT = t; addText(tg.txt.hint, tg.x - 72, tg.y - 80, '#ffd27a', 40); } return false; }
   if (tg.kind === 'cabeza' && tg.state === 'broken') return false;
   if (tg.kind === 'minotauro' && tg.guard > 0 && !opt.pierce && Math.sign(src.x - tg.x) === tg.face && tg.state !== 'down') {
     tg.flash = 4; sfx('clink'); spark(tg.x + tg.face*14, tg.y - 40);
     if (t - (tg.msgT || 0) > 30) { tg.msgT = t; addText('DENY ALL', tg.x - 32, tg.y - 90, C.r, 36); }
     return false;
   }
-  if (tg.kind === 'totem') {
+  if (tg.kind === 'lich' && lichBlocks(tg)) return false;
+  if (tg.kind === 'totem' || tg.kind === 'cinta') {
     tg.hp -= dmg; tg.flash = 8; hitstop = 3; spark(tg.x, tg.y - 30); sfx('punch'); lastFoe = tg; if (isHero(src)) score += dmg*10;
-    if (tg.hp <= 0) { tg.dead = true; foes.splice(foes.indexOf(tg), 1); score += tg.d.score; burst(tg.x, tg.y - 30, '#5ec8f2', 30, 2.6, 'rgb(94,200,242)'); shake = 6; sfx('boom'); addText('DEPLOYMENT ELIMINADO', tg.x - 80, tg.y - 74, '#9fd0ff', 80); }
+    if (tg.hp <= 0) { tg.dead = true; foes.splice(foes.indexOf(tg), 1); score += tg.d.score; burst(tg.x, tg.y - 30, '#5ec8f2', 30, 2.6, 'rgb(94,200,242)'); shake = 6; sfx('boom'); addText(tg.kind === 'cinta' ? 'COPIA BORRADA' : 'DEPLOYMENT ELIMINADO', tg.x - 80, tg.y - 74, '#9fd0ff', 80); }
     return true;
   }
   if (tg.kind === 'revisor' && revisorBlocks(tg, src, opt)) return false;
@@ -97,8 +99,8 @@ function damageRaw(tg, dmg, src, opt){
     if (tg.hp <= 0) {
       tg.hp = 0; tg.state = 'broken'; tg.t = 0; tg.rebuild = 0; shake = 5; sfx('boom');
       burst(tg.x, tg.y - 24, tg.d.parity ? '#b98cff' : '#5ec8f2', 18, 2.2);
-      if (tg.d.parity) { addText('¡PARIDAD PERDIDA! YA NO HAY REBUILD', tg.x - 140, tg.y - 70, '#ffd23f', 90); unlock('paridad'); for (const h of foes) if (h.kind === 'cabeza' && h.body === tg.body && h.state === 'broken') h.dead = true; tg.dead = true; }
-      else addText('DISCO FALLIDO', tg.x - 52, tg.y - 64, '#ffd27a', 50);
+      if (tg.d.parity) { addText(tg.body.txt.lost, tg.x - 140, tg.y - 70, '#ffd23f', 90); unlock(tg.body.ach); for (const h of foes) if (h.kind === 'cabeza' && h.body === tg.body && h.state === 'broken') h.dead = true; tg.dead = true; }
+      else addText(tg.body.txt.failed, tg.x - 52, tg.y - 64, '#ffd27a', 50);
     }
     return true;
   }

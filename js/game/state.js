@@ -9,6 +9,8 @@ try { best = parseInt(localStorage.getItem('dnd-arcade-best') || '0', 10) || 0; 
 
 /** Jugadores de la partida (1 o 2). P es el jugador «actual»: el que se está actualizando o, si no, el 1. */
 let PLAYERS = [];
+/** Etapa en curso: 0 Las Catacumbas, 1 Las Cuevas (índice de STAGES). */
+let stageIdx = 0;
 /** Estadísticas de la partida para la pantalla final y los logros. */
 let RUN = null;
 /**
@@ -43,15 +45,27 @@ function startGame(heroKeys){
   const keys = Array.isArray(heroKeys) ? heroKeys : [heroKeys];
   PLAYERS = keys.map((k, i) => mkPlayer(k, i, 60 - i*24, 150 + i*18));
   P = PLAYERS[0];
-  RUN = { kills:0, throws:0, specials:0, food:0, hitsTaken:0, continues:0, coop:keys.length > 1, golemAngry:false, revisor:false };
+  RUN = { kills:0, throws:0, specials:0, food:0, hitsTaken:0, continues:0, coop:keys.length > 1, golemAngry:false, revisor:false, totalT:0 };
+  score = 0; credits = 1;
+  loadStage(0);
+}
+/**
+ * Prepara una etapa: secciones, cajas, cámara y enemigos desde cero. Los
+ * jugadores conservan vida, vidas y combo máximo, y vuelven a la entrada.
+ * @param {number} i Índice de STAGES.
+ */
+function loadStage(i){
+  const st = STAGES[i];
+  stageIdx = i; SECTIONS = st.sections; CRATES = st.crates;
   foes = []; items = []; shots = []; fx = []; texts = []; eshots = []; mbDone = {};
   crates = CRATES.map(([k, x, y, item]) => ({ kind:'crate', k, x, y, z:0, hp:2, item, flash:0 }));
-  camX = 0; secIdx = 0; locked = false; waveIdx = 0; goT = 0; boss = null; golem = null; lastFoe = null;
-  score = 0; stageT = 0; credits = 1;
-  banner = { a:'NIVEL 1', b:'LAS CATACUMBAS DE SISTEMAS', t:160 };
+  camX = 0; secIdx = 0; locked = false; waveIdx = 0; goT = 0; boss = null; golem = null; lastFoe = null; clearBonus = null;
+  stageT = 0; hitstop = 0; slowmo = 0; flashT = 0; rankFx = null; locks = [];
+  PLAYERS.forEach((p, n) => { p.x = 60 - n*24; p.y = 150 + n*18; p.z = 0; p.vz = 0; p.state = 'idle'; p.t = 0; p.inv = 90; p.held = null; p.chain = 0; });
+  banner = { a:'NIVEL ' + (i + 1), b:st.sub, t:160 };
   mission = null;
   state = 'play';
-  startStory('intro');
+  startStory(st.story);
 }
 /**
  * Une al jugador 2 a una partida en curso con el primer héroe libre.

@@ -182,21 +182,32 @@ function drawActor(a, cx){
   if (a.d && a.d.fly) {
     shadow(sx, a.y, 14);
     const down = a.state === 'down' && a.lying;
-    blit(batSprite(down ? 1 : ((t + a.seed*3) >> 2) % 2), sx, sy, a.face, 20, 28, fl);
+    const fr = down ? 1 : ((t + a.seed*3) >> 2) % 2;
+    if (a.d.look === 'eye') blit(eyeSprite(fr), sx, sy, a.face, 18, 28, fl);
+    else if (a.d.look === 'bell') blit(bellSprite(fr), sx, sy, a.face, 18, 30, fl);
+    else blit(batSprite(fr), sx, sy, a.face, 20, 28, fl);
     return;
   }
   if (a.d && a.d.ghost) {
     shadow(sx, a.y, 18);
     const bob = Math.sin((t + a.seed*9)/10)*3;
-    blit(ghostSprite((t >> 4) % 2), sx, sy - 10 + bob, a.face, 18, 40, fl, a.hidden ? .18 : (a.state === 'down' && a.lying ? .5 : .88));
+    const alpha = a.hidden ? .18 : (a.state === 'down' && a.lying ? .5 : .88);
+    if (a.d.look === 'horse') blit(trojanSprite((t >> 4) % 2), sx, sy - 6 + bob, a.face, 20, 44, fl, alpha);
+    else blit(ghostSprite((t >> 4) % 2), sx, sy - 10 + bob, a.face, 18, 40, fl, alpha);
     if (a.state === 'windup' && (t >> 2) % 2) { r(sx - 1, sy - 62, 3, 6, C.r); r(sx - 1, sy - 54, 3, 2, C.r); }
     return;
   }
-  if (a.kind === 'mimico') {
+  if (a.kind === 'mimico' || a.kind === 'phishing') {
     shadow(sx, a.y, 26);
     const open = a.state !== 'sleep' && (a.state === 'windup' || a.state === 'attack' || ((t + a.seed*5) >> 3) % 2);
     const hop = a.state === 'attack' ? Math.sin(Math.min(1, a.t/10)*Math.PI)*8 : 0;
-    blit(mimicSprite(open ? 1 : 0), sx, sy - hop, a.face, 17, 32, fl);
+    if (a.kind === 'phishing') { blit(phishSprite(open ? 1 : 0), sx, sy - hop, a.face, 18, 33, fl); if (a.state === 'sleep' && (t >> 5) % 2) txt('¡PREMIO!', sx, sy - 44, '#ffd23f', { center:true, outline:true }); }
+    else blit(mimicSprite(open ? 1 : 0), sx, sy - hop, a.face, 17, 32, fl);
+    return;
+  }
+  if (a.kind === 'cinta') {
+    shadow(sx, a.y, 30); blit(tapeSprite((t >> 3) % 4), sx, sy, 1, 18, 64, fl);
+    txt('COPIA EN CINTA', sx, sy - 76, '#3ddc84', { center:true, outline:true });
     return;
   }
   if (a.kind === 'pod') {
@@ -263,6 +274,16 @@ function drawActor(a, cx){
     for (let yy = 0; yy < 8; yy++) ctx.fillRect(gx - 4 + (yy % 2)*4, Math.round(sy - 72 + yy*9), 4, 1);
   }
   if (!isP && a.state === 'windup' && (t >> 2) % 2) { r(sx + a.face*4 - 1, sy - 64, 3, 6, C.r); r(sx + a.face*4 - 1, sy - 56, 3, 2, C.r); }
+  if (isP && a.state === 'stuck') {
+    const k = a.mash || 0;
+    r(sx - 7, sy - 92, 14, 11, '#ffd23f'); r(sx - 5, sy - 98, 10, 7, '#ffd23f'); r(sx - 3, sy - 96, 6, 5, '#0b0912'); r(sx - 1, sy - 88, 2, 4, '#3a2a10');
+    txt('LOCKED · A x' + Math.max(0, 5 - k), sx, sy - 80, '#ffd23f', { center:true, outline:true });
+  }
+  if (a.kind === 'lich' && a.shielded) {
+    const pulse = .3 + .2*Math.sin(t/4);
+    ctx.strokeStyle = 'rgba(61,220,132,' + pulse + ')'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(Math.round(sx), Math.round(sy - 56), 36, 62, 0, 0, Math.PI*2); ctx.stroke();
+  }
   if (isP && a.state === 'special' && a.hero === 'mago') {
     ctx.strokeStyle = 'rgba(185,140,255,.85)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(Math.round(sx), Math.round(a.y), 20 + a.t, 6 + a.t*.3, 0, 0, Math.PI*2); ctx.stroke();
   }
@@ -362,7 +383,7 @@ function drawHUD(){
     panel(182, 2, 76, 13);
     r(186, 5, 7, 7, '#a8722e'); r(186, 5, 6, 6, '#ffd23f'); r(187, 6, 2, 2, '#fff3c4');
     txt(String(score).padStart(7, '0'), 196, 5, C.w);
-    panel(261, 2, 57, 13, '#123a24'); txt('NIVEL 1', 264, 5, NEONT);
+    panel(261, 2, 57, 13, '#123a24'); txt('NIVEL ' + (stageIdx + 1), 264, 5, NEONT);
     panel(182, 17, 136, 12);
     if (f) {
       txt(f.d.short || f.d.name, 186, 19, '#ffd27a');
@@ -456,15 +477,16 @@ function drawSelect(){
 }
 
 /**
- * Datos de la barra del jefe activo (Dragón, Minotauro o Hidra), o null.
+ * Datos de la barra del jefe activo (jefe final, jefe de sección o Hidra y
+ * variantes), o null.
  * @returns {{name: string, frac: number, hl: boolean}|null}
  */
 function bossBar(){
-  if (boss && boss.state !== 'enter') return { name:'DRAGÓN NEGRO', frac:boss.hp/boss.max, hl:boss.state === 'stagger' };
-  const m = foes.find(f => f.kind === 'minotauro' && !f.dead);
-  if (m) return { name:'MINOTAURO', frac:m.hp/m.max, hl:m.guard > 0 };
+  if (boss && boss.state !== 'enter') return { name:boss.d.name, frac:boss.hp/boss.max, hl:boss.state === 'stagger' || !!boss.shielded };
+  const m = foes.find(f => (f.kind === 'minotauro' || f.kind === 'dba' || f.kind === 'revisor') && !f.dead && f.state !== 'enter');
+  if (m) return { name:m.d.short, frac:m.hp/m.max, hl:m.guard > 0 || !!m.guarded };
   const heads = foes.filter(f => f.kind === 'cabeza');
-  if (heads.length && heads.some(h => !h.dead)) return { name:'HIDRA RAID', frac:heads.reduce((a, h) => a + (h.dead ? 0 : h.hp), 0)/heads.reduce((a, h) => a + h.max, 0), hl:false };
+  if (heads.length && heads.some(h => !h.dead)) return { name:heads[0].body.variant ? heads[0].body.d.short : 'HIDRA RAID', frac:heads.reduce((a, h) => a + (h.dead ? 0 : h.hp), 0)/heads.reduce((a, h) => a + h.max, 0), hl:false };
   return null;
 }
 /**
@@ -489,6 +511,13 @@ function drawScene(){
   for (const f of fx) if (f.ring) {
     ctx.strokeStyle = f.col; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(f.x - cx, f.y - 2, f.r, f.r*.3, 0, 0, Math.PI*2); ctx.stroke();
     if (f.runes) { ctx.fillStyle = f.col; for (let i = 0; i < 8; i++) { const a = i/8*Math.PI*2 + t/10; ctx.fillRect(Math.round(f.x - cx + Math.cos(a)*f.r) - 1, Math.round(f.y - 2 + Math.sin(a)*f.r*.3) - 1, 3, 3); } }
+  }
+  for (const L of locks) {
+    const k = Math.min(1, L.t/20), sxL = L.x - cx;
+    ctx.strokeStyle = 'rgba(255,210,63,' + (.5 + .3*Math.sin(t/3)) + ')'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(Math.round(sxL), Math.round(L.y), L.r*k, L.r*.3*k, 0, 0, Math.PI*2); ctx.stroke();
+    if (L.t < L.arm) { ctx.fillStyle = 'rgba(255,210,63,.15)'; ctx.beginPath(); ctx.ellipse(Math.round(sxL), Math.round(L.y), L.r*k, L.r*.3*k, 0, 0, Math.PI*2); ctx.fill(); }
+    else txt('LOCK TABLE', sxL, L.y - 10, '#ffd23f', { center:true, outline:true });
   }
   if (boss && boss.state === 'breath') {
     const mx = boss.x + boss.face*80 - cx;
@@ -571,9 +600,10 @@ function drawScene(){
     if (clearT > 105) {
       r(40, 124, 240, 30, '#a8722e'); r(42, 126, 236, 26, '#e6dcc0'); r(42, 126, 236, 1, '#fff3c4');
       txt('PÁGINA DEL GRIMORIO DoD', 160, 129, '#3a2a1a', { center:true });
-      txt('LOGS Y TRAZAS', 160, 141, '#2f7a5a', { center:true });
+      txt(stageIdx ? 'MONITORIZACIÓN Y ALERTAS' : 'LOGS Y TRAZAS', 160, 141, '#2f7a5a', { center:true });
     }
-    if (clearT > 130) txt(clearBonus.revisor ? 'PR APROBADO POR EL REVISOR' : 'CONTINUARÁ: ETAPA 2 · LAS CUEVAS', 160, 162, clearBonus.revisor ? C.g : C.e, { center:true });
+    const nextSt = STAGES[stageIdx + 1];
+    if (clearT > 130) txt((clearBonus.revisor ? 'PR APROBADO · ' : '') + (nextSt ? 'SIGUIENTE: ETAPA ' + (stageIdx + 2) + ' · ' + nextSt.name : 'EL MAINFRAME DESCANSA EN PAZ'), 160, 162, clearBonus.revisor ? C.g : C.e, { center:true });
     if (clearT > 150 && (t >> 4) % 2) txt('PULSA START', 160, 178, C.w, { center:true });
   }
 }
