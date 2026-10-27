@@ -24,7 +24,7 @@ if (/[?&]debug\b/.test(location.search)) {
     get P(){ return P; }, get foes(){ return foes; }, get items(){ return items; }, get crates(){ return crates; },
     get camX(){ return camX; }, get secIdx(){ return secIdx; }, get boss(){ return boss; }, get score(){ return score; },
     get PLAYERS(){ return PLAYERS; }, get stageIdx(){ return stageIdx; }, get RUN(){ return RUN; }, get credits(){ return credits; },
-    held, pressedQ, INP, update, draw, startGame
+    held, pressedQ, INP, update, draw, startGame, startBossRush
   };
 }
 

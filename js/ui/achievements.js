@@ -23,6 +23,7 @@ const ACHIEVEMENTS = [
   ['expres', 'HOTFIX EXPRÉS', 'Acaba la etapa en menos de 8 min.'],
   ['pair', 'PAIR PROGRAMMING', 'Termina la etapa en cooperativo.'],
   ['revisor', 'APPROVED', 'Derrota a El Revisor.'],
+  ['jefes', 'SIN DESCANSO', 'Supera el modo jefes.'],
   ['oncall', 'GUARDIA SUPERADA', 'Acaba la etapa en GUARDIA 24/7.'],
   ['konami', 'MODO DIOS', 'Introduce el código secreto.']
 ];

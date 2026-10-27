@@ -418,11 +418,11 @@ function drawTitle(){
   blit(rigSprite('guerrero', (t >> 5) % 2 ? 'idle0' : 'atk1b'), 58, 192, 1, 40, 80, false);
   blit(rigSprite('mago', (t >> 5) % 2 ? 'special' : 'idle1'), 104, 194, 1, 40, 80, false);
   blit(rigSprite('picara', (t >> 5) % 2 ? 'atk1b' : 'idle0'), 136, 188, 1, 40, 80, false);
-  panel(206, 112, 110, 46, '#0a120d');
+  panel(206, 104, 110, 56, '#0a120d');
   TITLE_MENU.forEach((m, i) => {
-    const on = i === titleSel, y = 117 + i*13;
+    const on = i === titleSel, y = 109 + i*12;
     if (on) r(208, y - 2, 106, 11, '#123a24');
-    txt((on && (t >> 4) % 2 ? '> ' : '  ') + m + (i === 2 ? ' ' + achCount() + '/' + ACHIEVEMENTS.length : ''), 212, y, on ? NEONT : C.w);
+    txt((on && (t >> 4) % 2 ? '> ' : '  ') + m + (i === 3 ? ' ' + achCount() + '/' + ACHIEVEMENTS.length : ''), 212, y, on ? NEONT : C.w);
   });
   txt('RÉCORD ' + ranking[0].n + ' ' + String(ranking[0].s).padStart(7, '0'), 261, 164, '#ffd27a', { center:true, outline:true });
   const mq = "THERE'S NO PLACE LIKE 127.0.0.1  ·  SUDO MAKE ME A SANDWICH  ·  LA RESPUESTA ES 42  ·  ¿HAS PROBADO A APAGAR Y ENCENDER?  ·  RTFM  ·  PEBKAC  ·  ^^vv<><>BA  ·  ";
@@ -439,7 +439,7 @@ function drawSelect(){
   const cx = LEVEL_END + 60;
   drawLevel(cx);
   ctx.fillStyle = 'rgba(8,6,14,.55)'; ctx.fillRect(0, 0, W, H);
-  panel(70, 3, 180, 13, '#123a24'); txt('ELIGE TU AVENTURERO', 160, 6, NEONT, { center:true });
+  panel(70, 3, 180, 13, playMode === 'jefes' ? '#3a1028' : '#123a24'); txt(playMode === 'jefes' ? 'MODO JEFES · ELIGE HÉROE' : 'ELIGE TU AVENTURERO', 160, 6, playMode === 'jefes' ? '#ffd23f' : NEONT, { center:true });
   const cols = [NEON, '#5ec8f2'];
   HERO_ORDER.forEach((k, i) => {
     const h = HEROES[k], x0 = 4 + i*79, who = selP.map((c, s) => c && c.i === i ? s : -1).filter(s => s >= 0);
@@ -501,6 +501,7 @@ function drawScene(){
   if (state === 'ranking') return drawRanking();
   if (state === 'select') return drawSelect();
   if (state === 'options') return drawOptions();
+  if (state === 'keys') return drawKeys();
   if (state === 'logros') return drawAchievements();
   if (state === 'credits') return drawCredits();
   const shk = OPTS.flashes ? shake : 0;
@@ -590,7 +591,7 @@ function drawScene(){
   }
   if (state === 'clear' && clearBonus) {
     ctx.fillStyle = 'rgba(11,9,18,.9)'; ctx.fillRect(0, 31, W, H - 31);
-    goldText('DEPLOY OK', 160, 38, true);
+    goldText(clearBonus.rush ? 'JEFES SUPERADOS' : 'DEPLOY OK', 160, 38, true);
     txt('pipeline en verde', 160, 56, NEONT, { center:true });
     const rows = [
       ['SPRINT ' + String(Math.floor(clearBonus.secs/60)).padStart(2,'0') + ':' + String(clearBonus.secs % 60).padStart(2,'0'), clearBonus.timeBonus],
@@ -603,7 +604,7 @@ function drawScene(){
       txt(stageIdx ? 'MONITORIZACIÓN Y ALERTAS' : 'LOGS Y TRAZAS', 160, 141, '#2f7a5a', { center:true });
     }
     const nextSt = STAGES[stageIdx + 1];
-    if (clearT > 130) txt((clearBonus.revisor ? 'PR APROBADO · ' : '') + (nextSt ? 'SIGUIENTE: ETAPA ' + (stageIdx + 2) + ' · ' + nextSt.name : 'EL MAINFRAME DESCANSA EN PAZ'), 160, 162, clearBonus.revisor ? C.g : C.e, { center:true });
+    if (clearT > 130) txt(clearBonus.rush ? 'SEIS JEFES SIN DESCANSO' : (clearBonus.revisor ? 'PR APROBADO · ' : '') + (nextSt ? 'SIGUIENTE: ETAPA ' + (stageIdx + 2) + ' · ' + nextSt.name : 'EL MAINFRAME DESCANSA EN PAZ'), 160, 162, clearBonus.revisor ? C.g : C.e, { center:true });
     if (clearT > 150 && (t >> 4) % 2) txt('PULSA START', 160, 178, C.w, { center:true });
   }
 }

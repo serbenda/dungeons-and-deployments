@@ -143,7 +143,7 @@ const MUSIC = (() => {
  */
 function musicFor(){
   switch (state) {
-    case 'title': case 'select': case 'initials': case 'ranking': case 'options': case 'logros': return 'title';
+    case 'title': case 'select': case 'initials': case 'ranking': case 'options': case 'keys': case 'logros': return 'title';
     case 'story': { if (story && (story.key === 'outro' || story.key === 'final')) return 'victory'; const z = ZONE(camX + 160); return boss || z === 'guarida' || z === 'trono' ? 'boss' : z; }
     case 'continue': return 'continue';
     case 'over': return 'over';
