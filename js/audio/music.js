@@ -132,11 +132,11 @@ const MUSIC = (() => {
  */
 function musicFor(){
   switch (state) {
-    case 'title': case 'select': case 'initials': case 'ranking': return 'title';
-    case 'story': if (story && story.after) return 'victory'; return boss ? 'boss' : (ZONE(camX + 160) === 'guarida' ? 'boss' : ZONE(camX + 160));
+    case 'title': case 'select': case 'initials': case 'ranking': case 'options': case 'logros': return 'title';
+    case 'story': if (story && story.key === 'outro') return 'victory'; return boss ? 'boss' : (ZONE(camX + 160) === 'guarida' ? 'boss' : ZONE(camX + 160));
     case 'continue': return 'continue';
     case 'over': return 'over';
-    case 'clear': return 'victory';
+    case 'clear': case 'credits': return 'victory';
     default: {
       if (boss) return 'boss';
       const z = ZONE(camX + 160);

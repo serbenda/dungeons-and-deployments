@@ -6,7 +6,18 @@
  */
 const HEROES = {
   guerrero: { name:'GUERRERO', sub:'DE RUNDECK', rig:'guerrero', spd:1.15, dmg:[8,8,17], special:'RUN JOB', fuerza:5, vel:2 },
-  mago: { name:'MAGO', sub:'DESARROLLADOR', rig:'mago', spd:1.4, dmg:[6,6,12], special:'GIT PUSH -F', fuerza:3, vel:4 }
+  mago: { name:'MAGO', sub:'DESARROLLADOR', rig:'mago', spd:1.4, dmg:[6,6,12], special:'GIT PUSH -F', fuerza:3, vel:4 },
+  picara: { name:'PÍCARA', sub:'DEL FRONTEND', rig:'picara', spd:1.6, dmg:[5,5,11], special:'!IMPORTANT', fuerza:2, vel:5 },
+  bardo: { name:'BARDO', sub:'SCRUM MASTER', rig:'bardo', spd:1.2, dmg:[7,7,14], special:'DAILY', fuerza:4, vel:3 }
+};
+/** Orden de los héroes en la pantalla de selección. */
+const HERO_ORDER = ['guerrero', 'mago', 'picara', 'bardo'];
+/** Descripción corta de cada héroe y de su especial, para la selección. */
+const HERO_INFO = {
+  guerrero: ['Golpes pesados y armadura.', 'Salta y ejecuta un job que', 'sacude el suelo.'],
+  mago: ['Lanza console.log() al', 'final del combo. Su especial', 'fuerza el push y borra balas.'],
+  picara: ['La más rápida del CPD.', 'Su especial cruza la pantalla', 'con display:none !important.'],
+  bardo: ['Aguanta y motiva al equipo.', 'Su daily aturde enemigos y', 'cura a todo el equipo.']
 };
 /**
  * Enemigos: vida (hp), velocidad (spd), daño (dmg), preparación del golpe en
@@ -27,6 +38,8 @@ const FOES = {
   totem: { name:'DEPLOYMENT', short:'DEPLOYMENT', nograb:true, hp:80, score:1200 },
   slime: { name:'FUGA DE MEMORIA', short:'MEM LEAK', slime:true, hp:30, spd:.7, dmg:6, wind:22, score:200 },
   slimeS: { name:'MINI LEAK', short:'MINI LEAK', slime:true, small:true, hp:10, spd:1.1, dmg:4, wind:16, score:80 },
+  revisor: { name:'EL REVISOR', short:'REVISOR', rig:'revisor', boss:true, nograb:true, hp:320, spd:.75, dmg:13, wind:18, score:10000 },
+  pendiente: { name:'TAREA PENDIENTE', short:'PENDIENTE', rig:'pendiente', hp:26, spd:1.05, dmg:5, wind:16, score:300 },
   esqueleto: { name:'PROC. ZOMBI', short:'ZOMBI', rig:'esqueleto', hp:30, spd:.75, dmg:7, wind:20, score:250 }
 };
 /**

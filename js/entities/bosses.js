@@ -1,4 +1,4 @@
-// Jefes de Network (Minotauro del Firewall) y Storage (Hidra RAID).
+// Jefes de Network (Minotauro del Firewall), Storage (Hidra RAID) y el jefe secreto, El Revisor.
 'use strict';
 
 /**
@@ -32,15 +32,15 @@ function updateMinotaur(e){
     case 'windup': e.moving = false; if (e.t >= e.d.wind) { e.state = 'attack'; e.t = 0; e.hitDone = false; sfx('heavy'); } break;
     case 'attack': {
       if (e.t < 6) e.x += e.face*1.5;
-      if (e.t <= 8 && !e.hitDone && inFront(e, P, 34, 11)) { e.hitDone = true; damage(P, e.d.dmg, e, { knock:true, power:1.2 }); }
+      if (e.t <= 8 && !e.hitDone) for (const q of activePlayers()) if (inFront(e, q, 34, 11)) { e.hitDone = true; damage(q, e.d.dmg, e, { knock:true, power:1.2 }); }
       if (e.t > 18) { e.state = 'walk'; e.cool = 45 + Math.random()*40; }
       break; }
     case 'chargeWind': e.moving = false; if (e.t > 32) { e.state = 'charge'; e.t = 0; e.hitSet = new Set(); sfx('roar'); } break;
     case 'charge': {
       e.x += e.face*3.6; e.moving = true;
       if (e.t % 5 === 0) burst(e.x - e.face*14, e.y, '#6b5850', 3, 1);
-      for (const o of [P].concat(foes)) {
-        if (o === e || e.hitSet.has(o) || (o !== P && !alive(o)) || o.d && o.d.boss) continue;
+      for (const o of activePlayers().concat(foes)) {
+        if (o === e || e.hitSet.has(o) || (!isHero(o) && !alive(o)) || o.d && o.d.boss) continue;
         const ox = (o.x - e.x)*e.face;
         if (ox > -4 && ox < 30 && Math.abs(o.y - e.y) < 12 && (o.z || 0) < 20) { e.hitSet.add(o); damage(o, 16, e, { knock:true, power:1.4, pierce:true }); }
       }
@@ -197,4 +197,106 @@ function drawHead(a, sx, sy, fl){
   blit(headSprite(a.col, open ? 1 : 0, a.state === 'broken' ? 1 : 0), hx, hy + 16, -1, 25, 32, fl);
   txt(a.tag, hx - 8, hy - 2, a.d.parity ? '#ffd23f' : '#e9eefc', { outline:true });
   if (a.state === 'windup' && (t >> 2) % 2) { r(hx - 2, hy - 18, 3, 6, C.r); r(hx - 2, hy - 10, 3, 2, C.r); }
+}
+
+/* --- El Revisor (jefe secreto) */
+/** Tareas de la Definition of Done que invoca El Revisor, una por esbirro. */
+const DOD_TASKS = ['TESTS', 'LOGS', 'DOCS', 'ROLLBACK', 'LINT', 'ALERTAS'];
+/**
+ * El Revisor aparece tras el Dragón si se ha llegado sin continuar.
+ * @returns {boolean}
+ */
+const revisorUnlocked = () => !!RUN && RUN.continues === 0;
+/** Hace entrar a El Revisor por la derecha. */
+function spawnRevisor(){
+  const e = mkFoe('revisor', camX + W + 30, 158);
+  e.state = 'enter'; e.face = -1; e.phase = 0; e.guarded = false; e.openT = 0;
+  foes.push(e); lastFoe = e;
+  banner = { a:'¡JEFE SECRETO!', b:'EL REVISOR', t:140 }; sfx('roar');
+}
+/**
+ * Invoca las tareas pendientes de la Definition of Done y activa la protección:
+ * El Revisor no acepta golpes mientras quede alguna.
+ * @param {object} e
+ */
+function revisorSummon(e){
+  e.guarded = true; e.state = 'summon'; e.t = 0;
+  const n = 2 + Math.min(2, e.phase);
+  for (let i = 0; i < n; i++) {
+    const side = i % 2 ? -1 : 1;
+    const m = mkFoe('pendiente', side > 0 ? camX + W + 16 + i*14 : camX - 16 - i*14, clamp(FY0 + 10 + i*16, FY0, FY1), DOD_TASKS[(e.phase*2 + i) % DOD_TASKS.length]);
+    m.face = -side; foes.push(m);
+  }
+  addText('CHANGES REQUESTED', e.x - 68, e.y - 96, C.r, 80);
+}
+/**
+ * Bloqueo de El Revisor: mientras quedan tareas pendientes, ningún golpe entra.
+ * @param {object} tg El Revisor.
+ * @param {object} src
+ * @param {object} [opt]
+ * @returns {boolean} true si bloquea el golpe.
+ */
+function revisorBlocks(tg, src, opt){
+  if (!tg.guarded) return false;
+  tg.flash = 4; sfx('clink'); spark(tg.x - tg.face*2, tg.y - 44);
+  if (t - (tg.msgT || 0) > 40) { tg.msgT = t; addText(pickC(['FALTAN TESTS', 'SIN LOGS NO HAY MERGE', '¿Y LA DOCUMENTACIÓN?', 'NO CUMPLE LA DoD']), tg.x - 80, tg.y - 100, '#ffd23f', 40); }
+  return true;
+}
+/**
+ * IA de El Revisor: entra, invoca las tareas pendientes y, mientras viven, se
+ * protege y lanza comentarios de revisión a distancia. Sin pendientes queda
+ * expuesto y pelea con la maza; al bajar al 66 % y al 33 % vuelve a pedir cambios.
+ * @param {object} e
+ */
+function updateRevisor(e){
+  e.y = clamp(e.y, FY0, FY1);
+  const dx = P.x - e.x, dy = P.y - e.y;
+  const pending = foes.some(f => f.kind === 'pendiente' && !f.dead);
+  switch (e.state) {
+    case 'enter': e.x -= 1; e.face = -1; e.moving = true; if (e.x <= camX + 236) { e.state = 'roar'; e.t = 0; addText('¿HAS LEÍDO LA DEFINITION OF DONE?', camX + 24, 64, '#ffd27a', 110); } break;
+    case 'roar': e.moving = false; if (e.t > 60) revisorSummon(e); break;
+    case 'summon': e.moving = false; if (e.t > 40) { e.state = 'walk'; e.t = 0; e.cool = 50; } break;
+    case 'walk': {
+      if (e.cool > 0) e.cool--;
+      e.face = dx > 0 ? 1 : -1;
+      if (e.guarded && !pending) { e.guarded = false; e.openT = 480; sfx('go'); addText('LGTM... ¿SEGURO?', e.x - 60, e.y - 96, C.g, 70); }
+      const next = [.66, .33][e.phase];
+      if (!e.guarded && next && e.hp < e.max*next) { e.phase++; revisorSummon(e); break; }
+      if (!e.guarded && e.openT > 0 && --e.openT === 0) { revisorSummon(e); break; }
+      if ((P.state === 'down' && P.lying) || state !== 'play') { e.moving = false; break; }
+      if (e.guarded) {
+        // A distancia: comentarios de revisión.
+        const want = Math.abs(dx) < 110 ? -Math.sign(dx || 1) : Math.abs(dx) > 150 ? Math.sign(dx) : 0;
+        e.x += want*e.d.spd*.8; e.y += clamp(dy, -.5, .5); e.x = clamp(e.x, camX + 30, camX + W - 30);
+        e.moving = want !== 0;
+        if (e.cool <= 0) {
+          const sx = e.x + e.face*18, d = Math.hypot(P.x - sx, P.y - e.y) || 1;
+          eshots.push({ x:sx, y:e.y, z:40, vx:(P.x - sx)/d*2.2, vy:(P.y - e.y)/d*1.1, life:170 });
+          addText(pickC(['NIT:', 'LGTM?', '// TODO', '¿Y LOS TESTS?']), e.x - 30, e.y - 92, '#ff8a3d', 40); sfx('shoot');
+          e.cool = 80 + Math.random()*40;
+        }
+      } else {
+        const tx = P.x - Math.sign(dx || 1)*30;
+        e.x += clamp(tx - e.x, -e.d.spd*1.2, e.d.spd*1.2); e.y += clamp(dy, -e.d.spd*.6, e.d.spd*.6);
+        e.moving = Math.abs(tx - e.x) > 1 || Math.abs(dy) > 1;
+        if (e.cool <= 0 && Math.abs(dx) < 42 && Math.abs(dy) < 5 && P.z < 10) { e.state = 'windup'; e.t = 0; }
+      }
+      break; }
+    case 'windup': e.moving = false; if (e.t >= e.d.wind) { e.state = 'attack'; e.t = 0; e.hitDone = false; sfx('heavy'); } break;
+    case 'attack': {
+      if (e.t < 6) e.x += e.face*1.4;
+      if (e.t <= 8 && !e.hitDone) for (const q of activePlayers()) if (inFront(e, q, 32, 11)) { e.hitDone = true; damage(q, e.d.dmg, e, { knock:true }); }
+      if (e.t > 18) { e.state = 'walk'; e.cool = 40 + Math.random()*40; }
+      break; }
+    case 'down': {
+      if (!e.lying) e.x += e.vx;
+      else if (e.dead && e.t > 90) {
+        foes.splice(foes.indexOf(e), 1); score += e.d.score; RUN.revisor = true; if (lastFoe === e) lastFoe = null;
+        addText('APPROVED · MERGE +' + e.d.score, e.x - 90, e.y - 60, '#3ddc84', 120); unlock('revisor');
+        for (const f of foes) if (f.kind === 'pendiente') f.dead = true;
+        startStory('outro', stageClear);
+      }
+      else if (!e.dead && e.t > 40) { e.state = 'walk'; e.t = 0; e.cool = 30; }
+      break; }
+  }
 }

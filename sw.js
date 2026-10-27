@@ -10,7 +10,7 @@
 // (npm run lint comprueba que coincide con index.html) y sube CACHE_VERSION.
 'use strict';
 
-const CACHE_VERSION = 'v0.2.0';
+const CACHE_VERSION = 'v0.3.0';
 const APP_CACHE = `dnd-app-${CACHE_VERSION}`;
 const FONT_CACHE = 'dnd-fonts-v1';
 
@@ -40,6 +40,9 @@ const ASSETS = [
   './js/entities/bosses.js',
   './js/ui/story.js',
   './js/ui/ranking.js',
+  './js/ui/options.js',
+  './js/ui/achievements.js',
+  './js/ui/credits.js',
   './js/game/loop.js',
   './js/render/draw.js',
   './js/main.js'
