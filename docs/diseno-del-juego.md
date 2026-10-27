@@ -12,16 +12,18 @@ Las bromas giran en torno a la informática: tickets, ClickOps, DNS, RAID, VMs h
 
 Datos en `HEROES` (`js/data/game-data.js`) y aspecto en `RIGS` (`js/sprites/characters.js`).
 
-| | Guerrero de Rundeck | Mago Desarrollador |
-|---|---|---|
-| Velocidad | 1,15 px/actualización | 1,40 px/actualización |
-| Daño del combo (golpe 1 · 2 · 3) | 8 · 8 · 17 | 6 · 6 · 12 |
-| Patada en el aire | 14 | 12 |
-| Especial | `RUN JOB`: salta y golpea el suelo | `GIT PUSH -F`: explosión arcana |
-| Radio y daño del especial | 74 px · 24 | 88 px · 18 (además borra los proyectiles enemigos) |
-| Extra | — | El tercer golpe lanza un `console.log()` (10 de daño) |
+| | Guerrero de Rundeck | Mago Desarrollador | Pícara del Frontend | Bardo Scrum Master |
+|---|---|---|---|---|
+| Velocidad (px/actualización) | 1,15 | 1,40 | 1,60 | 1,20 |
+| Daño del combo (golpe 1 · 2 · 3) | 8 · 8 · 17 | 6 · 6 · 12 | 5 · 5 · 11 | 7 · 7 · 14 |
+| Patada en el aire | 14 | 12 | 12 | 12 |
+| Especial | `RUN JOB`: salta y golpea el suelo | `GIT PUSH -F`: explosión arcana | `!IMPORTANT`: carga en línea recta | `DAILY`: reunión relámpago |
+| Efecto del especial | 74 px · 24 de daño | 88 px · 18 (además borra los proyectiles enemigos) | Avanza ~100 px y hace 16 a cada enemigo que cruza; rompe cajas | 110 px · 10 de daño y derriba; **cura 20 a todo el equipo** |
+| Extra | — | El tercer golpe lanza un `console.log()` (10 de daño) | — | — |
 
-Los dos empiezan con 100 de vida y 2 vidas extra (8 con el código Konami).
+Todos empiezan con 100 de vida y 2 vidas extra (8 con el código Konami), más o menos según la dificultad.
+
+El orden de la selección está en `HERO_ORDER` y la ficha de cada uno en `HERO_INFO`.
 
 ### Movimientos
 
@@ -38,6 +40,29 @@ Los dos empiezan con 100 de vida y 2 vidas extra (8 con el código Konami).
 
 - Al perder toda la vida se gasta una vida: «¡HOTFIX APLICADO!» recupera la vida, da invulnerabilidad y derriba a los enemigos cercanos (no a los jefes).
 - Sin vidas aparece **¿ROLLBACK?**: 10 segundos para insertar crédito (START) y seguir con 2 vidas.
+- En cooperativo, el jugador que se queda sin vidas sale de la partida («P2 FUERA · START PARA VOLVER») y el otro sigue. Pulsando START vuelve con 2 vidas (cuenta como continuación). Solo si caen los dos aparece ¿ROLLBACK?.
+
+## Cooperativo
+
+| Regla | Valor |
+|---|---|
+| Unirse | En la selección, o en cualquier momento de la partida, pulsando START en otro dispositivo (tecla 2 o un mando). Gasta un crédito y entra con 1 vida extra menos |
+| Vida de los enemigos | +50 % |
+| Enemigos atacando a la vez | Hasta 3 (2 con un jugador) |
+| Objetivo de cada enemigo | El jugador más cercano que siga en pie; se revisa cada medio segundo |
+| Cámara | Sigue al que va delante sin dejar fuera al que va detrás |
+| Puntuación | Compartida; el bonus de vida suma a los dos y el de combo usa el mejor |
+| Combos | Cada jugador lleva el suyo |
+
+## Dificultad
+
+Se elige en Opciones (`DIFFS`, `js/ui/options.js`).
+
+| | Vida de los enemigos | Daño que recibes | Vidas extra |
+|---|---|---|---|
+| BECARIO | ×0,8 | ×0,7 | 3 |
+| SENIOR | ×1 | ×1 | 2 |
+| GUARDIA 24/7 | ×1,3 | ×1,35 | 1 |
 
 ## Enemigos
 
@@ -103,6 +128,19 @@ Mecánica RAID: una cabeza de disco rota se **reconstruye** en 420 actualizacion
 
 La música del jefe acelera un 12 % por debajo de la mitad de la vida.
 
+### El Revisor (jefe secreto)
+
+Aparece después del Dragón Negro **solo si se ha llegado sin continuar** (`revisorUnlocked()`). Exige la Definition of Done.
+
+| Dato | Valor |
+|---|---|
+| Vida | 320 |
+| Tareas pendientes | Al empezar invoca 2 esbirros (TESTS, LOGS, DOCS, ROLLBACK, LINT, ALERTAS), 3 al 66 % y 4 al 33 %. Cada uno: 26 de vida, 5 de daño |
+| Protección | Mientras quede una tarea pendiente, no le entra ningún golpe, ni siquiera los especiales |
+| A distancia | Protegido, se aleja y lanza comentarios de revisión (8 de daño) |
+| Expuesto | Sin pendientes, «LGTM... ¿SEGURO?»: pelea con la maza (13, derriba) durante 8 segundos y vuelve a pedir cambios |
+| Final | 10.000 puntos y «APPROVED · MERGE» |
+
 ## La etapa
 
 | Sección | Cámara | Ticket | Oleadas | Extra | Al cerrar |
@@ -160,7 +198,29 @@ Cada golpe que entra suma al combo; se pierde tras 2 segundos sin golpear o al r
 
 Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SSH 30.000, DNS 20.000 y GIT 10.000.
 
+## Logros
+
+16 logros en `ACHIEVEMENTS` (`js/ui/achievements.js`), guardados en el navegador. Se ven desde el título (LOGROS) y aparece un aviso al conseguir cada uno.
+
+| Logro | Cómo |
+|---|---|
+| SIEMPRE ES EL DNS | Cerrar NET-404 |
+| PUERTO ABIERTO | Saturar la ACL de un Caballero Firewall (7 bloqueos) |
+| SIN PARIDAD | Romper la cabeza de paridad de la Hidra |
+| NO TOQUES EL LEGACY | Cerrar VIR-007 sin que el gólem se enfade |
+| 10X DEVELOPER · ARQUITECTO | Combo de 20 · de 50 |
+| A PRODUCCIÓN | Lanzar 10 enemigos en una partida |
+| RUBBER DUCK DEBUGGING · COPIAR Y PEGAR | Coger el patito · el pergamino de Stack Overflow |
+| DESPLIEGUE EN VIERNES | Terminar la etapa |
+| SIN ROLLBACK | Terminarla sin continuar |
+| HOTFIX EXPRÉS | Terminarla en menos de 8 minutos |
+| PAIR PROGRAMMING | Terminarla en cooperativo |
+| APPROVED | Derrotar a El Revisor |
+| GUARDIA SUPERADA | Terminarla en GUARDIA 24/7 |
+| MODO DIOS | Código Konami |
+
 ## Secretos
 
+- **El Revisor**: llega al Dragón Negro sin usar continuaciones.
 - **Código Konami** en el título o la selección: arriba, arriba, abajo, abajo, izquierda, derecha, izquierda, derecha, B, A. Empiezas con 9 vidas.
 - La marquesina del título da la pista (`^^vv<><>BA`).

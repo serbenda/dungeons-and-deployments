@@ -6,12 +6,23 @@ El juego no trabaja con teclas físicas sino con **teclas lógicas**: `up`, `dow
 
 | Estructura | Uso |
 |---|---|
-| `held[k]` | `true` mientras la tecla está pulsada. Para moverse |
-| `pressedQ[k]` | Pulsación pendiente de consumir. Para acciones |
-| `pressed(k)` | Consume la pulsación: `true` solo una vez por pulsación |
-| `press(k)` / `release(k)` | Lo que llaman teclado y mandos táctiles |
+| `INP[n].held[k]` | `true` mientras el jugador n+1 mantiene la tecla. Para moverse |
+| `INP[n].q[k]` | Pulsación pendiente de consumir. Para acciones |
+| `held`, `pressedQ` | Atajos de `INP[0].held` e `INP[0].q` (jugador 1) |
+| `pressed(k)` | Consume la pulsación: `true` solo una vez. En los menús vale la de cualquier jugador; durante el turno de un jugador (`ctxSlot`), solo la suya |
+| `press(k, dev)` / `release(k, dev)` | Lo que llaman teclado, mandos y táctil, con el dispositivo de origen |
 
-Al final de cada `update()` se vacía `pressedQ`, así que una pulsación que no se consuma en esa actualización se pierde. Es el comportamiento de las recreativas.
+Al final de cada `update()` se vacían las pulsaciones (`clearPressed()`), así que una pulsación que no se consuma en esa actualización se pierde. Es el comportamiento de las recreativas.
+
+## Dispositivos y jugadores
+
+Cada dispositivo tiene un nombre: `kb` (teclado), `kb2` (grupo B del teclado), `touch` y `pad0`, `pad1`... (mandos). `DEV_SLOT` dice a qué jugador va cada uno:
+
+1. En el título no hay nadie asignado: todo maneja al jugador 1.
+2. Al entrar en la selección, el dispositivo que ha pulsado pasa a ser el del jugador 1 (`owner0`).
+3. START en cualquier otro dispositivo es una petición de unirse (`joinReq`): en la selección aparece el cursor 2P; en la partida entra el jugador 2 (`joinPlayer()`).
+4. El resto de dispositivos sin asignar siguen manejando al jugador 1. El táctil nunca se une como jugador 2.
+5. Al volver al título se olvidan todas las asignaciones (`resetDevices()`).
 
 ## Teclado (`js/core/input.js`)
 
@@ -21,10 +32,28 @@ Al final de cada `update()` se vacía `pressedQ`, así que una pulsación que no
 | Z, J, Espacio | `atk` |
 | X, K | `jump` |
 | C, L | `special` |
-| Enter | `start` |
+| Enter, Esc | `start` |
+| 2 | `start` del jugador 2 (unirse) |
 | M | `mute` |
 
-Para cambiar el mapeo, edita `KEYMAP` (usa `KeyboardEvent.code`, que no depende del idioma del teclado).
+Con un jugador, todas las teclas lo manejan. **Dos jugadores en un teclado**: al pulsar 2, el grupo B (WASD, J, K, L) pasa a ser del jugador 2 y el jugador 1 se queda con flechas, Z, X, C y Enter.
+
+Para cambiar el mapeo, edita `KEYMAP` y `KB_B` (usan `KeyboardEvent.code`, que no depende del idioma del teclado).
+
+## Mandos (Gamepad API)
+
+Cualquier mando con disposición estándar (Xbox, PlayStation, Switch Pro, 8BitDo...) por USB o Bluetooth. `pollPads()` los lee en cada `update()`, porque la Gamepad API no tiene eventos de botones.
+
+| Mando (Xbox · PlayStation) | Tecla lógica |
+|---|---|
+| Cruceta o stick izquierdo (umbral 0,45) | `up` `down` `left` `right` |
+| A · ✕ | `atk` |
+| B · ○ | `jump` |
+| X · □ e Y · △ | `special` |
+| START · OPTIONS | `start` (en otro mando: unirse) |
+| SELECT · SHARE | `mute` |
+
+Al conectar uno aparece «MANDO N CONECTADO». El navegador solo lo detecta después de pulsar un botón. Para cambiar el mapeo, edita `PAD_BUTTONS`.
 
 ## Móvil y tableta (`js/core/touch.js`)
 
@@ -65,14 +94,14 @@ A (atacar), B (saltar), SP (especial), START, SONIDO y PANTALLA. Cada botón cap
 
 ### Toques en la pantalla
 
-Fuera de la partida, tocar la pantalla hace de botón A: empieza, pasa diálogos, inserta crédito, vuelve del ranking. En la selección, tocar una mitad elige a ese héroe y volver a tocarla lo confirma. Durante la partida no hace nada, para evitar acciones accidentales.
+Fuera de la partida, tocar la pantalla hace de botón A: empieza, pasa diálogos, inserta crédito, vuelve del ranking. En la selección, tocar un héroe lo elige y volver a tocarlo lo confirma. Durante la partida no hace nada, para evitar acciones accidentales.
 
 ### Extras
 
 | Función | API | Notas |
 |---|---|---|
 | Pantalla completa | Fullscreen API + `screen.orientation.lock('landscape')` | El botón solo aparece si el navegador lo admite (no en iPhone, donde se usa la PWA instalada) |
-| Vibración | `navigator.vibrate` | Al recibir golpes; más larga si derriban. Solo Android. Se desactiva con SONIDO |
+| Vibración | `navigator.vibrate` | Al recibir golpes; más larga si derriban. Solo Android. Se desactiva con SONIDO o en Opciones |
 | Pantalla encendida | Screen Wake Lock API | Evita que la pantalla se apague mientras se juega |
 | Pausa automática | `visibilitychange` | Si la app pasa a segundo plano durante la partida, se pausa |
 

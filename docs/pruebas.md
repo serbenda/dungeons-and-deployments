@@ -55,13 +55,30 @@ Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la 
 | Semilla | La misma semilla da la misma partida |
 | Música | Cada zona tiene su tema |
 
-Para añadir una prueba, crea un `test(...)` en `tests/game.test.js` o un archivo nuevo `tests/*.test.js`.
+`tests/coop-and-extras.test.js`:
+
+| Prueba | Qué garantiza |
+|---|---|
+| Cooperativo | Dos jugadores con su `slot` y +50 % de vida en los enemigos |
+| Teclas por jugador | Cada jugador se mueve solo con las suyas |
+| Unirse | START en un mando nuevo añade al jugador 2 sin pausar, con otro héroe |
+| Gamepad API | Un mando simulado (`navigator.getGamepads`) maneja los menús y pasa a ser el del jugador 1 |
+| Jugador fuera | Sin vidas en cooperativo queda fuera, el otro sigue y START lo devuelve |
+| Dificultad | Cambia la vida de los enemigos y el daño recibido |
+| Opciones | Se guardan en `localStorage` |
+| Logros | Se desbloquean una vez, se guardan, y el combo de 20 da 10X DEVELOPER |
+| Bardo y pícara | La daily cura a todo el equipo; la carga cruza y golpea a todos |
+| El Revisor | Protegido mientras quedan tareas pendientes; solo aparece sin continuar |
+| Héroes completos | Cada héroe tiene esqueleto, frases, ficha y está en la selección |
+
+Para añadir una prueba, crea un `test(...)` en uno de esos archivos o en uno nuevo `tests/*.test.js`.
 
 ## Prueba de humo (end-to-end)
 
 `tools/smoke-test.js` abre el juego en Chromium sin ventana y deja que un **bot** juegue la etapa completa:
 
-- Con los dos héroes, en modo invulnerable y en modo normal.
+- Con cada uno de los cuatro héroes y en cooperativo (guerrero + bardo, el bot maneja a los dos), en modo invulnerable y en modo normal.
+- En modo invulnerable nunca se continúa, así que el bot también tiene que vencer a El Revisor (la salida lo indica con `revisor=OK`).
 - Con varias semillas (`SEEDS`, por defecto `1,2`; en la CI `1,2,3`).
 - Falla si alguna partida no llega a `clear` o si hay errores en la consola.
 
