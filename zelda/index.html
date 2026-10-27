@@ -1,0 +1,1294 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Aventura estilo Zelda en 8 bits: las Catacumbas de Sistemas, el Escudo de IaC y el Grimorio de la Definition of Done.">
+<meta name="theme-color" content="#0b0912">
+<title>Dungeons &amp; Deployments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+[hidden]{display:none!important}
+/* Consola de CPD a oscuras: la pantalla del juego manda; mandos y reglas debajo, como el manual de un cartucho */
+:root{
+  --bg:#0d0b14;
+  --panel:#16131f;
+  --line:#2a2440;
+  --fg:#e9e4f5;
+  --dim:#9a92bd;
+  --amber:#f4b860;
+  --led:#6ee7a8;
+  --cable:#5ec8f2;
+  --display:"Press Start 2P","Courier New",monospace;
+  --body:"VT323","Courier New",monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--body);font-size:21px;line-height:1.25}
+.wrap{max-width:800px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-family:var(--display);font-size:9px;letter-spacing:.12em;color:var(--led);margin:0 0 10px;text-transform:uppercase}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(15px,3.6vw,24px);line-height:1.4;color:var(--amber);margin:0;text-wrap:balance}
+.lede{margin:8px 0 0;color:var(--dim);max-width:62ch}
+.screen{border:4px solid var(--line);background:#000;box-shadow:0 0 0 4px var(--panel),0 0 48px rgba(110,231,168,.07)}
+canvas{display:block;width:100%;height:auto;aspect-ratio:256/200;image-rendering:pixelated;image-rendering:crisp-edges;outline:none;touch-action:none}
+canvas:focus-visible{box-shadow:inset 0 0 0 2px var(--cable)}
+.tip{margin:0;color:var(--dim);font-size:18px}
+.touch{display:none;justify-content:space-between;align-items:center;gap:12px;user-select:none;-webkit-user-select:none}
+@media (hover:none) and (pointer:coarse){.touch{display:flex}.keys-only{display:none}}
+.dpad{display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px);gap:4px}
+.touch button{font-family:var(--display);font-size:12px;color:var(--fg);background:var(--panel);border:2px solid var(--line);border-radius:6px;touch-action:none;-webkit-tap-highlight-color:transparent}
+.touch button:active,.touch button.on{background:var(--line);border-color:var(--cable)}
+.dpad .u{grid-column:2;grid-row:1}.dpad .l{grid-column:1;grid-row:2}.dpad .r{grid-column:3;grid-row:2}.dpad .d{grid-column:2;grid-row:3}
+.ab{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.ab .row{display:flex;gap:12px}
+.ab .big{width:60px;height:60px;border-radius:50%;font-size:14px}
+.ab .a{border-color:var(--amber);color:var(--amber)}
+.ab .b{border-color:var(--cable);color:var(--cable)}
+.ab .c{border-color:var(--led);color:var(--led);font-size:10px}
+.ab .start{height:32px;padding:0 14px;font-size:9px}
+.help{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;border-top:2px dashed var(--line);padding-top:16px}
+.help > div{min-width:0}
+h2{font-family:var(--display);font-weight:400;font-size:10px;letter-spacing:.1em;color:var(--led);margin:0 0 12px;text-transform:uppercase}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+dt{color:var(--amber);white-space:nowrap}
+dd{margin:0;color:var(--fg)}
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+li::marker{color:var(--led);content:"> "}
+code{font-family:var(--body);color:var(--cable)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Mazmorra 1 de 5 · Prototipo jugable</p>
+    <h1>Dungeons &amp; Deployments</h1>
+    <p class="lede">Catacumbas de Sistemas. Con tu teclado y tu Escudo de IaC, consigue la Terminal SSH y la Llave Root, derrota al Dragón Negro y recupera la primera página del Grimorio de la Definition of Done.</p>
+  </header>
+
+  <div class="screen">
+    <canvas id="game" width="256" height="200" tabindex="0" aria-label="Pantalla del juego Dungeons and Deployments"></canvas>
+  </div>
+  <p class="tip keys-only">Haz clic en la pantalla si el teclado no responde. Pulsa Enter para empezar.</p>
+
+  <div class="touch" id="touch">
+    <div class="dpad">
+      <button class="u" data-k="up" aria-label="Arriba">▲</button>
+      <button class="l" data-k="left" aria-label="Izquierda">◀</button>
+      <button class="r" data-k="right" aria-label="Derecha">▶</button>
+      <button class="d" data-k="down" aria-label="Abajo">▼</button>
+    </div>
+    <div class="ab">
+      <div class="row">
+        <button class="big c" data-k="shield" aria-label="Escudo de IaC: mantén para plan, suelta para apply">IaC</button>
+        <button class="big b" data-k="item" aria-label="Usar SSH">B</button>
+        <button class="big a" data-k="atk" aria-label="Atacar">A</button>
+      </div>
+      <button class="start" data-k="start">START · GRIMORIO</button>
+    </div>
+  </div>
+
+  <section class="help">
+    <div>
+      <h2>Controles</h2>
+      <dl>
+        <dt>Flechas / WASD</dt><dd>Moverte</dd>
+        <dt>Z · J · Espacio</dt><dd>Golpe de teclado, leer carteles</dd>
+        <dt>X · K</dt><dd>Terminal SSH (cuando la tengas)</dd>
+        <dt>C · L</dt><dd>Escudo de IaC: mantén para <code>plan</code>, suelta para <code>apply</code></dd>
+        <dt>Enter</dt><dd>Empezar, pasar textos y abrir el Grimorio</dd>
+        <dt>M</dt><dd>Silenciar el sonido</dd>
+      </dl>
+    </div>
+    <div>
+      <h2>Reglas de la mazmorra</h2>
+      <ul>
+        <li>Cada golpe tira un d20. Con un 20 haces crítico (doble daño); con un 1, pifias.</li>
+        <li>Los procesos zombi se levantan si no los rematas mientras están en el suelo.</li>
+        <li>Los slimes de fuga de memoria se dividen al reventar.</li>
+        <li>El Escudo de IaC bloquea lo que te lanzan de frente. Su <code>apply</code> devuelve la sala a su estado declarado por 2 créditos.</li>
+        <li>Los gremlins del ClickOps tocan la infraestructura a mano. Si los dejas vivos, vuelven a romperla.</li>
+        <li>El Dragón Negro es inmune al teclado, salvo cuando abre el puerto 22.</li>
+        <li>Cada dragón guarda una página del Grimorio de la Definition of Done. Cada página es un hechizo.</li>
+      </ul>
+    </div>
+  </section>
+  <p style="margin:0;color:var(--dim);font-size:18px">¿Buscas la recreativa con Guerrero y Mago? Juega a la <a href="../" style="color:var(--amber)">edición recreativa</a>.</p>
+</div>
+
+<script>
+(() => {
+'use strict';
+const cv = document.getElementById('game');
+const ctx = cv.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+const TS = 16, RW = 16, RH = 11, HUD = 24, W = 256, RPX = 176;
+const C = {
+  k:'#0d0b14', d:'#2a2440', m:'#4b4470', l:'#7a70ad', f:'#15121e', f2:'#1f1b2c',
+  g:'#6ee7a8', gd:'#2f7a5a', a:'#f4b860', ad:'#a8722e', w:'#e9e4f5', r:'#ff5d73', rd:'#8a2c3c',
+  b:'#5ec8f2', bd:'#2b5f7d', s:'#e8b796', u:'#cfc4a4', ud:'#8d8468'
+};
+const FONT8 = '8px "Press Start 2P", "Courier New", monospace';
+
+/* ------------------------------------------------------------ mapas */
+const ROOMS = {
+  '1,2': { name:'VESTÍBULO DEL CRON', map:[
+    "#######..#######",
+    "#R............R#",
+    "#..............#",
+    "#..T........T..#",
+    "#...............",
+    "#...............",
+    "#...............",
+    "#..T........T..#",
+    "#..............#",
+    "#R............R#",
+    "################"],
+    enemies:[['bug',5,5],['bug',10,4],['bug',10,7]],
+    objs:[{t:'sign',x:5,y:8,text:['CATACUMBAS DE SISTEMAS. Abierto 24x7. Prohibido reiniciar sin ticket aprobado.']}] },
+  '2,2': { name:'SALA DE LAS FUGAS', map:[
+    "################",
+    "#..............#",
+    "#..~~~~~~~~~~..#",
+    "#..~........~..#",
+    "...~..RR....~..#",
+    "...~..RR....~..#",
+    "...~........~..#",
+    "#..~........~..#",
+    "#..~~~~~~~~~~..#",
+    "#..............#",
+    "################"],
+    enemies:[['slime',10,3],['slime',10,7],['slime',4,7]],
+    drop:{k:'cred',x:9,y:5,id:'cred'} },
+  '1,1': { name:'CRUCE DE LOS LOGS', map:[
+    "#######BB#######",
+    "#..............#",
+    "#.T..........T.#",
+    "#..............#",
+    "L...............",
+    "L......RR.......",
+    "L...............",
+    "#..............#",
+    "#.T..........T.#",
+    "#..............#",
+    "#######..#######"],
+    enemies:[['skel',4,3],['bug',11,7],['bug',4,7]] },
+  '0,1': { name:'ARCHIVO DE TERMINALES', map:[
+    "################",
+    "#RRRR......RRRR#",
+    "#..............#",
+    "#..............#",
+    "#...............",
+    "#...............",
+    "#...............",
+    "#..............#",
+    "#..............#",
+    "#RRRR......RRRR#",
+    "################"],
+    enemies:[['skel',3,3],['skel',3,7],['bug',8,8],['slime',12,2]],
+    objs:[{t:'chest',x:7,y:5,c:'ssh',onClear:true}] },
+  '2,1': { name:'ABISMO DE LOS NODOS', map:[
+    "################",
+    "#....CCCCC.....#",
+    "#....CCCCC.....#",
+    "#....CCCCC.....#",
+    ".....CCCCC.....#",
+    "...A.CCCCC.A...#",
+    ".....CCCCC.....#",
+    "#....CCCCC.....#",
+    "#....CCCCC.....#",
+    "#....CCCCC.....#",
+    "################"],
+    enemies:[['grem',2,2],['grem',3,8],['grem',1,6],['skel',13,5],['bug',12,8]],
+    drift:[{x:11,y:5}],
+    objs:[
+      {t:'sign',x:2,y:2,text:['ABISMO DE LOS NODOS CAÍDOS. ALERTA: alguien ha borrado A MANO el nodo del otro lado.', 'Mantén C (botón IaC) para hacer PLAN y ver el estado declarado. Suéltalo para hacer APPLY. Cuesta 2 créditos cloud.']},
+      {t:'chest',x:13,y:2,c:'root'},
+      {t:'chest',x:13,y:8,c:'cupmax'}] },
+  '1,0': { name:'CÁMARA DEL AS/400', map:[
+    "################",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "H..T........T..#",
+    "H..............#",
+    "H..............#",
+    "#..T........T..#",
+    "#..............#",
+    "#..............#",
+    "#######..#######"],
+    enemies:[] },
+  '0,0': { name:'CRIPTA DE LOS LOGS', map:[
+    "################",
+    "#R.R.R.R.R.R.R.#",
+    "#..............#",
+    "#..............#",
+    "#...............",
+    "#...............",
+    "#...............",
+    "#..............#",
+    "#..............#",
+    "#R.R.R.R.R.R.R.#",
+    "################"],
+    enemies:[],
+    objs:[
+      {t:'sign',x:7,y:2,text:['CRIPTA DE LOS LOGS PERDIDOS. Aquí acaban los logs que nadie mira. Todos en nivel DEBUG.', 'Al fondo hay algo que alguien dejó sin documentar...']},
+      {t:'chest',x:3,y:5,c:'cupmax'}] }
+};
+
+const PAGES = [
+  { id:'logs', name:'LOGS Y TRAZAS', dun:'SISTEMAS', spell:'REVELAR', desc:'Muestra los muros falsos de la sala y lo que esconden.' },
+  { id:'naming', name:'NOMENCLATURA', dun:'NETWORK', spell:'NOMBRAR', desc:'Los enemigos sin nombre se vuelven vulnerables.' },
+  { id:'secrets', name:'SIN SECRETOS', dun:'STORAGE', spell:'PURGAR', desc:'Elimina las contraseñas que flotan por la sala.' },
+  { id:'rollback', name:'ROLLBACK', dun:'VIRTUALIZ.', spell:'DESHACER', desc:'Vuelves a la entrada de la sala tal como estabas.' },
+  { id:'tests', name:'TESTS PASADOS', dun:'CAAS', spell:'ESCUDO VERDE', desc:'Un rato de invulnerabilidad total.' }
+];
+
+const SOLID = new Set(['#','R','T','A','C','L','B','H']);
+const HOOK_SOLID = new Set(['#','R','T','L','B','H']);
+const SHOT_SOLID = new Set(['#','R','T','A','L','B','H']);
+
+/* ------------------------------------------------------------ sonido */
+let actx = null, muted = false;
+function initAudio(){ if (actx) return; try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { actx = null; } }
+const SFX = {
+  swing:[520,260,.05], hit:[260,90,.09], hurt:[200,55,.22], pick:[660,1100,.1], key:[523,1318,.3],
+  hook:[1000,500,.12], clink:[1500,1400,.05], secret:[392,1046,.45], boss:[140,50,.6], crit:[784,1760,.18],
+  door:[160,320,.22], fumble:[200,120,.15], step:[90,80,.02]
+};
+function sfx(n){
+  if (!actx || muted) return;
+  try {
+    const [f1,f2,d] = SFX[n]; const now = actx.currentTime;
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(f1, now);
+    o.frequency.exponentialRampToValueAtTime(f2, now + d);
+    g.gain.setValueAtTime(.05, now);
+    g.gain.exponentialRampToValueAtTime(.0008, now + d);
+    o.connect(g); g.connect(actx.destination);
+    o.start(now); o.stop(now + d + .02);
+  } catch(e) {}
+}
+
+/* ------------------------------------------------------------ entrada */
+const held = {}, pressedQ = {};
+const KEYMAP = { ArrowUp:'up', KeyW:'up', ArrowDown:'down', KeyS:'down', ArrowLeft:'left', KeyA:'left', ArrowRight:'right', KeyD:'right',
+  KeyZ:'atk', KeyJ:'atk', Space:'atk', KeyX:'item', KeyK:'item', KeyC:'shield', KeyL:'shield', Enter:'start', NumpadEnter:'start', KeyM:'mute' };
+function press(k){ initAudio(); if (actx && actx.state === 'suspended') actx.resume(); if (!held[k]) pressedQ[k] = true; held[k] = true; }
+function release(k){ held[k] = false; }
+window.addEventListener('keydown', e => { const k = KEYMAP[e.code]; if (!k) return; e.preventDefault(); press(k); });
+window.addEventListener('keyup', e => { const k = KEYMAP[e.code]; if (!k) return; e.preventDefault(); release(k); });
+window.addEventListener('blur', () => { for (const k in held) held[k] = false; });
+cv.addEventListener('pointerdown', () => { cv.focus(); initAudio(); if (state === 'title') pressedQ.start = true; });
+document.querySelectorAll('#touch button').forEach(b => {
+  const k = b.dataset.k;
+  b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); b.classList.add('on'); press(k); });
+  const up = e => { b.classList.remove('on'); release(k); };
+  b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
+  b.addEventListener('contextmenu', e => e.preventDefault());
+});
+function pressed(k){ if (pressedQ[k]) { pressedQ[k] = false; return true; } return false; }
+
+/* ------------------------------------------------------------ estado */
+let state = 'title', t = 0, deadT = 0, winT = 0;
+let flags, P, roomKey, room, grid, enemies = [], objs = [], pickups = [], shots = [], fx = [], texts = [];
+let hook = null, boss = null, banner = null, fade = 0, shake = 0, holdItem = null, lastBump = null, msgCd = 0;
+let dialog = [], dlgChars = 0, dlgCb = null, stats, bookSel = 0, driftT = 0;
+
+function newGame(){
+  flags = { cleared:{}, opened:{}, got:{}, applied:{}, pages:{}, hubL:false, hubB:false, bossDead:false, hintBoss:false, secret:false, pageGot:false, blocks:0, applies:0 };
+  P = { x:123, y:131, w:10, h:10, dir:'up', hp:6, max:6, inv:0, atk:0, atkHit:null, roll:0, kbx:0, kby:0, kbT:0, keys:0, root:false, ssh:false, credits:0, step:0, planT:0 };
+  stats = { start:t, crits:0, fumbles:0, deaths:0 };
+  loadRoom('1,2');
+  P.x = 123; P.y = 131;
+  state = 'play';
+  say([
+    'Viernes, 15:00. Te asignan un ticket: SUBIR LA v2.0 A PRODUCCIÓN antes del finde.',
+    'Pero el DRAGÓN NEGRO se ha enroscado al AS/400 en las Catacumbas de Sistemas y nadie puede desplegar.',
+    'Baja y derrótalo con tu TECLADO. Flechas o WASD para moverte; Z, J o ESPACIO para atacar.',
+    'Llevas tu ESCUDO DE IaC: lo que está declarado en código no hay quien lo rompa. Bloquea todo lo que te lancen de frente.',
+    'Tu misión secreta: recuperar las páginas del GRIMORIO DE LA DEFINITION OF DONE. Pulsa ENTER para consultarlo.',
+    'Cada golpe tira un d20. Saca un 20 y harás CRÍTICO. Saca un 1 y... mejor no saques un 1.'
+  ]);
+}
+function respawn(){
+  stats.deaths++;
+  P.hp = P.max; P.inv = 60; P.kbT = 0; P.atk = 0; P.dir = 'up'; P.planT = 0;
+  loadRoom('1,2'); P.x = 123; P.y = 131;
+  state = 'play';
+}
+
+function loadRoom(key){
+  roomKey = key; room = ROOMS[key];
+  grid = room.map.map(r => r.split(''));
+  if (key === '1,1') {
+    if (flags.hubL) for (let y = 4; y <= 6; y++) grid[y][0] = '.';
+    if (flags.hubB) { grid[0][7] = '.'; grid[0][8] = '.'; }
+  }
+  if (room.drift && !flags.applied[key]) room.drift.forEach(d => { grid[d.y][d.x] = 'x'; });
+  if (key === '1,0') {
+    if (flags.secret) for (let y = 4; y <= 6; y++) grid[y][0] = '.';
+    if (flags.pageGot) grid[5][7] = 'E';
+  }
+  driftT = 0;
+  enemies = [];
+  if (!flags.cleared[key]) room.enemies.forEach(([tp,x,y]) => enemies.push(mkEnemy(tp, x*TS+3, y*TS+3)));
+  objs = (room.objs || []).map(o => {
+    const id = key + ':' + o.x + ',' + o.y;
+    return Object.assign({}, o, { id, opened: !!flags.opened[id], shown: !o.onClear || !!flags.cleared[key] });
+  });
+  pickups = []; shots = []; fx = []; texts = []; hook = null; boss = null;
+  if (room.drop && flags.cleared[key] && !flags.got[room.drop.id]) pickups.push(mkPick(room.drop.k, room.drop.x*TS+3, room.drop.y*TS+3, Infinity, room.drop.id));
+  if (key === '1,0') {
+    if (!flags.bossDead) boss = { x:104, y:22, w:48, h:30, hp:9, max:9, dir:1, spit:150, mouth:0, mouthT:170, stun:0, stunHits:0, flash:0, dying:0, active:false };
+    else if (!flags.pageGot) pickups.push(mkPick('page', 123, 80, Infinity, 'page'));
+  }
+  banner = { text: room.name, t: 110 };
+  fade = 12;
+}
+
+function mkEnemy(type, x, y, small){
+  const e = { type, x, y, w:10, h:10, t:(Math.random()*60)|0, stun:0, flash:0, kbx:0, kby:0, kbT:0, dir:(Math.random()*4)|0, vx:0, vy:0 };
+  if (type === 'bug') { e.hp = 1; e.spd = .9; }
+  if (type === 'slime') { e.small = !!small; e.hp = small ? 1 : 3; e.spd = small ? 1.1 : .8; if (!small) { e.w = 12; e.h = 12; } }
+  if (type === 'skel') { e.hp = 2; e.spd = .55; e.down = 0; }
+  if (type === 'grem') { e.hp = 1; e.spd = 1.15; e.w = 9; e.h = 9; }
+  return e;
+}
+function mkPick(k, x, y, life, id){ return { k, x, y, w:10, h:10, life: life === undefined ? 480 : life, id, bob: Math.random()*6 }; }
+
+/* ------------------------------------------------------------ utilidades */
+const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+const tileAt = (tx, ty) => (tx < 0 || ty < 0 || tx >= RW || ty >= RH) ? null : grid[ty][tx];
+const objBox = o => ({ x:o.x*TS, y:o.y*TS, w:TS, h:TS });
+function addText(s, x, y, col, life){ texts.push({ s, x, y, col: col || C.w, life: life || 50, max: life || 50 }); }
+function burst(x, y, col, n){ for (let i = 0; i < (n||8); i++) { const a = Math.random()*Math.PI*2, v = .6 + Math.random()*1.6; fx.push({ x, y, vx:Math.cos(a)*v, vy:Math.sin(a)*v, life: 18 + (Math.random()*14|0), col }); } }
+
+function blocked(o, isP){
+  const pts = [[o.x,o.y],[o.x+o.w-.01,o.y],[o.x,o.y+o.h-.01],[o.x+o.w-.01,o.y+o.h-.01]];
+  for (const [px,py] of pts) {
+    const tx = Math.floor(px/TS), ty = Math.floor(py/TS);
+    if (tx < 0 || ty < 0 || tx >= RW || ty >= RH) { if (isP) continue; return true; }
+    if (!isP && (tx === 0 || ty === 0 || tx === RW-1 || ty === RH-1)) return true;
+    const ch = grid[ty][tx];
+    if (SOLID.has(ch)) { if (isP && (ch === 'L' || ch === 'B')) lastBump = ch; return true; }
+  }
+  for (const ob of objs) if (ob.shown && overlap(o, objBox(ob))) return true;
+  return false;
+}
+function nudge(o, dx, dy){
+  for (let k = 1; k <= 7; k++) for (const s of [-1, 1]) {
+    const side = { x:o.x + (dx ? 0 : s*k), y:o.y + (dy ? 0 : s*k), w:o.w, h:o.h };
+    const fwd = { x:side.x + dx, y:side.y + dy, w:o.w, h:o.h };
+    if (!blocked(side, true) && !blocked(fwd, true)) { if (dx) o.y += s; else o.x += s; return; }
+  }
+}
+function moveBox(o, dx, dy, isP){
+  let moved = false;
+  if (dx) { o.x += dx; if (blocked(o, isP)) { o.x -= dx; if (isP && !dy) nudge(o, dx, 0); } else moved = true; }
+  if (dy) { o.y += dy; if (blocked(o, isP)) { o.y -= dy; if (isP && !dx) nudge(o, 0, dy); } else moved = true; }
+  return moved;
+}
+
+function say(lines, cb){ dialog = lines.slice(); dlgChars = 0; dlgCb = cb || null; state = 'dialog'; }
+
+function hurt(dmg, sx, sy){
+  if (P.inv > 0 || state !== 'play') return;
+  if (hook && hook.phase === 'pull') return;
+  P.hp -= dmg; P.inv = 70; shake = 5; sfx('hurt');
+  const dx = (P.x + 5) - sx, dy = (P.y + 5) - sy;
+  if (Math.abs(dx) > Math.abs(dy)) { P.kbx = Math.sign(dx || 1)*2.6; P.kby = 0; } else { P.kby = Math.sign(dy || 1)*2.6; P.kbx = 0; }
+  P.kbT = 9; P.atk = 0; hook = null;
+  burst(P.x+5, P.y+5, C.r, 6);
+  if (P.hp <= 0) { P.hp = 0; state = 'dead'; deadT = t; sfx('boss'); }
+}
+
+function attackBox(){
+  switch (P.dir) {
+    case 'down': return { x:P.x-2, y:P.y+P.h, w:14, h:12 };
+    case 'up': return { x:P.x-2, y:P.y-12, w:14, h:12 };
+    case 'left': return { x:P.x-12, y:P.y-2, w:12, h:14 };
+    default: return { x:P.x+P.w, y:P.y-2, w:12, h:14 };
+  }
+}
+const DIRV = { up:[0,-1], down:[0,1], left:[-1,0], right:[1,0] };
+
+function rollText(x, y){
+  if (P.roll === 20) { addText('¡CRÍTICO!', x, y, C.a, 60); stats.crits++; sfx('crit'); shake = 3; }
+  else if (P.roll === 1) { addText('PIFIA', x, y, C.r, 50); stats.fumbles++; sfx('fumble'); }
+  else addText('d20:' + P.roll, x, y, C.l, 36);
+}
+
+function hitEnemy(e, dmg, fromHook){
+  if (e.type === 'skel' && e.down > 0) {
+    addText('kill -9', e.x, e.y - 6, C.a, 50); killEnemy(e); return;
+  }
+  e.hp -= dmg; e.flash = 12; sfx('hit');
+  const dx = e.x - P.x, dy = e.y - P.y;
+  if (Math.abs(dx) > Math.abs(dy)) { e.kbx = Math.sign(dx || 1)*2.4; e.kby = 0; } else { e.kby = Math.sign(dy || 1)*2.4; e.kbx = 0; }
+  e.kbT = 8;
+  if (fromHook) e.stun = 70;
+  if (e.hp <= 0) {
+    if (e.type === 'skel') {
+      e.down = 190; e.hp = 0; e.kbT = 0;
+      addText('¡REMÁTALO!', e.x - 12, e.y - 8, C.a, 70);
+      burst(e.x+5, e.y+5, C.w, 6);
+      return;
+    }
+    killEnemy(e);
+  }
+}
+function killEnemy(e){
+  enemies.splice(enemies.indexOf(e), 1);
+  burst(e.x + e.w/2, e.y + e.h/2, e.type === 'slime' ? C.g : e.type === 'bug' ? C.r : C.w, 10);
+  sfx('hit');
+  if (e.type === 'slime' && !e.small) {
+    for (const s of [-1, 1]) {
+      const n = mkEnemy('slime', e.x + 1, e.y + 1, true);
+      n.kbx = s*2; n.kbT = 8; n.t = 30;
+      if (blocked(n, false)) { n.x = e.x; n.y = e.y; }
+      enemies.push(n);
+    }
+    addText('malloc()', e.x - 8, e.y - 6, C.g, 40);
+    return;
+  }
+  if (e.type === 'grem') { pickups.push(mkPick('credit', e.x, e.y, 900)); return; }
+  const r = Math.random();
+  if (r < .32) pickups.push(mkPick('credit', e.x, e.y));
+  else if (r < .45 && P.hp < P.max) pickups.push(mkPick('cup', e.x, e.y));
+}
+
+function give(c){
+  sfx('key');
+  holdItem = c;
+  const done = () => { holdItem = null; };
+  if (c === 'ssh') { P.ssh = true; say(['¡Has conseguido la TERMINAL SSH! Pulsa X o K (botón B) para lanzar una conexión.', 'Si alcanza un NODO te arrastra hasta él, aunque haya un abismo en medio. También aturde a los enemigos.'], done); }
+  if (c === 'root') { P.root = true; say(['¡Has conseguido la LLAVE ROOT! Abre la Cámara del AS/400, al norte del Cruce de los Logs.'], done); }
+  if (c === 'cupmax') { P.max += 2; P.hp = P.max; say(['¡TAZA DE CAFÉ EXTRA! Tu cordura máxima aumenta y se rellena por completo.'], done); }
+  if (c === 'page') {
+    flags.pageGot = true; flags.pages.logs = true; grid[5][7] = 'E';
+    say(['¡PÁGINA DEL GRIMORIO: LOGS Y TRAZAS! La primera regla de la Definition of Done vuelve a su sitio.',
+         'Pulsa ENTER para abrir el grimorio y lanza REVELAR: muestra los muros falsos. Esta cámara huele a secreto...',
+         'Cuando termines, el ASCENSOR del centro te devuelve al Campus.'], done);
+  }
+  if (c === 'cred') { P.keys++; say(['¡Has conseguido una CREDENCIAL! Sirve para abrir una puerta bloqueada.'], done); }
+}
+
+/* ------------------------------------------------------------ actualización */
+function update(){
+  t++;
+  if (pressed('mute')) muted = !muted;
+  if (state === 'title') { if (pressed('start') || pressed('atk')) newGame(); }
+  else if (state === 'dialog') updateDialog();
+  else if (state === 'play') updatePlay();
+  else if (state === 'book') updateBook();
+  else if (state === 'dead') { if (t - deadT > 50 && (pressed('start') || pressed('atk'))) respawn(); }
+  else if (state === 'win') { if (t - winT > 90 && (pressed('start') || pressed('atk'))) state = 'title'; }
+  for (const k in pressedQ) pressedQ[k] = false;
+  if (fade > 0) fade--;
+}
+
+function updateDialog(){
+  const cur = dialog[0] || '';
+  dlgChars += 1.4;
+  if (pressed('atk') || pressed('start') || pressed('item')) {
+    if (dlgChars < cur.length) dlgChars = cur.length;
+    else {
+      dialog.shift(); dlgChars = 0;
+      if (!dialog.length) { state = 'play'; msgCd = 30; const cb = dlgCb; dlgCb = null; if (cb) cb(); }
+    }
+  }
+}
+
+function updatePlay(){
+  if (banner && --banner.t <= 0) banner = null;
+  if (msgCd > 0) msgCd--;
+  lastBump = null;
+
+  // entrada del jugador
+  if (hook) updateHook();
+  else if (held.shield && P.atk <= 0 && P.kbT <= 0) { if (P.planT === 0) sfx('clink'); P.planT++; }
+  else {
+    if (P.planT > 0) { if (P.planT >= 20) doApply(); P.planT = 0; }
+    if (pressed('start')) { state = 'book'; bookSel = 0; sfx('pick'); return; }
+    if (P.kbT > 0) { moveBox(P, P.kbx, P.kby, true); P.kbT--; }
+    else if (P.atk <= 0) {
+      const mx = (held.right ? 1 : 0) - (held.left ? 1 : 0);
+      const my = (held.down ? 1 : 0) - (held.up ? 1 : 0);
+      if (mx && !my) P.dir = mx > 0 ? 'right' : 'left';
+      else if (my && !mx) P.dir = my > 0 ? 'down' : 'up';
+      else if (mx && my) {
+        const horiz = P.dir === 'left' || P.dir === 'right';
+        if (horiz && (P.dir === 'right' ? 1 : -1) !== mx) P.dir = mx > 0 ? 'right' : 'left';
+        if (!horiz && (P.dir === 'down' ? 1 : -1) !== my) P.dir = my > 0 ? 'down' : 'up';
+      }
+      if (mx || my) { const sp = (mx && my) ? 1.0 : 1.35; moveBox(P, mx*sp, my*sp, true); P.step++; }
+    }
+    if (pressed('atk') && P.atk <= 0 && P.kbT <= 0) {
+      const ab = attackBox();
+      const sign = objs.find(o => o.t === 'sign' && overlap(ab, objBox(o)));
+      if (sign) say(sign.text);
+      else { P.atk = 16; P.atkHit = new Set(); P.roll = 1 + (Math.random()*20 | 0); sfx('swing'); }
+    }
+    if (pressed('item') && P.atk <= 0 && P.kbT <= 0) {
+      if (P.ssh) {
+        const [dx, dy] = DIRV[P.dir];
+        hook = { x:P.x + 5 + dx*6, y:P.y + 5 + dy*6, dx, dy, dist:0, phase:'out' };
+        sfx('hook');
+      } else if (msgCd <= 0) { addText('Sin objeto', P.x - 14, P.y - 10, C.l, 40); msgCd = 40; }
+    }
+  }
+  if (state !== 'play') return;
+
+  // puertas
+  if (lastBump && msgCd <= 0) {
+    if (lastBump === 'L') {
+      if (P.keys > 0) { P.keys--; flags.hubL = true; for (let y = 4; y <= 6; y++) grid[y][0] = '.'; sfx('door'); addText('¡ABIERTA!', 4, 70, C.a, 60); burst(8, 88, C.a, 12); }
+      else { msgCd = 120; say(['Puerta bloqueada. Necesitas una CREDENCIAL para abrirla.']); return; }
+    } else if (lastBump === 'B') {
+      if (P.root) { flags.hubB = true; grid[0][7] = '.'; grid[0][8] = '.'; sfx('door'); addText('ACCESO ROOT', 84, 20, C.a, 70); burst(128, 8, C.r, 14); }
+      else { msgCd = 120; say(['Cámara del AS/400. Acceso restringido: hace falta la LLAVE ROOT.']); return; }
+    }
+  }
+
+  // ataque
+  if (P.atk > 0) {
+    P.atk--;
+    if (P.atk > 5) {
+      const ab = attackBox();
+      for (const e of enemies.slice()) {
+        if (P.atkHit.has(e) || !overlap(ab, e)) continue;
+        P.atkHit.add(e);
+        rollText(e.x - 8, e.y - 10);
+        if (P.roll === 1) continue;
+        hitEnemy(e, P.roll === 20 ? 2 : 1, false);
+      }
+      if (boss && boss.active && !boss.dying && !P.atkHit.has(boss) && overlap(ab, boss)) {
+        P.atkHit.add(boss);
+        if (boss.stun > 0) {
+          rollText(boss.x + 10, boss.y + 34);
+          if (P.roll !== 1) {
+            boss.hp -= P.roll === 20 ? 2 : 1; boss.flash = 14; boss.stunHits++; shake = 4; sfx('hit');
+            burst(P.x + 5, P.y - 4, C.g, 10);
+            if (boss.hp <= 0) { boss.hp = 0; boss.dying = 130; boss.stun = 0; sfx('boss'); }
+            else if (boss.stunHits >= 3) { boss.stun = 1; P.kby = 3; P.kbx = 0; P.kbT = 12; P.atk = 0; }
+          }
+        } else {
+          addText('INMUNE', boss.x + 14, boss.y + 34, C.l, 40); sfx('clink');
+          P.kby = 2.4; P.kbx = 0; P.kbT = 8; P.atk = 0;
+          if (!flags.hintBoss) { flags.hintBoss = true; say(['¡INMUNE! Espera a que abra la boca y conéctate por SSH (X o K) para dejarlo aturdido.']); return; }
+        }
+      }
+    }
+  }
+  if (P.inv > 0) P.inv--;
+
+  // enemigos
+  for (const e of enemies.slice()) updateEnemy(e);
+
+  // jefe
+  if (boss) updateBoss();
+  if (state !== 'play') return;
+
+  // disparos
+  for (const s of shots.slice()) {
+    s.x += s.vx; s.y += s.vy; s.life--;
+    const tile = tileAt(Math.floor(s.x/TS), Math.floor(s.y/TS));
+    if (s.life <= 0 || tile === null || SHOT_SOLID.has(tile)) { shots.splice(shots.indexOf(s), 1); burst(s.x, s.y, C.gd, 3); continue; }
+    if (overlap({ x:s.x-3, y:s.y-3, w:6, h:6 }, P)) {
+      shots.splice(shots.indexOf(s), 1);
+      if (shieldBlocks(s.x - s.vx*3, s.y - s.vy*3, s.vx, s.vy)) {
+        flags.blocks++; sfx('clink'); burst(s.x, s.y, C.b, 6);
+        if (flags.blocks <= 3 || Math.random() < .25) addText('estado OK', P.x - 30, P.y - 14, C.b, 30);
+        continue;
+      }
+      hurt(1, s.x - s.vx*4, s.y - s.vy*4); if (state !== 'play') return;
+    }
+  }
+
+  // objetos recogibles
+  for (const p of pickups.slice()) {
+    if (p.life !== Infinity && --p.life <= 0) { pickups.splice(pickups.indexOf(p), 1); continue; }
+    if (!overlap(p, P)) continue;
+    pickups.splice(pickups.indexOf(p), 1);
+    if (p.k === 'credit') { P.credits++; sfx('pick'); addText('+1 crédito', p.x - 20, p.y - 8, C.a, 40); }
+    else if (p.k === 'cup') { P.hp = Math.min(P.max, P.hp + 2); sfx('pick'); addText('+café', p.x - 8, p.y - 8, C.a, 40); }
+    else if (p.k === 'cred') { flags.got.cred = true; give('cred'); return; }
+    else if (p.k === 'page') { give('page'); return; }
+  }
+
+  // cofres
+  const reach = { x:P.x-3, y:P.y-3, w:P.w+6, h:P.h+6 };
+  for (const o of objs) {
+    if (o.t !== 'chest' || !o.shown || o.opened) continue;
+    if (overlap(reach, objBox(o))) { o.opened = true; flags.opened[o.id] = true; burst(o.x*TS+8, o.y*TS+6, C.a, 12); give(o.c); return; }
+  }
+
+  // los gremlins del ClickOps vuelven a tocar a mano
+  if (room.drift && flags.applied[roomKey] && enemies.some(e => e.type === 'grem')) {
+    if (++driftT > 600) {
+      driftT = 0; flags.applied[roomKey] = false;
+      room.drift.forEach(d => { if (!overlap(P, { x:d.x*TS, y:d.y*TS, w:TS, h:TS })) { grid[d.y][d.x] = 'x'; burst(d.x*TS+8, d.y*TS+8, C.r, 14); } });
+      addText('¡ClickOps! Nodo borrado', 30, 60, C.r, 90); sfx('fumble');
+    }
+  }
+
+  // ascensor de salida
+  if (tileAt(Math.floor((P.x + 5)/TS), Math.floor((P.y + 5)/TS)) === 'E') { sfx('secret'); state = 'win'; winT = t; return; }
+
+  // sala despejada
+  if (room.enemies.length && !flags.cleared[roomKey] && enemies.length === 0) {
+    flags.cleared[roomKey] = true; sfx('secret');
+    for (const o of objs) if (o.onClear && !o.shown) { o.shown = true; burst(o.x*TS+8, o.y*TS+8, C.a, 16); addText('¡Un cofre!', o.x*TS - 16, o.y*TS - 10, C.a, 70); }
+    if (room.drop && !flags.got[room.drop.id]) {
+      pickups.push(mkPick(room.drop.k, room.drop.x*TS+3, room.drop.y*TS+3, Infinity, room.drop.id));
+      burst(room.drop.x*TS+8, room.drop.y*TS+8, C.b, 16);
+      addText('Fugas contenidas', 64, 40, C.g, 80);
+    }
+  }
+
+  // cambio de sala
+  const cx = P.x + P.w/2, cy = P.y + P.h/2;
+  const [rx, ry] = roomKey.split(',').map(Number);
+  if (cx < 0) goRoom(rx-1, ry, W - P.w - 2, P.y);
+  else if (cx > W) goRoom(rx+1, ry, 2, P.y);
+  else if (cy < 0) goRoom(rx, ry-1, P.x, RPX - P.h - 2);
+  else if (cy > RPX) goRoom(rx, ry+1, P.x, 2);
+
+  // efectos
+  for (const f of fx.slice()) { f.x += f.vx; f.y += f.vy; f.vx *= .92; f.vy *= .92; if (--f.life <= 0) fx.splice(fx.indexOf(f), 1); }
+  for (const s of texts.slice()) { s.y -= .3; if (--s.life <= 0) texts.splice(texts.indexOf(s), 1); }
+  if (shake > 0) shake *= .85; if (shake < .3) shake = 0;
+}
+
+function goRoom(nx, ny, px, py){
+  const k = nx + ',' + ny;
+  if (!ROOMS[k]) { P.x = Math.max(0, Math.min(W - P.w, P.x)); P.y = Math.max(0, Math.min(RPX - P.h, P.y)); return; }
+  loadRoom(k); P.x = px; P.y = py; hook = null; P.atk = 0; P.kbT = 0;
+}
+
+function updateHook(){
+  const h = hook;
+  if (h.phase === 'out') {
+    for (let s = 0; s < 4; s++) {
+      h.x += h.dx; h.y += h.dy; h.dist++;
+      const tx = Math.floor(h.x/TS), ty = Math.floor(h.y/TS), tile = tileAt(tx, ty);
+      if (tile === 'A') {
+        h.phase = 'pull'; sfx('clink'); burst(h.x, h.y, C.b, 6);
+        h.tx = (tx - h.dx)*TS + 3; h.ty = (ty - h.dy)*TS + 3;
+        if (h.dx) h.ty = ty*TS + 3; else h.tx = tx*TS + 3;
+        addText('ssh nodo', h.x - 28, h.y - 12, C.b, 40);
+        return;
+      }
+      if (tile === null || HOOK_SOLID.has(tile)) { h.phase = 'back'; burst(h.x, h.y, C.w, 3); sfx('clink'); return; }
+      const pt = { x:h.x-1, y:h.y-1, w:3, h:3 };
+      for (const e of enemies) if (overlap(pt, e)) { hitEnemy(e, 1, true); addText('aturdido', e.x - 12, e.y - 8, C.b, 40); h.phase = 'back'; return; }
+      if (boss && boss.active && !boss.dying && overlap(pt, boss)) {
+        const mouth = { x:boss.x+12, y:boss.y+18, w:24, h:16 };
+        if (boss.mouth > 0 && overlap(pt, mouth)) {
+          boss.stun = 210; boss.stunHits = 0; boss.mouth = 0; boss.mouthT = boss.hp <= 4 ? 160 : 210;
+          addText('kill -STOP', boss.x + 4, boss.y + 36, C.b, 70); sfx('crit'); shake = 4; burst(h.x, h.y, C.b, 14);
+        } else { addText('Puerto cerrado', boss.x - 4, boss.y + 36, C.l, 40); sfx('clink'); }
+        h.phase = 'back'; return;
+      }
+      for (const o of objs) if (o.shown && overlap(pt, objBox(o))) { h.phase = 'back'; return; }
+      if (h.dist >= 130) { h.phase = 'back'; return; }
+    }
+  } else if (h.phase === 'back') {
+    const px = P.x + 5, py = P.y + 5, dx = px - h.x, dy = py - h.y, d = Math.hypot(dx, dy);
+    if (d < 6) { hook = null; return; }
+    h.x += dx/d*5; h.y += dy/d*5;
+  } else if (h.phase === 'pull') {
+    const dx = h.tx - P.x, dy = h.ty - P.y, d = Math.hypot(dx, dy);
+    if (d <= 4) { P.x = h.tx; P.y = h.ty; hook = null; return; }
+    P.x += dx/d*4; P.y += dy/d*4;
+  }
+}
+
+function updateEnemy(e){
+  if (e.flash > 0) e.flash--;
+  if (e.kbT > 0) { moveBox(e, e.kbx, e.kby, false); e.kbT--; }
+  else if (e.stun > 0) e.stun--;
+  else if (e.type === 'bug' || e.type === 'grem') {
+    if (--e.t <= 0) {
+      e.t = 25 + (Math.random()*50 | 0);
+      if (Math.random() < .45) { const dx = P.x - e.x, dy = P.y - e.y; e.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 0 : 2) : (dy > 0 ? 1 : 3); }
+      else e.dir = Math.random()*4 | 0;
+    }
+    const D = [[1,0],[0,1],[-1,0],[0,-1]][e.dir];
+    if (!moveBox(e, D[0]*e.spd, D[1]*e.spd, false)) e.t = 0;
+  } else if (e.type === 'slime') {
+    e.t++;
+    const ph = e.t % 70;
+    if (ph === 0) { const dx = P.x - e.x, dy = P.y - e.y, d = Math.hypot(dx, dy) || 1; e.vx = dx/d*e.spd; e.vy = dy/d*e.spd; }
+    if (ph < 22) moveBox(e, e.vx, e.vy, false);
+  } else if (e.type === 'skel') {
+    if (e.down > 0) {
+      e.down--;
+      if (e.down === 0) { e.hp = 2; addText('¡REVIVE!', e.x - 10, e.y - 8, C.r, 50); burst(e.x+5, e.y+5, C.r, 8); }
+    } else {
+      const dx = P.x - e.x, dy = P.y - e.y;
+      const ax = Math.abs(dx) > Math.abs(dy);
+      let ok = ax ? moveBox(e, Math.sign(dx)*e.spd, 0, false) : moveBox(e, 0, Math.sign(dy)*e.spd, false);
+      if (!ok) ax ? moveBox(e, 0, Math.sign(dy || 1)*e.spd, false) : moveBox(e, Math.sign(dx || 1)*e.spd, 0, false);
+    }
+  }
+  const harmless = (e.type === 'skel' && e.down > 0) || e.stun > 0;
+  if (!harmless && overlap(e, P)) {
+    if (e.type === 'grem' && shieldBlocks(e.x + e.w/2, e.y + e.h/2)) {
+      const [a, b] = DIRV[P.dir]; e.kbx = a*3; e.kby = b*3; e.kbT = 10; e.stun = 30; sfx('clink');
+      if (Math.random() < .5) addText('¡No en mi infra!', P.x - 40, P.y - 14, C.b, 40);
+    } else hurt(1, e.x + e.w/2, e.y + e.h/2);
+  }
+}
+
+function shieldBlocks(sx, sy, vx, vy){
+  if (P.atk > 3 || hook) return false;
+  const [fdx, fdy] = DIRV[P.dir];
+  const dx = sx - (P.x + 5), dy = sy - (P.y + 5), d = Math.hypot(dx, dy) || 1;
+  const front = (dx*fdx + dy*fdy)/d;
+  if (vx === undefined) return front > .45;
+  const v = Math.hypot(vx, vy) || 1;
+  return front > .3 && (vx*fdx + vy*fdy)/v < -.3;
+}
+
+function driftDiffs(){ return (room.drift || []).filter(d => grid[d.y][d.x] !== room.map[d.y][d.x]); }
+function doApply(){
+  const diffs = driftDiffs();
+  if (!diffs.length) { addText('apply: sin cambios', P.x - 32, P.y - 14, C.l, 50); sfx('clink'); return; }
+  if (diffs.some(d => overlap(P, { x:d.x*TS, y:d.y*TS, w:TS, h:TS }))) { addText('Apártate del recurso', P.x - 40, P.y - 14, C.r, 50); return; }
+  if (P.credits >= 2) P.credits -= 2;
+  else if (flags.cleared[roomKey]) addText('Presupuesto de emergencia', 28, 40, C.a, 80);
+  else { addText('Faltan créditos (2)', P.x - 36, P.y - 14, C.r, 60); sfx('fumble'); return; }
+  diffs.forEach(d => { grid[d.y][d.x] = room.map[d.y][d.x]; burst(d.x*TS+8, d.y*TS+8, C.b, 16); });
+  flags.applied[roomKey] = true; flags.applies++; driftT = 0;
+  addText('apply: ' + diffs.length + ' recurso restaurado', 16, 54, C.b, 80);
+  sfx('secret'); shake = 3;
+}
+
+function updateBook(){
+  if (pressed('up')) { bookSel = (bookSel + PAGES.length - 1) % PAGES.length; sfx('step'); }
+  if (pressed('down')) { bookSel = (bookSel + 1) % PAGES.length; sfx('step'); }
+  if (pressed('start') || pressed('item')) { state = 'play'; return; }
+  if (pressed('atk')) {
+    const pg = PAGES[bookSel];
+    if (!flags.pages[pg.id]) { sfx('fumble'); return; }
+    state = 'play'; castSpell(pg.id);
+  }
+}
+function castSpell(id){
+  if (id !== 'logs') return;
+  let found = 0;
+  for (let y = 0; y < RH; y++) for (let x = 0; x < RW; x++) if (grid[y][x] === 'H') { grid[y][x] = '.'; found++; burst(x*TS+8, y*TS+8, C.g, 10); }
+  if (found) { if (roomKey === '1,0') flags.secret = true; sfx('secret'); shake = 4; addText('REVELAR: muro falso', 50, 70, C.g, 90); }
+  else { sfx('clink'); addText('REVELAR: nada oculto', 48, 70, C.l, 70); }
+}
+
+function fireAcid(n, spd){
+  const mx = boss.x + 24, my = boss.y + 30;
+  const base = Math.atan2(P.y + 5 - my, P.x + 5 - mx);
+  for (let i = 0; i < n; i++) {
+    const a = base + (i - (n-1)/2)*.32;
+    shots.push({ x:mx, y:my, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd, life:260 });
+  }
+}
+
+function updateBoss(){
+  const b = boss;
+  if (!b.active) {
+    if (P.y < 140) {
+      b.active = true; grid[10][7] = '#'; grid[10][8] = '#';
+      sfx('boss'); shake = 8;
+      say(['¡¡EL DRAGÓN NEGRO!! Lleva 30 años enroscado al AS/400 y nadie se atreve a apagarlo.',
+           'Su piel es inmune a los teclados... pero dicen que, cuando abre la boca, deja el PUERTO 22 abierto.',
+           'Su ácido no atraviesa el ESCUDO DE IaC si lo recibes de frente.']);
+    }
+    return;
+  }
+  if (b.dying) {
+    b.dying--;
+    if (b.dying % 5 === 0) { burst(b.x + Math.random()*b.w, b.y + Math.random()*b.h, Math.random() < .5 ? C.g : C.a, 8); sfx('hit'); }
+    shake = 3;
+    if (b.dying === 0) {
+      flags.bossDead = true; boss = null; grid[10][7] = '.'; grid[10][8] = '.';
+      pickups.push(mkPick('page', 123, 80, Infinity, 'page'));
+      burst(128, 85, C.g, 30); sfx('secret');
+      addText('¡UNA PÁGINA!', 80, 60, C.g, 120);
+    }
+    return;
+  }
+  const ph2 = b.hp <= 4;
+  if (b.flash > 0) b.flash--;
+  if (b.stun > 0) {
+    b.stun--;
+    if (b.stun === 0) { b.stunHits = 0; addText('se reinicia', b.x + 4, b.y + 36, C.r, 50); b.spit = 40; }
+  } else {
+    b.x += b.dir*(ph2 ? .95 : .55);
+    if (b.x < 20) { b.x = 20; b.dir = 1; }
+    if (b.x > W - 20 - b.w) { b.x = W - 20 - b.w; b.dir = -1; }
+    b.y = 22 + Math.sin(t/45)*6;
+    if (b.mouth > 0) {
+      b.mouth--;
+      if (b.mouth === 0) { fireAcid(ph2 ? 7 : 5, 1.5); b.mouthT = ph2 ? 160 : 210; shake = 3; sfx('boss'); }
+    } else {
+      if (--b.mouthT <= 0) { b.mouth = 85; addText('PUERTO 22', b.x + 6, b.y + 36, C.g, 60); sfx('door'); }
+      if (--b.spit <= 0) { fireAcid(ph2 ? 3 : 1, ph2 ? 1.6 : 1.3); b.spit = ph2 ? 70 : 105; }
+    }
+    if (overlap(P, { x:b.x+6, y:b.y+4, w:b.w-12, h:b.h-2 })) hurt(1, b.x + b.w/2, b.y + b.h/2);
+  }
+}
+
+/* ------------------------------------------------------------ dibujo */
+function r(x, y, w, h, c){ ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); }
+function txt(s, x, y, col, opt){
+  opt = opt || {};
+  ctx.font = FONT8; ctx.textBaseline = 'top';
+  let tx = x;
+  if (opt.center) tx = Math.round(x - ctx.measureText(s).width/2);
+  tx = Math.round(tx); y = Math.round(y);
+  if (opt.outline) { ctx.fillStyle = C.k; for (const [ox, oy] of [[-1,0],[1,0],[0,-1],[0,1],[1,1]]) ctx.fillText(s, tx+ox, y+oy); }
+  ctx.fillStyle = col; ctx.fillText(s, tx, y);
+}
+function wrap(s, max){
+  const out = []; let line = '';
+  for (const w of s.split(' ')) {
+    const cand = line ? line + ' ' + w : w;
+    if (cand.length > max && line) { out.push(line); line = w; } else line = cand;
+  }
+  if (line) out.push(line);
+  return out;
+}
+
+function drawTile(ch, tx, ty){
+  const x = tx*TS, y = ty*TS;
+  const floor = () => { r(x, y, TS, TS, C.f); if ((tx*7 + ty*3) % 5 === 0) r(x + ((tx*5+ty)%10) + 3, y + ((ty*7+tx)%10) + 3, 1, 1, C.f2); r(x, y, TS, 1, C.f2); };
+  switch (ch) {
+    case '#': {
+      r(x, y, TS, TS, C.d);
+      const o = (tx + ty) % 2 ? 4 : 11;
+      r(x, y, TS, 1, C.m); r(x, y+8, TS, 1, C.m);
+      r(x+o, y, 1, 8, C.k); r(x + ((o+8)%16), y+8, 1, 8, C.k);
+      r(x, y+7, TS, 1, C.k); r(x, y+15, TS, 1, C.k);
+      break; }
+    case '~': {
+      floor();
+      const g = (a, b) => tileAt(a, b) === '~';
+      if (g(tx-1, ty) || g(tx+1, ty)) { r(x, y+6, TS, 2, C.bd); r(x, y+9, TS, 1, C.rd); }
+      if (g(tx, ty-1) || g(tx, ty+1)) { r(x+6, y, 2, TS, C.bd); r(x+9, y, 1, TS, C.rd); }
+      break; }
+    case 'R': {
+      floor();
+      r(x+1, y, 14, 16, C.k); r(x+1, y, 14, 1, C.m); r(x+1, y, 1, 16, C.m); r(x+14, y, 1, 16, C.d);
+      for (let i = 0; i < 3; i++) {
+        r(x+3, y+3+i*4, 10, 2, C.d);
+        const on = ((t >> 4) + tx*3 + ty*5 + i*7) % 6;
+        r(x+10, y+3+i*4, 2, 1, on === 0 ? C.r : on < 4 ? C.g : C.gd);
+        r(x+4, y+3+i*4, 4, 1, C.m);
+      }
+      break; }
+    case 'T': {
+      floor();
+      r(x+4, y+9, 8, 6, C.m); r(x+4, y+9, 8, 1, C.l); r(x+3, y+14, 10, 2, C.d);
+      const fl = (t >> 3) % 2;
+      r(x+5, y+3+fl, 6, 6-fl, C.ad); r(x+6, y+2+fl, 4, 5, C.a); r(x+7, y+5, 2, 3, C.w);
+      break; }
+    case 'C': {
+      r(x, y, TS, TS, '#050409');
+      if (tileAt(tx, ty-1) !== 'C') { r(x, y, TS, 3, C.d); r(x, y+3, TS, 1, C.k); }
+      if (((tx*13 + ty*7) % 9) === 0) r(x+7, y+9, 1, 1, ((t >> 5) + tx) % 3 ? C.rd : C.k);
+      break; }
+    case 'A': {
+      floor();
+      r(x+3, y+1, 10, 14, C.m); r(x+3, y+1, 10, 1, C.l); r(x+12, y+1, 1, 14, C.d);
+      r(x+5, y+4, 6, 5, C.k); r(x+6, y+5, 4, 3, (t >> 4) % 2 ? C.b : C.bd);
+      r(x+5, y+11, 6, 1, C.d); r(x+2, y+14, 12, 2, C.d);
+      break; }
+    case 'L': {
+      r(x, y, TS, TS, C.d); r(x+2, y, 12, TS, C.ad); r(x+2, y, 12, 1, C.a);
+      r(x+5, y+5, 6, 5, C.a); r(x+6, y+2, 4, 4, C.k); r(x+7, y+3, 2, 3, C.ad); r(x+7, y+7, 2, 2, C.k);
+      break; }
+    case 'B': {
+      r(x, y, TS, TS, C.d); r(x, y+2, TS, 14, C.rd); r(x, y+2, TS, 1, C.r);
+      for (let i = 0; i < 4; i++) r(x + i*4 + 1, y+4, 2, 11, C.k);
+      r(x+5, y+6, 6, 4, C.w); r(x+6, y+7, 1, 1, C.k); r(x+9, y+7, 1, 1, C.k);
+      break; }
+    case 'H': {
+      drawTile('#', tx, ty);
+      r(x+6, y+2, 1, 3, C.k); r(x+7, y+5, 1, 3, C.k); r(x+6, y+9, 1, 2, C.k); r(x+8, y+11, 1, 3, C.k);
+      break; }
+    case 'x': {
+      floor();
+      for (let i = 0; i < 14; i += 4) { r(x+1+i, y+1, 2, 1, C.rd); r(x+1+i, y+14, 2, 1, C.rd); r(x+1, y+1+i, 1, 2, C.rd); r(x+14, y+1+i, 1, 2, C.rd); }
+      const c = (t >> 4) % 2 ? C.r : C.rd;
+      r(x+6, y+4, 4, 1, c); r(x+9, y+5, 1, 2, c); r(x+7, y+7, 2, 1, c); r(x+7, y+8, 1, 1, c); r(x+7, y+10, 1, 1, c);
+      break; }
+    case 'E': {
+      floor();
+      r(x, y, TS, TS, (t >> 3) % 2 ? C.g : C.gd); r(x+1, y+1, 14, 14, C.m); r(x+2, y+2, 12, 12, C.k);
+      const o = (t >> 3) % 3;
+      r(x+7, y+3+o, 2, 1, C.a); r(x+6, y+4+o, 4, 1, C.a); r(x+5, y+5+o, 6, 1, C.a); r(x+7, y+6+o, 2, 5, C.a);
+      break; }
+    default: floor();
+  }
+}
+
+function drawAS400(){
+  const x = 96, y = 14;
+  r(x, y, 64, 30, C.ud); r(x+1, y+1, 62, 28, C.u); r(x+1, y+1, 62, 1, C.w);
+  for (let i = 0; i < 5; i++) r(x+5, y+6+i*4, 30, 2, C.ud);
+  r(x+42, y+6, 16, 10, C.k); r(x+44, y+8, 12, 6, (t >> 5) % 2 ? C.gd : C.g);
+  txt('AS/400', x+40, y+19, C.k);
+}
+
+function drawPlayer(){
+  if (P.inv > 0 && (P.inv >> 2) % 2 && state === 'play') return;
+  const x = Math.round(P.x - 3), y = Math.round(P.y - 6);
+  const wf = (P.step >> 3) % 2, d = P.dir;
+  ctx.save();
+  if (d === 'left') { ctx.translate(x + 16, y); ctx.scale(-1, 1); } else ctx.translate(x, y);
+  r(3, 15, 10, 1, 'rgba(0,0,0,.45)');
+  const legs = () => { r(5, 14, 2, wf ? 1 : 2, C.m); r(9, 14, 2, wf ? 2 : 1, C.m); };
+  if (d === 'down') {
+    r(4, 1, 8, 3, C.k); r(3, 2, 1, 4, C.k); r(12, 2, 1, 4, C.k);
+    r(4, 4, 8, 5, C.s); r(4, 4, 8, 1, C.k); r(6, 6, 1, 2, C.k); r(9, 6, 1, 2, C.k);
+    r(3, 9, 10, 5, C.a); r(3, 9, 10, 1, C.ad); r(7, 10, 1, 2, C.w); r(9, 10, 1, 2, C.w); r(5, 12, 6, 1, C.ad);
+    r(2, 10, 1, 3, C.a); r(13, 10, 1, 3, C.a); r(2, 13, 1, 1, C.s); r(13, 13, 1, 1, C.s);
+    legs();
+  } else if (d === 'up') {
+    r(4, 1, 8, 8, C.k); r(3, 3, 1, 4, C.k); r(12, 3, 1, 4, C.k); r(3, 5, 1, 2, C.s); r(12, 5, 1, 2, C.s);
+    r(3, 9, 10, 5, C.a); r(4, 8, 8, 3, C.ad); r(5, 9, 6, 1, C.a);
+    r(2, 10, 1, 3, C.a); r(13, 10, 1, 3, C.a);
+    legs();
+  } else {
+    r(4, 1, 8, 3, C.k); r(4, 4, 3, 4, C.k); r(7, 4, 6, 5, C.s); r(7, 4, 6, 1, C.k); r(11, 6, 1, 2, C.k); r(5, 5, 1, 2, C.s);
+    r(4, 9, 9, 5, C.a); r(4, 9, 9, 1, C.ad); r(4, 10, 2, 4, C.ad);
+    r(9, 11, 4, 2, C.a); r(13, 11, 1, 2, C.s);
+    legs();
+  }
+  const glow = P.planT > 0 ? ((t >> 2) % 2 ? C.w : C.b) : C.b;
+  if (d === 'down') { r(0, 8, 6, 7, C.k); r(1, 9, 4, 5, glow); r(2, 10, 1, 1, C.w); r(1, 11, 1, 1, C.w); r(2, 12, 1, 1, C.w); r(3, 10, 1, 3, C.bd); }
+  else if (d === 'up') { r(5, 9, 6, 5, C.k); r(6, 10, 4, 3, C.bd); }
+  else { r(11, 8, 5, 7, C.k); r(12, 9, 3, 5, glow); r(13, 10, 1, 1, C.w); r(14, 11, 1, 1, C.w); r(13, 12, 1, 1, C.w); }
+  ctx.restore();
+  if (P.planT > 0 && state === 'play') {
+    for (let i = 0; i < 8; i++) { const a = t/12 + i*Math.PI/4; r(P.x + 5 + Math.cos(a)*13, P.y + 3 + Math.sin(a)*13, 1, 1, i % 2 ? C.b : C.g); }
+  }
+}
+
+function drawKeyboard(){
+  if (P.atk <= 3) return;
+  const b = attackBox();
+  const hor = P.dir === 'up' || P.dir === 'down';
+  let x, y, w, h;
+  if (hor) { w = 14; h = 6; x = b.x; y = P.dir === 'down' ? b.y + 1 : b.y + 5; }
+  else { w = 6; h = 14; y = b.y; x = P.dir === 'right' ? b.x + 1 : b.x + 5; }
+  r(x-1, y-1, w+2, h+2, C.k); r(x, y, w, h, C.w);
+  for (let i = 1; i < (hor ? w : h) - 1; i += 2) {
+    if (hor) { r(x+i, y+1, 1, 1, C.m); r(x+i, y+3, 1, 1, C.m); }
+    else { r(x+1, y+i, 1, 1, C.m); r(x+3, y+i, 1, 1, C.m); }
+  }
+  const rgb = [C.r, C.a, C.g, C.b][(t >> 2) % 4];
+  if (hor) r(x, y + h - 1, w, 1, rgb); else r(x + w - 1, y, 1, h, rgb);
+  if (P.roll === 20) { r(x-2, y-2, w+4, 1, C.a); r(x-2, y+h+1, w+4, 1, C.a); }
+}
+
+function drawHook(){
+  if (!hook) return;
+  const sx = P.x + 5, sy = P.y + 5, dx = hook.x - sx, dy = hook.y - sy, d = Math.hypot(dx, dy);
+  for (let i = 0; i < d; i += 3) r(sx + dx*i/d, sy + dy*i/d, 1, 1, (i/3) % 2 ? C.b : C.bd);
+  r(hook.x - 3, hook.y - 3, 7, 7, C.k); r(hook.x - 2, hook.y - 2, 5, 5, C.w);
+  r(hook.x - 1, hook.y - 1, 1, 1, C.g); r(hook.x, hook.y, 1, 1, C.g); r(hook.x - 1, hook.y + 1, 1, 1, C.g);
+}
+
+function drawEnemy(e){
+  if (e.flash > 0 && (e.flash >> 1) % 2) return;
+  if (e.type === 'bug') {
+    const x = Math.round(e.x - 3), y = Math.round(e.y - 3), l = (t >> 3) % 2;
+    for (let i = 0; i < 3; i++) { r(x+2, y+6+i*3+(l^(i%2)), 2, 1, C.k); r(x+12, y+6+i*3+(l^((i+1)%2)), 2, 1, C.k); }
+    r(x+4, y+5, 8, 9, C.r); r(x+4, y+5, 8, 1, '#ffa0ad'); r(x+7, y+6, 2, 8, C.rd);
+    r(x+5, y+9, 1, 1, C.k); r(x+10, y+11, 1, 1, C.k);
+    r(x+5, y+2, 6, 3, C.k); r(x+6, y+3, 1, 1, C.w); r(x+9, y+3, 1, 1, C.w);
+    r(x+5, y, 1, 2, C.k); r(x+10, y, 1, 2, C.k);
+  } else if (e.type === 'slime') {
+    const s = e.small ? 9 : 14, ph = e.t % 70, mv = ph < 22;
+    const w = Math.round(s*(mv ? .85 : 1.12)), h = Math.round(s*(mv ? 1.12 : .82));
+    const bx = e.x + e.w/2, by = e.y + e.h + (mv ? -Math.sin(ph/22*Math.PI)*4 : 0);
+    r(bx - w/2 + 1, e.y + e.h, w - 2, 1, 'rgba(0,0,0,.45)');
+    r(bx - w/2, by - h + 2, w, h - 2, C.g); r(bx - w/2 + 2, by - h, w - 4, 2, C.g);
+    r(bx - w/2, by - 1, w, 1, C.gd); r(bx - w/2 + 2, by - h + 2, 2, 2, C.w);
+    r(bx - 3, by - h/2 - 1, 1, 2, C.k); r(bx + 2, by - h/2 - 1, 1, 2, C.k);
+    if (!e.small) r(bx - 1, by - h/2 + 3, 3, 1, C.gd);
+  } else if (e.type === 'grem') {
+    const x = Math.round(e.x - 3), y = Math.round(e.y - 4), j = (t >> 2) % 2;
+    r(x+4, y+12, 2, 3, C.m); r(x+9, y+12, 2, 3, C.m);
+    r(x+3, y+3+j, 9, 9, C.l); r(x+3, y+3+j, 9, 1, C.w);
+    r(x+1, y+2+j, 2, 4, C.l); r(x+12, y+2+j, 2, 4, C.l);
+    r(x+5, y+6+j, 2, 2, C.a); r(x+9, y+6+j, 2, 2, C.a); r(x+6, y+7+j, 1, 1, C.k); r(x+9, y+7+j, 1, 1, C.k);
+    r(x+5, y+10+j, 5, 1, C.k); r(x+6, y+11+j, 1, 1, C.w); r(x+8, y+11+j, 1, 1, C.w);
+    r(x+13, y+6, 1, 6, C.k); r(x+14, y+7, 1, 4, C.w); r(x+15, y+8, 1, 2, C.w); r(x+14, y+11, 1, 2, C.w);
+  } else if (e.type === 'skel') {
+    const x = Math.round(e.x - 3), y = Math.round(e.y - 5);
+    if (e.down > 0) {
+      if (e.down < 60 && (t >> 2) % 2) return;
+      r(x+2, y+14, 6, 2, C.w); r(x+8, y+13, 6, 2, C.u); r(x+5, y+9, 6, 5, C.w);
+      r(x+6, y+11, 1, 1, C.k); r(x+9, y+11, 1, 1, C.k);
+      txt('z', x + 12, y + 2 - ((t >> 4) % 3), C.l);
+    } else {
+      const sw = (t >> 3) % 2;
+      r(x+4, y, 8, 6, C.w); r(x+5, y+6, 6, 1, C.u);
+      r(x+5, y+2, 2, 2, C.k); r(x+9, y+2, 2, 2, C.k); r(x+6, y+3, 1, 1, C.r); r(x+9, y+3, 1, 1, C.r);
+      r(x+7, y+7, 2, 6, C.w); r(x+5, y+8, 6, 1, C.w); r(x+5, y+10, 6, 1, C.w);
+      r(x+3, y+8 + sw, 1, 4, C.w); r(x+12, y+9 - sw, 1, 4, C.w);
+      r(x+5, y+13, 2, 3 - sw, C.w); r(x+9, y+13, 2, 2 + sw, C.w);
+    }
+  }
+  if (e.stun > 0) { const a = t/6; r(e.x + 5 + Math.cos(a)*6, e.y - 4 + Math.sin(a)*2, 2, 2, C.b); r(e.x + 5 - Math.cos(a)*6, e.y - 4 - Math.sin(a)*2, 2, 2, C.b); }
+}
+
+function drawBoss(bx, by, b){
+  const f = Math.sin(t/8)*4;
+  const stun = b && b.stun > 0, mouth = b ? b.mouth : 0;
+  if (b && b.flash > 0 && (b.flash >> 1) % 2) return;
+  // alas
+  ctx.fillStyle = C.d;
+  ctx.beginPath(); ctx.moveTo(bx+10, by+8); ctx.lineTo(bx-14, by-6+f); ctx.lineTo(bx-10, by+6+f/2); ctx.lineTo(bx-4, by+20); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(bx+38, by+8); ctx.lineTo(bx+62, by-6+f); ctx.lineTo(bx+58, by+6+f/2); ctx.lineTo(bx+52, by+20); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = C.m; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(bx+10, by+9); ctx.lineTo(bx-12, by-4+f); ctx.moveTo(bx+38, by+9); ctx.lineTo(bx+60, by-4+f); ctx.stroke();
+  // cuerpo
+  r(bx+5, by+5, 38, 20, C.gd); r(bx+6, by+6, 36, 18, C.k);
+  for (let i = 0; i < 6; i++) r(bx+9 + i*5, by+9 + (i%2)*3, 2, 1, C.m);
+  // cabeza
+  r(bx+13, by+9, 22, 18, C.gd); r(bx+14, by+10, 20, 16, C.k);
+  r(bx+13, by+3, 3, 7, C.m); r(bx+32, by+3, 3, 7, C.m); r(bx+12, by+1, 2, 3, C.l); r(bx+34, by+1, 2, 3, C.l);
+  if (stun) { r(bx+17, by+13, 1, 1, C.b); r(bx+19, by+15, 1, 1, C.b); r(bx+19, by+13, 1, 1, C.b); r(bx+17, by+15, 1, 1, C.b); r(bx+18, by+14, 1, 1, C.b);
+              r(bx+28, by+13, 1, 1, C.b); r(bx+30, by+15, 1, 1, C.b); r(bx+30, by+13, 1, 1, C.b); r(bx+28, by+15, 1, 1, C.b); r(bx+29, by+14, 1, 1, C.b); }
+  else { r(bx+16, by+13, 5, 2, C.r); r(bx+27, by+13, 5, 2, C.r); r(bx+18, by+13, 1, 2, C.w); r(bx+29, by+13, 1, 2, C.w); }
+  r(bx+16, by+20, 16, 7, C.d); r(bx+19, by+21, 1, 1, C.g); r(bx+28, by+21, 1, 1, C.g);
+  if (mouth > 0) {
+    const p = (t >> 2) % 2;
+    r(bx+16, by+25, 16, 7 + p, C.gd); r(bx+18, by+26, 12, 5 + p, C.g); r(bx+21, by+27, 6, 3, C.w);
+    r(bx+17, by+25, 1, 2, C.w); r(bx+30, by+25, 1, 2, C.w);
+  } else {
+    r(bx+17, by+26, 14, 1, C.gd);
+    for (let i = 0; i < 4; i++) r(bx+18 + i*4, by+27, 1, 1, C.w);
+  }
+  if (stun) txt('zZ', bx+38, by-2 - ((t >> 4) % 3), C.b);
+}
+
+function drawPickup(p){
+  if (p.life !== Infinity && p.life < 120 && (p.life >> 2) % 2) return;
+  const x = Math.round(p.x), y = Math.round(p.y + Math.sin(t/10 + p.bob)*1.5);
+  if (p.k === 'credit') {
+    r(x+2, y+1, 6, 8, C.a); r(x+1, y+2, 8, 6, C.a); r(x+3, y+3, 1, 4, C.ad); r(x+4, y+3, 3, 1, C.ad); r(x+4, y+6, 3, 1, C.ad); r(x+2, y+1, 2, 1, C.w);
+  } else if (p.k === 'cup') {
+    drawCup(x+1, y+1, 2);
+  } else if (p.k === 'cred') {
+    r(x-1, y+1, 12, 9, C.k); r(x, y+2, 10, 7, C.b); r(x, y+4, 10, 1, C.k); r(x+1, y+6, 3, 2, C.w); r(x+6, y+6, 3, 1, C.bd);
+    if ((t >> 3) % 4 === 0) r(x+8, y+2, 2, 1, C.w);
+  } else if (p.k === 'page') {
+    r(x-2, y-3, 14, 16, (t >> 3) % 2 ? C.g : C.gd); r(x-1, y-2, 12, 14, C.u); r(x+7, y-2, 4, 4, C.ud);
+    r(x+1, y+1, 6, 1, C.ud); r(x+1, y+4, 8, 1, C.ud); r(x+1, y+7, 7, 1, C.ud); r(x+1, y+10, 5, 1, C.gd);
+  } else if (p.k === 'escama') {
+    const g = (t >> 3) % 2 ? C.g : C.gd;
+    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x+5, y-4); ctx.lineTo(x+12, y+5); ctx.lineTo(x+5, y+14); ctx.lineTo(x-2, y+5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = C.k; ctx.beginPath(); ctx.moveTo(x+5, y-1); ctx.lineTo(x+9, y+5); ctx.lineTo(x+5, y+11); ctx.lineTo(x+1, y+5); ctx.closePath(); ctx.fill();
+    r(x+4, y+2, 1, 3, C.w);
+  }
+}
+function drawCup(x, y, fill){
+  r(x, y, 7, 8, fill ? C.w : C.m);
+  r(x+1, y+1, 5, 6, C.k);
+  if (fill === 2) r(x+1, y+1, 5, 6, C.ad);
+  if (fill === 1) r(x+1, y+4, 5, 3, C.ad);
+  r(x+7, y+2, 2, 1, fill ? C.w : C.m); r(x+8, y+2, 1, 4, fill ? C.w : C.m); r(x+7, y+5, 2, 1, fill ? C.w : C.m);
+  if (fill === 2) { r(x+2, y-2 - ((t >> 4) % 2), 1, 1, C.l); r(x+4, y-3 + ((t >> 4) % 2), 1, 1, C.l); }
+}
+
+function drawObj(o){
+  if (!o.shown) return;
+  const x = o.x*TS, y = o.y*TS;
+  if (o.t === 'chest') {
+    r(x+1, y+15, 14, 1, 'rgba(0,0,0,.5)');
+    if (o.opened) { r(x+1, y+2, 14, 4, C.ad); r(x+1, y+6, 14, 9, C.k); r(x+2, y+7, 12, 3, C.d); r(x+1, y+10, 14, 5, C.ad); r(x+1, y+10, 14, 1, C.a); }
+    else {
+      r(x, y+3, 16, 13, C.k); r(x+1, y+4, 14, 11, C.ad); r(x+1, y+4, 14, 4, C.a); r(x+1, y+8, 14, 1, C.k);
+      r(x+7, y+7, 2, 4, C.w); r(x+1, y+4, 14, 1, '#ffd89a');
+    }
+  } else if (o.t === 'sign') {
+    r(x+7, y+8, 2, 8, C.ad); r(x+1, y+1, 14, 9, C.k); r(x+2, y+2, 12, 7, C.a);
+    r(x+4, y+4, 8, 1, C.ad); r(x+4, y+6, 6, 1, C.ad);
+  }
+}
+
+function drawHUD(){
+  r(0, 0, W, HUD, C.k); r(0, HUD-1, W, 1, C.d);
+  for (let i = 0; i < P.max/2; i++) { const v = P.hp - i*2; drawCup(5 + i*12, 8, v >= 2 ? 2 : v === 1 ? 1 : 0); }
+  const cx = 60;
+  r(cx+2, 8, 6, 8, C.a); r(cx+1, 9, 8, 6, C.a); r(cx+3, 10, 1, 4, C.ad); r(cx+4, 10, 3, 1, C.ad); r(cx+4, 13, 3, 1, C.ad);
+  txt('x' + String(P.credits).padStart(2, '0'), cx+11, 8, C.w);
+  const kx = 100;
+  r(kx, 8, 10, 7, C.b); r(kx, 10, 10, 1, C.k); r(kx+1, 12, 3, 2, C.w);
+  txt('x' + P.keys, kx+13, 8, C.w);
+  if (P.root) { r(134, 7, 6, 6, C.r); r(136, 9, 2, 2, C.k); r(139, 9, 7, 2, C.r); r(142, 11, 2, 3, C.r); r(145, 11, 1, 2, C.r); }
+  const pg = Object.keys(flags.pages).length;
+  r(152, 6, 9, 12, C.ad); r(153, 7, 7, 10, pg ? C.u : C.m); r(154, 9, 4, 1, C.ad); r(154, 11, 5, 1, C.ad); r(154, 13, 3, 1, C.ad);
+  txt(pg + '/5', 163, 8, pg ? C.g : C.l);
+  r(190, 2, 20, 20, C.d); r(191, 3, 18, 18, C.k);
+  r(195, 6, 10, 12, C.bd); r(196, 7, 8, 10, P.planT > 0 ? C.w : C.b); r(198, 9, 1, 1, C.k); r(197, 11, 1, 1, C.k); r(198, 13, 1, 1, C.k); r(201, 9, 1, 1, C.k); r(202, 11, 1, 1, C.k); r(201, 13, 1, 1, C.k);
+  r(212, 2, 40, 20, C.d); r(213, 3, 38, 18, C.k);
+  txt('B', 216, 4, C.l);
+  if (P.ssh) { const x = 228, y = 7; r(x, y, 18, 12, C.m); r(x+1, y+1, 16, 10, C.k); r(x+3, y+3, 1, 1, C.g); r(x+4, y+4, 1, 1, C.g); r(x+5, y+5, 1, 1, C.g); r(x+4, y+6, 1, 1, C.g); r(x+3, y+7, 1, 1, C.g); if ((t >> 4) % 2) r(x+8, y+8, 5, 1, C.g); }
+  if (muted) r(252, 0, 4, 2, C.r);
+}
+
+function drawDialog(){
+  const cur = dialog[0] || '';
+  const lines = wrap(cur, 28);
+  const top = P.y > 100;
+  const by = top ? HUD + 6 : HUD + RPX - 6 - (lines.length*12 + 18);
+  const bh = lines.length*12 + 14;
+  r(6, by, 244, bh, C.w); r(7, by+1, 242, bh-2, C.k); r(8, by+2, 240, bh-4, '#120f1b');
+  let n = Math.floor(dlgChars);
+  lines.forEach((ln, i) => { if (n > 0) txt(ln.slice(0, n), 14, by + 8 + i*12, C.w); n -= ln.length + 1; });
+  if (dlgChars >= cur.length && (t >> 4) % 2) { r(238, by + bh - 9, 5, 1, C.a); r(239, by + bh - 8, 3, 1, C.a); r(240, by + bh - 7, 1, 1, C.a); }
+}
+
+function drawBook(){
+  ctx.fillStyle = 'rgba(13,11,20,.8)'; ctx.fillRect(0, HUD, W, RPX);
+  const top = HUD + 4;
+  r(6, top, 244, 168, C.ad); r(8, top+2, 240, 164, C.u); r(8, top+2, 240, 1, C.w);
+  for (let i = 0; i < 6; i++) r(4, top + 14 + i*26, 6, 4, C.m);
+  txt('DEFINITION OF DONE', 128, top + 10, C.k, { center:true });
+  const got = PAGES.filter(p => flags.pages[p.id]).length;
+  txt('GRIMORIO · ' + got + '/5 PÁGINAS', 128, top + 22, C.ud, { center:true });
+  PAGES.forEach((pg, i) => {
+    const y = top + 40 + i*14, has = !!flags.pages[pg.id];
+    if (i === bookSel) { ctx.fillStyle = 'rgba(168,114,46,.35)'; ctx.fillRect(12, y - 3, 232, 13); txt('>', 14, y, C.rd); }
+    r(24, y - 1, 9, 9, C.k); r(25, y, 7, 7, C.u);
+    if (has) { r(26, y+3, 1, 2, C.gd); r(27, y+4, 1, 2, C.gd); r(28, y+3, 1, 2, C.gd); r(29, y+2, 1, 2, C.gd); r(30, y+1, 1, 2, C.gd); }
+    txt(has ? pg.name : '???', 38, y, has ? C.k : C.ud);
+    const right = has ? pg.spell : pg.dun;
+    txt(right, 244 - 8*right.length, y, has ? C.gd : C.ud);
+  });
+  const pg = PAGES[bookSel], has = !!flags.pages[pg.id];
+  r(16, top + 112, 224, 1, C.ud);
+  const lines = has ? wrap(pg.desc, 27) : ['Esta página la guarda el', 'dragón de ' + pg.dun + '.'];
+  lines.forEach((ln, i) => txt(ln, 18, top + 120 + i*11, C.k));
+  if (has && (t >> 4) % 2) txt('A: LANZAR ' + pg.spell, 18, top + 144, C.rd);
+  txt('ENTER: CERRAR', 244 - 104, top + 154, C.ud);
+}
+
+function drawTitle(){
+  r(0, 0, W, 200, C.k);
+  for (let tx = 0; tx < 16; tx++) { drawTile('#', tx, 0); }
+  ctx.save(); ctx.translate(0, 184);
+  for (let tx = 0; tx < 16; tx++) drawTile(tx % 3 ? 'R' : '#', tx, 0);
+  ctx.restore();
+  txt('DUNGEONS &', 128, 28, C.a, { center:true, outline:true });
+  txt('DEPLOYMENTS', 128, 42, C.a, { center:true, outline:true });
+  txt('LA LEYENDA DEL DESPLIEGUE', 128, 60, C.l, { center:true });
+  drawBoss(104, 88, { mouth: (t % 240) > 180 ? 1 : 0, stun:0, flash:0 });
+  txt('MAZMORRA 1', 128, 136, C.g, { center:true });
+  txt('CATACUMBAS DE SISTEMAS', 128, 148, C.w, { center:true });
+  if ((t >> 5) % 2) txt('PULSA ENTER O START', 128, 166, C.a, { center:true });
+}
+
+function drawOverlay(title, col, lines, prompt){
+  ctx.fillStyle = 'rgba(13,11,20,.88)'; ctx.fillRect(0, 0, W, 200);
+  txt(title, 128, 36, col, { center:true, outline:true });
+  lines.forEach((ln, i) => txt(ln, 128, 62 + i*12, C.w, { center:true }));
+  if ((t >> 5) % 2) txt(prompt, 128, 170, C.a, { center:true });
+}
+
+function draw(){
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  r(0, 0, W, 200, C.k);
+  if (state === 'title') { drawTitle(); return; }
+  const sx = shake ? Math.round((Math.random()*2 - 1)*shake) : 0, sy = shake ? Math.round((Math.random()*2 - 1)*shake) : 0;
+  ctx.save(); ctx.translate(sx, HUD + sy);
+  for (let ty = 0; ty < RH; ty++) for (let tx = 0; tx < RW; tx++) drawTile(grid[ty][tx], tx, ty);
+  if (roomKey === '1,0') drawAS400();
+  objs.forEach(drawObj);
+  pickups.forEach(drawPickup);
+  enemies.forEach(drawEnemy);
+  if (boss) {
+    if (boss.dying && (boss.dying >> 2) % 2) {} else drawBoss(boss.x, boss.y, boss);
+  }
+  if (P.planT > 0) {
+    const diffs = driftDiffs();
+    for (const d of diffs) {
+      ctx.globalAlpha = (t >> 3) % 2 ? .55 : .3; drawTile(room.map[d.y][d.x], d.x, d.y); ctx.globalAlpha = 1;
+      const x = d.x*TS, y = d.y*TS; r(x, y, TS, 1, C.b); r(x, y+15, TS, 1, C.b); r(x, y, 1, TS, C.b); r(x+15, y, 1, TS, C.b);
+      txt('+', x + 4, y - 9, C.g, { outline:true });
+    }
+    const label = 'plan: ' + diffs.length + (diffs.length === 1 ? ' cambio' : ' cambios');
+    txt(label, Math.max(2, Math.min(W - 8*label.length - 2, P.x + 5 - 4*label.length)), P.y - 22, C.b, { outline:true });
+    if (P.planT >= 20 && diffs.length) txt('suelta: apply', Math.max(2, Math.min(W - 106, P.x - 47)), P.y - 32, C.g, { outline:true });
+  }
+  drawHook();
+  drawPlayer();
+  drawKeyboard();
+  if (holdItem) {
+    const x = P.x - 3, y = P.y - 22;
+    if (holdItem === 'ssh') { r(x, y, 18, 12, C.m); r(x+1, y+1, 16, 10, C.k); r(x+3, y+3, 1, 1, C.g); r(x+4, y+4, 1, 1, C.g); r(x+3, y+5, 1, 1, C.g); r(x+7, y+7, 5, 1, C.g); }
+    else if (holdItem === 'root') { r(x, y, 7, 7, C.r); r(x+2, y+2, 3, 3, C.k); r(x+6, y+2, 10, 3, C.r); r(x+12, y+5, 2, 3, C.r); }
+    else if (holdItem === 'cupmax') drawCup(x+4, y+2, 2);
+    else if (holdItem === 'page') { r(x+1, y-2, 14, 15, C.g); r(x+2, y-1, 12, 13, C.u); r(x+4, y+2, 7, 1, C.ud); r(x+4, y+5, 8, 1, C.ud); r(x+4, y+8, 6, 1, C.ud); }
+    else if (holdItem === 'cred') { r(x+2, y+2, 12, 8, C.b); r(x+2, y+4, 12, 1, C.k); r(x+3, y+6, 3, 2, C.w); }
+  }
+  for (const s of shots) { r(s.x-3, s.y-2, 6, 4, C.gd); r(s.x-2, s.y-3, 4, 6, C.gd); r(s.x-2, s.y-2, 4, 4, C.g); r(s.x-1, s.y-1, 1, 1, C.w); }
+  for (const f of fx) r(f.x, f.y, 2, 2, f.col);
+  for (const s of texts) { if (s.life < 12 && (s.life >> 1) % 2) continue; txt(s.s, Math.max(2, Math.min(W - 8*s.s.length - 2, s.x)), s.y, s.col, { outline:true }); }
+  ctx.restore();
+
+  drawHUD();
+  if (banner && banner.t < 100) {
+    ctx.font = FONT8; const wdt = ctx.measureText(banner.text).width + 16;
+    r(128 - wdt/2, HUD + 18, wdt, 16, 'rgba(13,11,20,.85)');
+    txt(banner.text, 128, HUD + 22, C.l, { center:true });
+  }
+  if (boss && boss.active) {
+    const y = 188;
+    r(4, y - 2, 248, 12, 'rgba(13,11,20,.85)');
+    txt('DRAGÓN NEGRO', 8, y, C.g);
+    r(112, y, 136, 7, C.d); r(113, y+1, Math.round(134*boss.hp/boss.max), 5, boss.stun ? C.b : C.g);
+  }
+  if (state === 'dialog') drawDialog();
+  if (state === 'book') drawBook();
+  if (state === 'dead') drawOverlay('KERNEL PANIC', C.r, ['Has perdido la cordura.', '', 'Vuelves al vestíbulo con', 'tus objetos intactos.'], 'ENTER O A: REINTENTAR');
+  if (state === 'win') {
+    const secs = Math.floor((winT - stats.start)/60);
+    const mm = String(Math.floor(secs/60)).padStart(2, '0'), ss = String(secs % 60).padStart(2, '0');
+    drawOverlay('¡DESPLIEGUE OK!', C.g, [
+      'Has vencido al DRAGÓN NEGRO.', 'Página DoD: LOGS Y TRAZAS', '',
+      'Tiempo ' + mm + ':' + ss + '  Créditos ' + P.credits,
+      'Críticos ' + stats.crits + '  Pifias ' + stats.fumbles,
+      'Bloqueos IaC ' + flags.blocks + '  Apply ' + flags.applies,
+      'Muertes ' + stats.deaths + '  Secreto ' + (flags.secret ? 'SÍ' : 'NO'),
+      'Próxima: LABERINTO NETWORK'
+    ], 'ENTER: VOLVER AL TÍTULO');
+  }
+  if (fade > 0) { ctx.fillStyle = 'rgba(13,11,20,' + (fade/12) + ')'; ctx.fillRect(0, HUD, W, RPX); }
+}
+
+/* ------------------------------------------------------------ bucle */
+let last = performance.now(), acc = 0;
+function frame(now){
+  acc += Math.min(100, now - last); last = now;
+  while (acc >= 1000/60) { update(); acc -= 1000/60; }
+  draw();
+  requestAnimationFrame(frame);
+}
+draw();
+if (document.fonts && document.fonts.load) document.fonts.load(FONT8).then(draw).catch(() => {});
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
