@@ -6,7 +6,13 @@
  * @param {number} x
  * @returns {'sistemas'|'network'|'storage'|'virtual'|'caas'|'guarida'}
  */
-const ZONE = x => x < 640 ? 'sistemas' : x < 1280 ? 'network' : x < 1920 ? 'storage' : x < 2560 ? 'virtual' : x < 3200 ? 'caas' : 'guarida';
+const ZONE1 = x => x < 640 ? 'sistemas' : x < 1280 ? 'network' : x < 1920 ? 'storage' : x < 2560 ? 'virtual' : x < 3200 ? 'caas' : 'guarida';
+/**
+ * Zona de una coordenada x en la etapa en curso.
+ * @param {number} x
+ * @returns {string}
+ */
+const ZONE = x => stageIdx === 1 ? ZONE2(x) : ZONE1(x);
 const RACKS = [656, 756, 856, 956, 1056, 1156];
 const RACK_LABELS = ['CORE', 'DMZ', 'VLAN 10', 'PROD', 'WIFI', 'VPN'];
 const SHELVES = [1296, 1396, 1496, 1596, 1696, 1796];
@@ -54,7 +60,7 @@ function buildLevel(){
   for (let row = 0; row < 9; row++) {
     const y = 42 + row*9, off = row % 2 ? 11 : 0;
     for (let x = -off; x < LVW; x += 22) {
-      const z = ZONE(x + 11); if (z === 'guarida') continue;
+      const z = ZONE1(x + 11); if (z === 'guarida') continue;
       const b = BR[z];
       S.rect(x, y, 22, 9, b.mortar);
       S.rect(x + 1, y + 1, 20, 7, pick(b.pal)); S.rect(x + 1, y + 1, 20, 1, b.hi); S.rect(x + 1, y + 7, 20, 1, b.lo);
@@ -81,7 +87,7 @@ function buildLevel(){
   for (let r = 0; r < rows.length - 1; r++) {
     const y0 = rows[r], hh = rows[r + 1] - y0, tw = 20 + r*7, off = (r % 2)*tw/2;
     for (let x = -off; x < LVW; x += tw) {
-      const f = FL[ZONE(x + tw/2)];
+      const f = FL[ZONE1(x + tw/2)];
       if (!f || x + tw <= 640) continue;
       S.rect(x + 1, y0 + 1, tw - 1, hh - 1, pick(f.pal));
       S.rect(x + 1, y0 + 1, tw - 1, 1, f.hi);
@@ -242,6 +248,8 @@ function buildLevel(){
  * @param {number} cx Posición de la cámara.
  */
 function drawLevel(cx){
+  if (stageIdx === 1) return drawCaves(cx);
+  if (!LEVEL) buildLevel();
   ctx.drawImage(LEVEL, cx, 0, W, H, 0, 0, W, H);
   // pantallas de la sala de guardia
   for (const dx of [196, 452]) {
@@ -294,20 +302,22 @@ function drawLights(cx){
   ctx.globalCompositeOperation = 'source-over';
   ctx.drawImage(VIG, 0, 0);
   ctx.globalCompositeOperation = 'lighter';
-  for (const tc of TORCHES) {
+  const cave = stageIdx === 1, torches = cave ? CAVE_TORCHES : TORCHES;
+  if (cave) caveLights(cx);
+  for (const tc of torches) {
     const sx = tc.x - cx; if (sx < -90 || sx > W + 90) continue;
     const fl = .8 + .2*Math.sin(t*.3 + tc.x) + Math.random()*.06;
     const gr = ctx.createRadialGradient(sx, tc.y, 2, sx, tc.y + 10, 84);
     gr.addColorStop(0, 'rgba(255,180,100,' + (.34*fl) + ')'); gr.addColorStop(.4, 'rgba(255,130,60,' + (.13*fl) + ')'); gr.addColorStop(1, 'rgba(255,100,40,0)');
     ctx.fillStyle = gr; ctx.fillRect(sx - 90, tc.y - 80, 180, 190);
   }
-  for (const [x, y, rr] of POOLS) {
+  for (const [x, y, rr] of cave ? [] : POOLS) {
     const sx = x - cx; if (sx < -60 || sx > W + 60) continue;
     const gr = ctx.createRadialGradient(sx, y, 2, sx, y, rr*2.4);
     gr.addColorStop(0, 'rgba(110,231,168,' + (.2 + .06*Math.sin(t/12 + x)) + ')'); gr.addColorStop(1, 'rgba(110,231,168,0)');
     ctx.fillStyle = gr; ctx.fillRect(sx - rr*2.5, y - rr*2, rr*5, rr*4);
   }
-  for (const px of PILLARS) {
+  for (const px of cave ? [] : PILLARS) {
     const wx = px + 82 - cx; if (wx < -60 || wx > W + 80) continue;
     ctx.fillStyle = 'rgba(94,200,242,.06)';
     ctx.beginPath(); ctx.moveTo(wx - 14, 56); ctx.lineTo(wx + 14, 56); ctx.lineTo(wx + 44, 188); ctx.lineTo(wx + 4, 188); ctx.closePath(); ctx.fill();
@@ -326,7 +336,7 @@ function drawLights(cx){
   }
   ctx.globalCompositeOperation = 'source-over';
   // llamas por encima de la luz
-  for (const tc of TORCHES) {
+  for (const tc of torches) {
     const sx = tc.x - cx; if (sx < -20 || sx > W + 20) continue;
     const fsp = flameSprite(((t >> 3) + tc.x) % 3);
     ctx.drawImage(fsp.c, Math.round(sx - 7), Math.round(tc.y - (tc.brazier ? 8 : 12)));

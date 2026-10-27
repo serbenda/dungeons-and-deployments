@@ -23,7 +23,9 @@ const KILL_MSGS = ['SIGKILL', 'EXIT 1', '404', 'SEGFAULT', 'OOM KILLED', 'TIMEOU
 /**
  * Mensajes específicos al eliminar a cada tipo de enemigo.
  */
-const KILL_BY = { minotauro:['FIREWALL DESACTIVADO'], murcielago:['PACKET LOSS', 'TTL EXPIRED', '100% LOSS'], firewall:['ACL BORRADA', 'PORT OPEN'], mimico:['DISCO FORMATEADO', 'QUOTA OK'], fantasma:['VM ELIMINADA', 'SNAPSHOT BORRADO'], pod:['CrashLoopBackOff', 'OOMKilled', 'Evicted'], slime:['malloc() x2'], slimeS:['free()', 'GC'], pendiente:['HECHO'] };
+const KILL_BY = { minotauro:['FIREWALL DESACTIVADO'], murcielago:['PACKET LOSS', 'TTL EXPIRED', '100% LOSS'], firewall:['ACL BORRADA', 'PORT OPEN'], mimico:['DISCO FORMATEADO', 'QUOTA OK'], fantasma:['VM ELIMINADA', 'SNAPSHOT BORRADO'], pod:['CrashLoopBackOff', 'OOMKilled', 'Evicted'], slime:['malloc() x2'], slimeS:['free()', 'GC'], pendiente:['HECHO'],
+  kobold:['ROLLBACK', 'COMMIT'], troll:['DEPRECATED'], consulta:['JOIN', 'CACHÉ HIT', 'EAGER LOAD'], phishing:['REPORTADO', 'SPAM'], ransom:['DESCIFRADO', 'BACKUP OK'],
+  troyano:['CUARENTENA', 'FIRMA OK'], alerta:['SILENCIADA', 'ACK'], gnomo:['DASHBOARD BORRADO'] };
 const HURT_MSGS = ['ERROR 500', 'WARN', '503', 'EXCEPTION', 'NullPointer'];
 /**
  * Añade un texto flotante que sube y se desvanece.
@@ -56,7 +58,7 @@ function spark(x, y, big){ fx.push({ spark:true, x, y, life:big ? 10 : 7, max:bi
  * @param {object} e
  * @returns {number}
  */
-const halfW = e => e.kind === 'minotauro' ? 12 : e.kind === 'cabeza' ? 12 : e.kind === 'dragon' ? 40 : e.kind === 'golem' ? 22 : e.kind === 'crate' ? 10 : e.kind === 'totem' ? 12 : 7;
+const halfW = e => e.kind === 'minotauro' || e.kind === 'dba' || e.kind === 'lich' ? 12 : e.kind === 'cinta' ? 12 : e.kind === 'cabeza' ? 12 : e.kind === 'dragon' ? 40 : e.kind === 'golem' ? 22 : e.kind === 'crate' ? 10 : e.kind === 'totem' ? 12 : 7;
 /**
  * Indica si `tgt` está al alcance de un ataque de `att` hacia donde mira.
  * @param {object} att Atacante (usa x, y y face).
@@ -78,7 +80,8 @@ const alive = e => !e.dead && e.hp > 0;
 /**
  * Tipos que cuentan como enemigos de oleada (ver hostile()).
  */
-const GRUNTS = { minotauro:1, cabeza:1, goblin:1, orco:1, esqueleto:1, slime:1, slimeS:1, murcielago:1, firewall:1, mimico:1, fantasma:1, pod:1, totem:1, pendiente:1, revisor:1 };
+const GRUNTS = { minotauro:1, cabeza:1, goblin:1, orco:1, esqueleto:1, slime:1, slimeS:1, murcielago:1, firewall:1, mimico:1, fantasma:1, pod:1, totem:1, pendiente:1, revisor:1,
+  kobold:1, troll:1, consulta:1, dba:1, phishing:1, ransom:1, troyano:1, alerta:1, gnomo:1, cinta:1 };
 /**
  * Enemigos de oleada vivos (los de GRUNTS). La sección no se cierra hasta que no queda ninguno.
  * @returns {object[]}

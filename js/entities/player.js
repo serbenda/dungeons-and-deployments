@@ -136,7 +136,7 @@ function loseLife(){
   if (P.lives > 0) {
     P.lives--; P.hp = P.max; P.state = 'getup'; P.t = 0; P.inv = 160; P.weapon = null;
     addText('¡HOTFIX APLICADO!', P.x - 64, P.y - 80, C.g, 80);
-    for (const e of foes) if (alive(e) && e.kind !== 'dragon' && !(e.d && e.d.boss) && Math.abs(e.x - P.x) < 100) { e.state = 'down'; e.lying = false; e.vz = 2.5; e.vx = Math.sign(e.x - P.x || 1)*2.4; e.t = 0; }
+    for (const e of foes) if (alive(e) && e.kind !== 'dragon' && e.kind !== 'totem' && e.kind !== 'cinta' && !(e.d && e.d.boss) && Math.abs(e.x - P.x) < 100) { e.state = 'down'; e.lying = false; e.vz = 2.5; e.vx = Math.sign(e.x - P.x || 1)*2.4; e.t = 0; }
     burst(P.x, P.y - 30, C.g, 24, 2.4, 'rgb(110,231,168)'); sfx('special');
   } else if (PLAYERS.some(o => o !== P && !o.out)) {
     P.out = true; P.state = 'out'; P.held = null;
@@ -254,6 +254,12 @@ function updatePlayer(){
       else if (p.t >= 45) { if (p.hp <= 0) loseLife(); else { p.state = 'getup'; p.t = 0; p.inv = 70; } }
       break; }
     case 'getup': if (p.t >= 18) p.state = 'idle'; break;
+    case 'stuck': {
+      // Atrapado en un LOCK TABLE: pulsar A cinco veces para liberarse.
+      if (pressed('atk')) { p.mash = (p.mash || 0) + 1; p.x += (p.mash % 2 ? 1 : -1); sfx('clink'); }
+      if (p.mash >= 5) { p.state = 'idle'; p.inv = 30; addText('UNLOCK TABLES', p.x - 50, p.y - 72, C.g, 40); unlock('unlock'); }
+      else if (p.t > 150) p.state = 'idle';
+      break; }
   }
   p.y = clamp(p.y, FY0, FY1);
   p.x = clamp(p.x, camX + 12, camX + W - 12);
