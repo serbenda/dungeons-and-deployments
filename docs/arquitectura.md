@@ -27,7 +27,7 @@ flowchart LR
 
 ## Carga de los scripts
 
-`index.html` carga 26 scripts clásicos (no módulos ES) en un orden fijo. Comparten el ámbito global: lo que declara uno con `const`, `let` o `function` lo ven todos los demás.
+`index.html` carga 27 scripts clásicos (no módulos ES) en un orden fijo. Comparten el ámbito global: lo que declara uno con `const`, `let` o `function` lo ven todos los demás.
 
 Se eligieron scripts clásicos por dos motivos:
 
@@ -65,10 +65,11 @@ Cada archivo empieza con `'use strict'` y una línea que resume su contenido.
 | `entities/enemies.js` | IA genérica, murciélago, tótem, gólem, Dragón Negro, `stageClear()` | — |
 | `entities/bosses.js` | Minotauro, Hidra RAID y Cancerbero, El Revisor, Troll DBA (y `LOCK TABLE`) y Lich COBOL | — |
 | `ui/story.js` | Viñetas de historia | — |
-| `ui/ranking.js` | Iniciales y ranking en `localStorage` | `localStorage` |
-| `ui/options.js` | `OPTS`, `DIFFS`, `DIFF()` y el menú de opciones | `localStorage` |
+| `ui/ranking.js` | Iniciales y un ranking por modo (`RANK_MODES`, `loadRanking()`) en `localStorage` | `localStorage` |
+| `ui/options.js` | `OPTS`, `DIFFS`, `DIFF()`, el menú de opciones y la pantalla de teclas | `localStorage`, `rebuildKeymap()` |
 | `ui/achievements.js` | `ACHIEVEMENTS`, `unlock()`, pantalla y avisos de logros | `localStorage` |
 | `ui/credits.js` | Créditos finales con estadísticas y elenco | — |
+| `game/bossrush.js` | Modo jefes: `RUSH`, `playMode`, `startBossRush()`, `rushNext()`, `rushClear()` | `LEVEL_END` |
 | `game/loop.js` | `update()`, menú del título, selección para dos, uniones y `updatePlay()` | — |
 | `render/draw.js` | Dibujo de actores, HUD (uno o dos jugadores) y pantallas, `drawScene()` y `draw()` | — |
 | `main.js` | Bucle `requestAnimationFrame`, modo `?debug`, registro del service worker | todo |
@@ -99,8 +100,11 @@ La variable global `state` decide qué hace `update()` y qué dibuja `draw()`:
 stateDiagram-v2
   [*] --> title
   title --> select: JUGAR
+  title --> select: MODO JEFES
   title --> options: OPCIONES
   options --> title
+  options --> keys: TECLAS
+  keys --> options
   title --> logros: LOGROS
   logros --> title
   title --> ranking: demo tras 9 s
@@ -130,6 +134,7 @@ stateDiagram-v2
 |---|---|---|
 | `title` | Menú JUGAR · OPCIONES · LOGROS; a los 9 s pasa a la demo del ranking | `drawTitle()` |
 | `options` | `updateOptions()` | `drawOptions()` |
+| `keys` | `updateKeys()` | `drawKeys()` |
 | `logros` | `updateAchievements()` | `drawAchievements()` |
 | `select` | `updateSelect()`: uno o dos cursores | `drawSelect()` |
 | `story` | `updateStory()` | Partida congelada + `drawStory()` |
@@ -137,7 +142,7 @@ stateDiagram-v2
 | `pause` | Espera START | Partida + PAUSA |
 | `continue` | Cuenta atrás de ¿ROLLBACK? | Partida + cuenta atrás |
 | `over` | Espera START y llama a `afterRun()` | Partida + GAME OVER |
-| `clear` | Espera START: `loadStage()` de la siguiente etapa o, si era la última, `credits` | Partida + resultados |
+| `clear` | Espera START: `loadStage()` de la siguiente etapa, `credits` si era la última, o el ranking en el modo jefes | Partida + resultados |
 | `credits` | Avanza los créditos; al terminar (o con START) llama a `afterRun()` | `drawCredits()` |
 | `initials` | `updateInitials()` | Partida + ¡NUEVO RÉCORD! |
 | `ranking` | `updateRanking()` | `drawRanking()` |
@@ -202,6 +207,10 @@ La última sección (`boss: true`) crea el jefe final de la etapa (`STAGES[i].bo
 
 Las dos etapas tienen la misma longitud (`LEVEL_END`), así que comparten coordenadas, cámara y lógica de secciones. Lo que cambia según `stageIdx` es el decorado (`drawLevel()` delega en `drawCaves()`), las luces, las zonas (`ZONE`) y, con ellas, la música.
 
+## Modo jefes
+
+`startBossRush()` empieza una partida normal y cambia `SECTIONS` por `RUSH`: seis secciones sin oleadas (`waves:[[]]`), cada una con su etapa, su cámara y su jefe. Así la lógica de secciones de `updatePlay()` sirve tal cual: al llegar a la cámara bloquea la pantalla y, como no hay oleadas, saca enseguida al jefe. Cuando el jefe cae (o la sección se cierra), en vez de avanzar la cámara se llama a `rushNext()`, que cambia de etapa si toca, limpia la pantalla, coloca la cámara y a los jugadores y cura 30. Tras el último, `rushClear()` calcula los bonus. `startStory()` se salta las viñetas en este modo.
+
 ## Persistencia
 
 Solo se guarda en el navegador:
@@ -209,8 +218,9 @@ Solo se guarda en el navegador:
 | Clave de `localStorage` | Contenido |
 |---|---|
 | `dnd-arcade-ranking` | Top 5 de iniciales y puntos (JSON) |
+| `dnd-arcade-ranking-jefes` | Top 5 del modo jefes (JSON) |
 | `dnd-arcade-best` | Mejor puntuación (compatibilidad con versiones anteriores) |
-| `dnd-arcade-options` | Opciones: volúmenes, dificultad, destellos y vibración (JSON) |
+| `dnd-arcade-options` | Opciones: volúmenes, dificultad, destellos, vibración y teclas (JSON) |
 | `dnd-arcade-logros` | Logros desbloqueados con su fecha (JSON) |
 
 Todos los accesos van en `try/catch`: en modo incógnito o con el almacenamiento bloqueado el juego funciona igual, sin guardar.

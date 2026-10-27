@@ -58,6 +58,24 @@ El orden de la selección está en `HERO_ORDER` y la ficha de cada uno en `HERO_
 | Puntuación | Compartida; el bonus de vida suma a los dos y el de combo usa el mejor |
 | Combos | Cada jugador lleva el suyo |
 
+## Modo jefes
+
+Desde el título, **MODO JEFES** (`js/game/bossrush.js`): los seis jefes seguidos, sin oleadas ni viñetas.
+
+| Orden | Jefe | Decorado |
+|---|---|---|
+| 1 | Minotauro del Firewall | Network |
+| 2 | Hidra RAID | Storage |
+| 3 | Dragón Negro | Guarida de Automation |
+| 4 | Troll DBA | Minas de Datos |
+| 5 | Cancerbero de las 3 AAA | Cripta de Seguridad |
+| 6 | Lich COBOL | Trono del Mainframe |
+
+- Entre combate y combate, cada jugador recupera 30 de vida.
+- Al final: bonus de tiempo (90.000 menos 100 por segundo), de vida y de combo.
+- Tiene su propio ranking (`dnd-arcade-ranking-jefes`), con iniciales como el normal.
+- El Revisor no aparece en este modo.
+
 ## Dificultad
 
 Se elige en Opciones (`DIFFS`, `js/ui/options.js`).
@@ -253,7 +271,7 @@ Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SS
 
 ## Logros
 
-20 logros en `ACHIEVEMENTS` (`js/ui/achievements.js`), guardados en el navegador. Se ven desde el título (LOGROS) y aparece un aviso al conseguir cada uno.
+21 logros en `ACHIEVEMENTS` (`js/ui/achievements.js`), guardados en el navegador. Se ven desde el título (LOGROS) y aparece un aviso al conseguir cada uno.
 
 | Logro | Cómo |
 |---|---|
@@ -269,6 +287,7 @@ Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SS
 | HOTFIX EXPRÉS | Terminar una etapa en menos de 8 minutos |
 | PAIR PROGRAMMING | Terminar una etapa en cooperativo |
 | APPROVED | Derrotar a El Revisor |
+| SIN DESCANSO | Superar el modo jefes |
 | GUARDIA SUPERADA | Terminar una etapa en GUARDIA 24/7 |
 | BATCH NOCTURNO | Terminar la etapa 2 |
 | MFA ROTO | Romper la cabeza del MFA del Cancerbero |
