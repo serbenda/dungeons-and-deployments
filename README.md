@@ -115,6 +115,7 @@ Para las pruebas automáticas necesitas Node.js 18 o superior (ver [Pruebas](#pr
 │   │   └── draw.js          Dibujo de actores, HUD y pantallas
 │   └── main.js              Arranque y modo depuración
 ├── tools/
+│   ├── lint.js              Sintaxis y orden de carga de los scripts
 │   └── smoke-test.js        Prueba de humo con un bot que juega la etapa
 ├── docs/                    Capturas del README
 └── .github/                 CI, despliegue a Pages y plantilla de PR
@@ -211,14 +212,14 @@ npm install
 npx playwright install chromium
 npm test                                   # sobre file://
 BASE_URL=http://localhost:8000/ npm test   # contra un servidor
-npm run check                              # solo comprueba la sintaxis
+npm run lint                               # sintaxis y orden de carga
 ```
 
-La CI ejecuta las dos comprobaciones en cada push y en cada PR.
+La CI (`.github/workflows/ci.yml`) ejecuta en cada push y en cada PR el job **Lint** y, si pasa, el job **Smoke test (Chromium)**.
 
 ## Despliegue en GitHub Pages
 
-El workflow `.github/workflows/pages.yml` publica el juego en cada push a `main`. Para activarlo una sola vez: *Settings → Pages → Build and deployment → Source: GitHub Actions*.
+El workflow **Deploy to GitHub Pages** (`.github/workflows/pages.yml`) publica el juego en cada push a `main`. Para activarlo una sola vez: *Settings → Pages → Build and deployment → Source: GitHub Actions*.
 
 Todas las rutas son relativas, así que funciona igual en `https://serbenda.github.io/dungeons-and-deployments/` que en local.
 

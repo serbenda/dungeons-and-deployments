@@ -1,4 +1,4 @@
-name: Desplegar en GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -16,19 +16,28 @@ concurrency:
 
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Preparar la web
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build site
         run: |
           mkdir _site
           cp -r index.html css js _site/
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: _site
-      - id: deployment
+
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4

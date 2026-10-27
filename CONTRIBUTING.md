@@ -12,7 +12,7 @@
 ```bash
 npm install
 npx playwright install chromium
-npm run check   # sintaxis y orden de carga de los scripts
+npm run lint    # sintaxis y orden de carga de los scripts
 npm test        # el bot juega la etapa completa
 ```
 
@@ -21,7 +21,7 @@ Prueba también el cambio a mano en el navegador. Con `index.html?debug` tienes 
 ## Estilo de código
 
 - JavaScript sin dependencias ni compilación. Cada archivo empieza con `'use strict'` y un comentario de una línea que explica qué contiene.
-- Los scripts comparten ámbito global y se cargan en el orden de `index.html`. Si un archivo nuevo necesita algo **al cargarse**, colócalo después del archivo que lo declara. Si añades un archivo, añade su `<script>` en `index.html` (`npm run check` lo comprueba).
+- Los scripts comparten ámbito global y se cargan en el orden de `index.html`. Si un archivo nuevo necesita algo **al cargarse**, colócalo después del archivo que lo declara. Si añades un archivo, añade su `<script>` en `index.html` (`npm run lint` lo comprueba).
 - Sangría de 2 espacios, comillas simples y punto y coma (ver `.editorconfig`).
 - Nombres de funciones y variables en inglés. Textos del juego, comentarios y documentación en castellano.
 - Los gráficos se pintan por código: usa `sprite()` con una clave única para que se cacheen.

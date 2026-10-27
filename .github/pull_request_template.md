@@ -8,7 +8,7 @@
 
 ## Comprobaciones
 
-- [ ] `npm run check` pasa
+- [ ] `npm run lint` pasa
 - [ ] `npm test` pasa
 - [ ] Probado en el navegador (teclado y, si aplica, táctil)
 - [ ] README y CHANGELOG actualizados si hace falta

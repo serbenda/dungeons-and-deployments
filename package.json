@@ -4,7 +4,7 @@
   "private": true,
   "description": "Beat 'em up de fantasía en pixel art: un equipo de desarrollo contra la infraestructura, hasta la Guarida de Automation.",
   "scripts": {
-    "check": "node tools/check-syntax.js",
+    "lint": "node tools/lint.js",
     "test": "node tools/smoke-test.js",
     "serve": "python3 -m http.server 8000"
   },

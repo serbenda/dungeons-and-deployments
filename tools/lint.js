@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Comprueba la sintaxis de todos los scripts y que index.html carga cada archivo
+// Lint: comprueba la sintaxis de todos los scripts y que index.html carga cada archivo
 // de js/ exactamente una vez.
 'use strict';
 

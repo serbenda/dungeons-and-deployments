@@ -8,20 +8,46 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Lint scripts and load order
+        run: npm run lint
+
+  smoke-test:
+    name: Smoke test (Chromium)
+    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Instalar dependencias
+
+      - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Comprobar sintaxis
-        run: npm run check
-      - name: Instalar Chromium
+
+      - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
-      - name: Prueba de humo
+
+      - name: Run smoke test
         run: npm test
