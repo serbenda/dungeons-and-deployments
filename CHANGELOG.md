@@ -2,6 +2,13 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.8.1] - 2026-10-28
+
+### Cambiado
+- El GIF del README pasa de 6 MB a 1,7 MB (resolución original del juego, 320×200) y las capturas se han comprimido sin pérdida: `docs/img` baja de 7,9 MB a 3,4 MB.
+- Los jefes se reparten en un archivo por etapa (`bosses.js`, `bosses-caves.js`, `bosses-cloud.js`) y el dibujo en `actors.js`, `hud.js`, `screens.js` y `draw.js`. El juego no cambia.
+- La prueba de humo reinicia la semilla aleatoria al empezar cada partida, para que un fallo se pueda reproducir siempre igual.
+
 ## [0.8.0] - 2026-10-28
 
 ### Añadido

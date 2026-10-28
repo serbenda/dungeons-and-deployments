@@ -12,12 +12,12 @@ flowchart LR
   end
   Q --> U[update<br>loop.js]
   U --> PL[Jugador<br>player.js]
-  U --> EN[Enemigos y jefes<br>enemies.js · bosses.js]
+  U --> EN[Enemigos y jefes<br>enemies.js · bosses*.js]
   PL --> CB[Daño y combos<br>combat.js]
   EN --> CB
   U --> SEC[Secciones y oleadas<br>game-data.js · state.js]
   U --> MU[Música<br>music.js]
-  D[draw<br>draw.js] --> LV[Mazmorra e iluminación<br>level.js]
+  D[draw<br>render/*.js] --> LV[Mazmorra e iluminación<br>level.js]
   D --> SP[Sprites<br>characters.js · monsters.js]
   SP --> PX[Motor de píxeles<br>pixel.js]
   LV --> PX
@@ -65,7 +65,9 @@ Cada archivo empieza con `'use strict'` y una línea que resume su contenido.
 | `game/combat.js` | `damage()` (combos), `damageRaw()` (bloqueos y derribos), `breakCrate()` | — |
 | `entities/player.js` | Máquina de estados del jugador, agarres, armas y los cuatro especiales | — |
 | `entities/enemies.js` | IA genérica, murciélago, tótem, gólem, Dragón Negro, `stageClear()` | — |
-| `entities/bosses.js` | Minotauro, Hidra RAID y sus variantes (Cancerbero, Kraken), El Revisor, Troll DBA (y `LOCK TABLE`), Lich COBOL, Autoescalador y la Factura (y su lluvia de monedas, `drops`) | — |
+| `entities/bosses.js` | Etapa 1: Minotauro, Hidra RAID (y la base de sus variantes, Cancerbero y Kraken) y El Revisor | — |
+| `entities/bosses-caves.js` | Etapa 2: Troll DBA (y `LOCK TABLE`, `locks`) y Lich COBOL | — |
+| `entities/bosses-cloud.js` | Etapa 3: Kraken (`KRAKEN`, `krakenGuarded()`), Autoescalador y la Factura (y su lluvia de monedas, `drops`) | `bosses.js` |
 | `ui/story.js` | Viñetas de historia | — |
 | `ui/ranking.js` | Iniciales y un ranking por modo (`RANK_MODES`, `loadRanking()`) en `localStorage` | `localStorage` |
 | `ui/options.js` | `OPTS`, `DIFFS`, `DIFF()`, el menú de opciones y la pantalla de teclas | `localStorage`, `rebuildKeymap()` |
@@ -74,7 +76,10 @@ Cada archivo empieza con `'use strict'` y una línea que resume su contenido.
 | `game/bossrush.js` | Modo jefes: `RUSH`, `playMode`, `startBossRush()`, `rushNext()`, `rushClear()` | `LEVEL_END` |
 | `game/save.js` | Partida guardada: `readSave()`, `writeSave()`, `markSaveDead()`, `clearSave()`, `continueGame()` | `localStorage` |
 | `game/loop.js` | `update()`, menú del título, selección para dos, uniones y `updatePlay()` | — |
-| `render/draw.js` | Dibujo de actores, HUD (uno o dos jugadores) y pantallas, `drawScene()` y `draw()` | — |
+| `render/actors.js` | Primitivas (`r()`, `txt()`, `goldText()`, `blit()`), poses y `drawActor()` | — |
+| `render/hud.js` | `NEON`, `panel()`, retratos, vidas, `hpBar()`, `drawHUD()` (uno o dos jugadores) y `bossBar()` | `actors.js` |
+| `render/screens.js` | `drawTitle()` y `drawSelect()` | `hud.js` |
+| `render/draw.js` | `drawScene()` según el estado y `draw()` (fotograma completo con avisos) | todo `render/` |
 | `main.js` | Bucle `requestAnimationFrame`, modo `?debug`, registro del service worker | todo |
 
 ## Bucle principal

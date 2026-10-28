@@ -29,7 +29,7 @@ La IA genérica de `updateFoe()` ya lo hace acercarse, esperar turno y golpear. 
 
 1. Pinta su sprite en `js/sprites/monsters.js` con `sprite('clave|' + fotograma, w, h, S => { ... })`.
 2. Añade sus datos a `FOES` con alguna marca propia (por ejemplo `bouncy: true`) y su tipo a `GRUNTS`.
-3. En `drawActor()` (`js/render/draw.js`), añade un caso antes de los humanoides:
+3. En `drawActor()` (`js/render/actors.js`), añade un caso antes de los humanoides:
    ```js
    if (a.kind === 'rebote') { shadow(sx, a.y, 18); blit(reboteSprite((t >> 3) % 2), sx, sy, a.face, 16, 30, fl); return; }
    ```
@@ -41,7 +41,7 @@ La IA genérica de `updateFoe()` ya lo hace acercarse, esperar turno y golpear. 
 Ejemplo real: el Minotauro del Firewall.
 
 1. Datos en `FOES` con `boss: true` y `nograb: true`. Los jefes no se aturden ni se derriban hasta morir.
-2. IA en `js/entities/bosses.js` (`updateMinotaur()`) y enrútala en `updateFoe()`.
+2. IA en el archivo de jefes de su etapa (`js/entities/bosses.js`, `bosses-caves.js` o `bosses-cloud.js`; mira `updateMinotaur()` de ejemplo) y enrútala en `updateFoe()`. Si creas un archivo nuevo, añádelo a `index.html` y a `ASSETS` en `sw.js`.
 3. En la sección, `miniboss: 'nombre'`. En `updatePlay()` (`js/game/loop.js`), el bloque `sec.miniboss` lo crea al acabar las oleadas; añade ahí tu caso.
 4. Su diálogo en `STORIES` y su barra de vida en `bossBar()`.
 5. Una prueba unitaria de su mecánica principal en `tests/game.test.js`.
