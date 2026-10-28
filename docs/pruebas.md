@@ -85,18 +85,40 @@ Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la 
 | Ransomware | Cifra el arma del jugador |
 | Copia en cinta | El HOTFIX no la tumba (tumbada sería invulnerable y el Lich no se podría vencer) |
 
+`tests/etapa3.test.js`:
+
+| Prueba | Qué garantiza |
+|---|---|
+| Zonas y música | La Nube tiene sus tres temas |
+| Kraken | Variante de la Hidra con CONTROL PLANE y su logro |
+| Autoescalador | Saca dos réplicas cada 25 % y, con ellas vivas, reparte la carga |
+| Monedas | Solo dañan a quien está debajo al caer |
+| La Factura | Hace llover monedas y, al pagarla, llega el epílogo |
+| YAML | Se divide en dos tabuladores |
+
+`tests/modo-jefes.test.js`:
+
+| Prueba | Qué garantiza |
+|---|---|
+| Orden de los jefes | Los nueve, en su etapa, con +30 de vida entre combates y el final con su logro |
+| Sin oleadas | Cada combate saca a su jefe directamente y sin viñetas |
+| Ranking propio | El del modo jefes se guarda aparte y se carga al elegirlo |
+| Reasignar teclas | Cambia `KEYMAP`, intercambia si la tecla estaba ocupada, se guarda y RESTABLECER deshace |
+| Capturar tecla | La pantalla espera una tecla física y la asigna |
+
 Para añadir una prueba, crea un `test(...)` en uno de esos archivos o en uno nuevo `tests/*.test.js`.
 
 ## Prueba de humo (end-to-end)
 
 `tools/smoke-test.js` abre el juego en Chromium sin ventana y deja que un **bot** juegue la etapa completa:
 
-- Las **dos etapas** seguidas: al terminar la primera pulsa START y sigue.
+- Las **tres etapas** seguidas: al terminar cada una pulsa START y sigue.
+- Además, por cada semilla, dos partidas del **modo jefes** (un jugador invulnerable y dos jugadores en normal).
 - Con cada uno de los cuatro héroes y en cooperativo (guerrero + bardo, el bot maneja a los dos), en modo invulnerable y en modo normal.
 - Si queda atrapado en un LOCK TABLE, pulsa A hasta liberarse.
 - En modo invulnerable nunca se continúa, así que el bot también tiene que vencer a El Revisor (la salida lo indica con `revisor=OK`).
 - Con varias semillas (`SEEDS`, por defecto `1,2`; en la CI `1,2,3`).
-- Falla si alguna partida no termina la etapa 2 o si hay errores en la consola.
+- Falla si alguna partida no termina la etapa 3 (o el modo jefes) o si hay errores en la consola.
 
 ```bash
 npm run test:e2e

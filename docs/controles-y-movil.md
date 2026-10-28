@@ -38,7 +38,13 @@ Cada dispositivo tiene un nombre: `kb` (teclado), `kb2` (grupo B del teclado), `
 
 Con un jugador, todas las teclas lo manejan. **Dos jugadores en un teclado**: al pulsar 2, el grupo B (WASD, J, K, L) pasa a ser del jugador 2 y el jugador 1 se queda con flechas, Z, X, C y Enter.
 
-Para cambiar el mapeo, edita `KEYMAP` y `KB_B` (usan `KeyboardEvent.code`, que no depende del idioma del teclado).
+### Reasignar teclas
+
+En **Opciones › TECLAS** cada acción del jugador 1 (ARRIBA, ABAJO, IZQUIERDA, DERECHA, ATACAR, SALTAR, ESPECIAL y START) se puede llevar a cualquier tecla: elige la acción, pulsa A y luego la tecla nueva (Esc cancela). Si la tecla ya era de otra acción, se intercambian. RESTABLECER vuelve a las de siempre.
+
+Por dentro, las teclas elegidas se guardan en `OPTS.keys` (acción → `KeyboardEvent.code`) y `rebuildKeymap()` rehace `KEYMAP` a partir de `KEYMAP_BASE`: quita la tecla principal por defecto de cada acción cambiada (`KEYS_DEFAULT`) y añade la nueva. Las alternativas (Espacio, WASD, J, K, L) se mantienen. Mientras se espera la tecla, `keyCapture` recibe la siguiente pulsación física en lugar del juego.
+
+Para cambiar el mapeo por defecto, edita `KEYMAP_BASE`, `KEYS_DEFAULT` y `KB_B` (usan `KeyboardEvent.code`, que no depende del idioma del teclado).
 
 ## Mandos (Gamepad API)
 

@@ -80,7 +80,10 @@ network: {
 | `datos` | Minas de Datos | 112 | Minero y cadencioso, La dórico |
 | `seguridad` | Cripta de Seguridad | 132 | Tenso con arpegio, Re frigio |
 | `monitor` | Observatorio | 120 | Nocturno con arpegio, Fa menor |
-| `boss` | Jefes, Guarida y Trono del Mainframe | 160 | Tenso, Do menor armónica. Acelera un 12 % a media vida del dragón |
+| `k8s` | Archipiélago de Clústeres | 128 | Luminoso con arpegio, Sol mayor |
+| `serverless` | Nubes Serverless | 140 | Ligero y rápido, Do dórico |
+| `facturas` | Torre de Facturación | 118 | Solemne, Fa menor armónica |
+| `boss` | Jefes, Guarida, Trono del Mainframe y Cumbre | 160 | Tenso, Do menor armónica. Acelera un 12 % a media vida del dragón |
 | `continue` | ¿ROLLBACK? | 120 | Cuenta atrás |
 | `victory` | Final de la etapa | 150 | Jingle, Do mayor |
 | `over` | Game over | 80 | Jingle descendente |

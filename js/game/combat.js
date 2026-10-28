@@ -109,11 +109,12 @@ function damageRaw(tg, dmg, src, opt){
   const dir = Math.sign(tg.x - src.x) || 1;
   if (tg.hp <= 0) {
     tg.hp = 0; if (!isHero(tg)) { tg.dead = true; if (RUN) RUN.kills++; } knockdown(tg, dir, 1.2);
-    if (tg.kind === 'slime') {
-      for (const sgn of [-1, 1]) { const m = mkFoe('slimeS', tg.x + sgn*6, clamp(tg.y + sgn*6, FY0, FY1)); m.state = 'down'; m.lying = false; m.vz = 2.6; m.vx = sgn*1.6; m.z = 4; m.face = -sgn; foes.push(m); }
-      addText('malloc() x2', tg.x - 44, tg.y - 50, C.g, 50); burst(tg.x, tg.y - 12, C.g, 14, 1.8, 'rgb(110,231,168)');
+    if (tg.kind === 'slime' || tg.kind === 'yaml') {
+      const yaml = tg.kind === 'yaml';
+      for (const sgn of [-1, 1]) { const m = mkFoe(yaml ? 'yamlS' : 'slimeS', tg.x + sgn*6, clamp(tg.y + sgn*6, FY0, FY1)); m.state = 'down'; m.lying = false; m.vz = 2.6; m.vx = sgn*1.6; m.z = 4; m.face = -sgn; foes.push(m); }
+      addText(yaml ? 'TABS Y ESPACIOS' : 'malloc() x2', tg.x - 44, tg.y - 50, C.g, 50); burst(tg.x, tg.y - 12, yaml ? '#cb4b16' : C.g, 14, 1.8, yaml ? 'rgb(203,75,22)' : 'rgb(110,231,168)');
     }
-    if (!isHero(tg) && tg.kind !== 'golem' && tg.kind !== 'slime') addText(tg.role && tg.kind === 'pendiente' ? tg.role + ' OK' : pickC(KILL_BY[tg.kind] || KILL_MSGS), tg.x - 40, tg.y - 62, '#ffd27a', 50);
+    if (!isHero(tg) && tg.kind !== 'golem' && tg.kind !== 'slime' && tg.kind !== 'yaml') addText(tg.role && tg.kind === 'pendiente' ? tg.role + ' OK' : pickC(KILL_BY[tg.kind] || KILL_MSGS), tg.x - 40, tg.y - 62, '#ffd27a', 50);
   }
   else if (tg.d && tg.d.boss) { tg.x += dir; }
   else if (opt.knock || (!isHero(tg) && tg.kind !== 'golem' && tg.hitsTaken >= 4)) knockdown(tg, dir, opt.power || 1);

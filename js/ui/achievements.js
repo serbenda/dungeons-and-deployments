@@ -19,10 +19,14 @@ const ACHIEVEMENTS = [
   ['mfa', 'MFA ROTO', 'Rompe el MFA del Cancerbero.'],
   ['cobol', 'STOP RUN', 'Derrota al Lich COBOL.'],
   ['unlock', 'UNLOCK TABLES', 'Libérate de un LOCK TABLE.'],
+  ['nube', 'EN LA NUBE', 'Termina la etapa 3.'],
+  ['kraken', 'CONTROL PLANE CAÍDO', 'Tumba el control plane del Kraken.'],
+  ['finops', 'FINOPS', 'Paga la Factura de Fin de Mes.'],
   ['rollback', 'SIN ROLLBACK', 'Termina sin usar continuaciones.'],
   ['expres', 'HOTFIX EXPRÉS', 'Acaba la etapa en menos de 8 min.'],
   ['pair', 'PAIR PROGRAMMING', 'Termina la etapa en cooperativo.'],
   ['revisor', 'APPROVED', 'Derrota a El Revisor.'],
+  ['jefes', 'SIN DESCANSO', 'Supera el modo jefes.'],
   ['oncall', 'GUARDIA SUPERADA', 'Acaba la etapa en GUARDIA 24/7.'],
   ['konami', 'MODO DIOS', 'Introduce el código secreto.']
 ];

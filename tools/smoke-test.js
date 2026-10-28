@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Prueba de humo: abre el juego en Chromium sin ventana, comprueba que carga sin
-// errores y deja que un bot juegue las dos etapas con cada héroe y en cooperativo.
+// errores y deja que un bot juegue las tres etapas con cada héroe y en cooperativo.
 //
 //   npm run test:e2e                         # usa file:// sobre index.html
 //   BASE_URL=http://localhost:8000/ npm run test:e2e
@@ -16,7 +16,7 @@ const { pathToFileURL } = require('url');
 const { chromium } = require('playwright');
 
 const BASE_URL = process.env.BASE_URL || pathToFileURL(path.join(__dirname, '..', 'index.html')).href;
-const MAX_FRAMES = 60*60*40; // 40 minutos de juego simulado como mucho (dos etapas)
+const MAX_FRAMES = 60*60*60; // una hora de juego simulado como mucho (tres etapas)
 const SEEDS = (process.env.SEEDS || '1,2').split(',').map(Number);
 // Una partida por héroe y una en cooperativo.
 const TEAMS = [['guerrero'], ['mago'], ['picara'], ['bardo'], ['guerrero', 'bardo']];
@@ -25,11 +25,12 @@ const CONCURRENCY = Number(process.env.CONCURRENCY || 4);
 // El bot se ejecuta dentro de la página contra window.dnd (modo ?debug).
 // heroes es un héroe (una partida de un jugador, elegido en la pantalla de
 // selección) o dos (cooperativo: el bot maneja a los dos).
-function playStage([heroes, god, maxFrames]){
+function playStage([heroes, god, maxFrames, mode]){
   const g = window.dnd;
   const ORDER = ['guerrero', 'mago', 'picara', 'bardo'];
   g.state = 'title'; g.pressedQ.start = true; g.update();
-  if (heroes.length === 1) {
+  if (mode === 'jefes') g.startBossRush(heroes);
+  else if (heroes.length === 1) {
     for (let n = 0; n < ORDER.indexOf(heroes[0]); n++) { g.pressedQ.right = true; g.update(); }
     g.pressedQ.atk = true; g.update();
   } else g.startGame(heroes);
@@ -70,7 +71,7 @@ function playStage([heroes, god, maxFrames]){
   for (i = 0; i < maxFrames; i++) {
     if (g.state === 'over') break;
     if (g.state === 'clear') {
-      if (g.stageIdx >= 1) break;                      // última etapa: fin
+      if (g.stageIdx >= 2 || mode === 'jefes') break;  // última etapa (o modo jefes): fin
       for (let k = 0; k < 160; k++) g.update();
       g.pressedQ.start = true; g.update(); continue;
     }
@@ -80,8 +81,8 @@ function playStage([heroes, god, maxFrames]){
     g.update();
     if (i % 4 === 0) g.draw();
   }
-  const r = { hero: heroes.join('+'), god, state: g.state, stage: g.stageIdx + 1, frames: i, section: g.secIdx, score: g.score, continues, revisor: !!(g.RUN && g.RUN.revisor) };
-  if (g.state !== 'clear' || g.stageIdx < 1) {
+  const r = { hero: heroes.join('+') + (mode === 'jefes' ? ' (jefes)' : ''), mode, god, state: g.state, stage: g.stageIdx + 1, frames: i, section: g.secIdx, score: g.score, continues, revisor: !!(g.RUN && g.RUN.revisor) };
+  if (g.state !== 'clear' || (g.stageIdx < 2 && mode !== 'jefes')) {
     r.player = g.PLAYERS.map(p => ({ x: Math.round(p.x), y: Math.round(p.y), state: p.state, hp: p.hp, out: p.out }));
     r.camX = Math.round(g.camX);
     r.foes = g.foes.map(e => ({ kind: e.kind, state: e.state, x: Math.round(e.x), y: Math.round(e.y), hp: e.hp, dead: !!e.dead, guarded: e.guarded }));
@@ -89,7 +90,7 @@ function playStage([heroes, god, maxFrames]){
   return r;
 }
 
-async function run(browser, team, god, seed){
+async function run(browser, team, god, seed, mode){
   const page = await browser.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
@@ -97,7 +98,7 @@ async function run(browser, team, god, seed){
   const url = `${BASE_URL}${BASE_URL.includes('?') ? '&' : '?'}debug&seed=${seed}`;
   await page.goto(url);
   await page.waitForFunction(() => !!window.dnd, null, { timeout: 10000 });
-  const r = await page.evaluate(playStage, [team, god, MAX_FRAMES]);
+  const r = await page.evaluate(playStage, [team, god, MAX_FRAMES, mode]);
   await page.close();
   return Object.assign(r, { seed, url, errors });
 }
@@ -106,19 +107,22 @@ async function run(browser, team, god, seed){
   console.log(`Juego: ${BASE_URL}`);
   const browser = await chromium.launch();
   const queue = [];
-  for (const seed of SEEDS) for (const team of TEAMS) for (const god of [true, false]) queue.push([team, god, seed]);
+  for (const seed of SEEDS) {
+    for (const team of TEAMS) for (const god of [true, false]) queue.push([team, god, seed]);
+    queue.push([['mago'], true, seed, 'jefes'], [['bardo', 'picara'], false, seed, 'jefes']);   // modo jefes
+  }
   // Como mucho CONCURRENCY partidas a la vez para no agotar la memoria.
   const results = [];
-  const worker = async () => { while (queue.length) { const [team, god, seed] = queue.shift(); results.push(await run(browser, team, god, seed)); } };
+  const worker = async () => { while (queue.length) { const [team, god, seed, mode] = queue.shift(); results.push(await run(browser, team, god, seed, mode)); } };
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
   results.sort((a, b) => a.seed - b.seed || a.hero.localeCompare(b.hero) || b.god - a.god);
   await browser.close();
 
   let failed = false;
   for (const r of results) {
-    const ok = r.state === 'clear' && r.stage === 2 && !r.errors.length;
+    const ok = r.state === 'clear' && (r.mode === 'jefes' || r.stage === 3) && !r.errors.length;
     if (!ok) failed = true;
-    console.log(`${ok ? 'OK ' : 'ERR'} semilla=${r.seed} ${r.hero.padEnd(14)} ${r.god ? 'invulnerable' : 'normal      '} estado=${r.state} etapa=${r.stage} sección=${r.section} fotogramas=${r.frames} oro=${r.score} continues=${r.continues}${r.revisor ? ' revisor=OK' : ''}`);
+    console.log(`${ok ? 'OK ' : 'ERR'} semilla=${r.seed} ${r.hero.padEnd(22)} ${r.god ? 'invulnerable' : 'normal      '} estado=${r.state} etapa=${r.stage} sección=${r.section} fotogramas=${r.frames} oro=${r.score} continues=${r.continues}${r.revisor ? ' revisor=OK' : ''}`);
     if (!ok) {
       console.log(`    Reproducir: ${r.url}`);
       if (r.errors.length) console.log('    Errores: ' + r.errors.join(' | '));

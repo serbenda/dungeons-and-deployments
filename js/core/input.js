@@ -16,9 +16,25 @@ let ctxSlot = -1;
  * Teclado. Con un solo jugador todas las teclas manejan al jugador 1. Si alguien
  * pulsa 2, las teclas del grupo B (WASD, J, K, L) pasan a ser del jugador 2.
  */
-const KEYMAP = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right',
+const KEYMAP_BASE = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right',
   KeyZ:'atk', Space:'atk', KeyX:'jump', KeyC:'special', Enter:'start', NumpadEnter:'start', KeyM:'mute', Escape:'start',
   KeyW:'up', KeyS:'down', KeyA:'left', KeyD:'right', KeyJ:'atk', KeyK:'jump', KeyL:'special', Digit2:'start', Numpad2:'start' };
+/** Acciones que se pueden reasignar en Opciones › TECLAS, con su tecla principal por defecto. */
+const KEY_ACTIONS = ['up', 'down', 'left', 'right', 'atk', 'jump', 'special', 'start'];
+const KEYS_DEFAULT = { up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', atk:'KeyZ', jump:'KeyX', special:'KeyC', start:'Enter' };
+/** Mapa en uso: el base con las teclas principales cambiadas por las de OPTS.keys. */
+let KEYMAP = Object.assign({}, KEYMAP_BASE);
+/**
+ * Rehace KEYMAP a partir de las teclas personalizadas.
+ * @param {Object<string, string>} [custom] Acción → KeyboardEvent.code.
+ */
+function rebuildKeymap(custom){
+  KEYMAP = Object.assign({}, KEYMAP_BASE);
+  for (const a in custom || {}) if (custom[a] !== KEYS_DEFAULT[a]) delete KEYMAP[KEYS_DEFAULT[a]];
+  for (const a in custom || {}) KEYMAP[custom[a]] = a;
+}
+/** Si no es null, la siguiente tecla física se entrega a esta función (para reasignar). */
+let keyCapture = null;
 /** Teclas del grupo B: las que se lleva el jugador 2 cuando entra con el teclado. */
 const KB_B = { KeyW:1, KeyS:1, KeyA:1, KeyD:1, KeyJ:1, KeyK:1, KeyL:1, Digit2:1, Numpad2:1 };
 
@@ -106,6 +122,7 @@ function resetDevices(){ for (const d in DEV_SLOT) delete DEV_SLOT[d]; owner0 = 
  */
 const keyDev = code => (code === 'Digit2' || code === 'Numpad2' || (KB_B[code] && DEV_SLOT.kb2 !== undefined)) ? 'kb2' : 'kb';
 window.addEventListener('keydown', e => {
+  if (keyCapture && !e.repeat) { e.preventDefault(); const f = keyCapture; keyCapture = null; f(e.code); return; }
   const k = KEYMAP[e.code]; if (!k) return; e.preventDefault();
   const dev = keyDev(e.code);
   if (dev === 'kb2' && k === 'start' && owner0 === null) { press(k, 'kb'); return; }

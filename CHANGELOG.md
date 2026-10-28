@@ -2,6 +2,30 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.6.0] - Sin publicar
+
+### Añadido
+- Etapa 3, **La Nube**, tras Las Cuevas: Archipiélago de Clústeres, Nubes Serverless, Torre de Facturación y la Cumbre, a cielo abierto, con tres temas nuevos.
+- Seis enemigos nuevos: sidecar pegajoso, operador de K8s, indentación rota (YAML, se divide), lambda en frío, NAT Gateway e instancia zombi.
+- Tres jefes nuevos: el Kraken del Clúster (control plane), el Autoescalador (`SCALE OUT` con réplicas) y la Factura de Fin de Mes (lluvia de cargos, pico de uso y renovación automática).
+- Tres logros nuevos: EN LA NUBE, CONTROL PLANE CAÍDO y FINOPS (24 en total).
+
+### Cambiado
+- El modo jefes pasa a nueve jefes.
+- Los créditos llegan al final de la etapa 3.
+- La prueba de humo juega las tres etapas seguidas.
+
+## [0.5.0] - Sin publicar
+
+### Añadido
+- **Modo jefes**: los seis jefes de las dos etapas seguidos, con +30 de vida entre combate y combate, bonus por tiempo y un ranking propio.
+- **Teclas reasignables** en Opciones › TECLAS: cada acción del jugador 1 a la tecla que quieras; si ya estaba ocupada, se intercambian. Se guardan en el navegador.
+- Logro SIN DESCANSO por superar el modo jefes (21 en total).
+
+### Cambiado
+- El menú del título tiene cuatro opciones: JUGAR, MODO JEFES, OPCIONES y LOGROS.
+- La prueba de humo también juega el modo jefes.
+
 ## [0.4.0] - Sin publicar
 
 ### Añadido

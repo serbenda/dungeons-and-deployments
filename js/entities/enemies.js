@@ -10,7 +10,7 @@
 function updateFoe(e){
   if (e.flash > 0) e.flash--;
   if (e.hitT > 0) e.hitT--;
-  if (e.kind !== 'dragon' && e.kind !== 'cabeza' && e.kind !== 'hidra' && !(e.kind === 'lich' && e.state !== 'down') && !(e.d.fly && e.state !== 'down' && e.state !== 'thrown') && e.state !== 'grabbed' && (e.z > 0 || e.vz > 0)) {
+  if (e.kind !== 'dragon' && e.kind !== 'cabeza' && e.kind !== 'hidra' && !((e.kind === 'lich' || e.kind === 'factura') && e.state !== 'down') && !(e.d.fly && e.state !== 'down' && e.state !== 'thrown') && e.state !== 'grabbed' && (e.z > 0 || e.vz > 0)) {
     e.vz -= .36; e.z += e.vz;
     if (e.z <= 0) { e.z = 0; e.vz = 0; foeLand(e); }
   }
@@ -29,6 +29,8 @@ function updateFoe(e){
   if (e.kind === 'revisor') return updateRevisor(e);
   if (e.kind === 'dba') return updateDba(e);
   if (e.kind === 'lich') return updateLich(e);
+  if (e.kind === 'autoscaler') return updateAutoscaler(e);
+  if (e.kind === 'factura') return updateFactura(e);
   if (e.kind === 'cinta') return;
   if (e.d.fly && (e.state === 'walk' || e.state === 'dive' || e.state === 'hurt')) { updateBat(e); e.y = clamp(e.y, FY0, FY1); return; }
   if (e.d.ghost) { e.ph = (e.ph || (e.seed*7)) + 1; e.hidden = (e.ph % 240) > 160 && (e.state === 'walk'); }
@@ -255,7 +257,7 @@ function updateDragon(b){
       if (b.z > 0) b.z = Math.max(0, b.z - 6);
       if (b.t % 6 === 0) { burst(b.x + (Math.random() - .5)*90, b.y - Math.random()*90, Math.random() < .5 ? C.g : C.a, 10, 2.2, 'rgb(255,190,110)'); sfx('boom'); }
       shake = 3;
-      if (b.t > 150) { foes.splice(foes.indexOf(b), 1); boss = null; if (revisorUnlocked()) startStory('revisor', spawnRevisor); else startStory('outro', stageClear); }
+      if (b.t > 150) { foes.splice(foes.indexOf(b), 1); boss = null; if (playMode === 'jefes') rushNext(); else if (revisorUnlocked()) startStory('revisor', spawnRevisor); else startStory('outro', stageClear); }
       break; }
   }
 }
@@ -267,7 +269,7 @@ function stageClear(){
   const maxChain = Math.max(0, ...PLAYERS.map(p => p.maxChain));
   const timeBonus = Math.max(0, 30000 - secs*100), lifeBonus = act.reduce((a, p) => a + p.hp*50 + p.lives*5000, 0), comboBonus = maxChain*100;
   clearBonus = { secs, timeBonus, lifeBonus, comboBonus, maxChain, revisor:RUN.revisor };
-  unlock(stageIdx === 0 ? 'viernes' : 'cuevas');
+  unlock(['viernes', 'cuevas', 'nube'][stageIdx]);
   if (RUN.continues === 0) unlock('rollback');
   if (secs < 480) unlock('expres');
   if (PLAYERS.length > 1) unlock('pair');

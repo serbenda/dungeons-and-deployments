@@ -2,7 +2,7 @@
 
 # 🐉 Dungeons & Deployments
 
-**Un beat 'em up de fantasía en pixel art en el que un equipo de desarrollo<br>se abre camino por las catacumbas del CPD y las cuevas del Mainframe.**
+**Un beat 'em up de fantasía en pixel art en el que un equipo de desarrollo<br>se abre camino por las catacumbas del CPD, las cuevas del Mainframe y la nube.**
 
 [![CI](https://github.com/serbenda/dungeons-and-deployments/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/serbenda/dungeons-and-deployments/actions/workflows/ci.yml)
 [![Deploy](https://github.com/serbenda/dungeons-and-deployments/actions/workflows/pages.yml/badge.svg)](https://github.com/serbenda/dungeons-and-deployments/actions/workflows/pages.yml)
@@ -23,6 +23,8 @@
 > Elige al **Guerrero de Rundeck**, al **Mago Desarrollador**, a la **Pícara del Frontend** o al **Bardo Scrum Master** (o a dos, en cooperativo), cierra el ticket de cada departamento y derrota al **Dragón Negro** antes del fin de semana. Y si llegas sin continuar, prepárate para **El Revisor**.
 >
 > Lunes, 03:00. Un batch nocturno sale de **Las Cuevas**, donde nadie baja desde 1987. Al fondo te espera el **Lich COBOL**.
+>
+> Fin de mes. Llega el correo de facturación: sube a **La Nube** y enfréntate a **La Factura de Fin de Mes**.
 
 ## Índice
 
@@ -44,15 +46,16 @@
 | 👥 **Cooperativo para dos** | Teclado compartido, dos mandos o teclado y mando. El segundo jugador se une en cualquier momento pulsando START |
 | 🦸 **Cuatro héroes** | Guerrero de Rundeck, Mago Desarrollador, Pícara del Frontend y Bardo Scrum Master, cada uno con su especial |
 | 🎮 **Recreativa de verdad** | Combos de 3 golpes, saltos y patadas, agarres y lanzamientos, especiales que cuestan vida, armas con usos limitados y comida escondida en barriles |
-| 🗺️ **Dos etapas** | **Las Catacumbas**: Sistemas, Network, Storage, Virtualización y CaaS. **Las Cuevas**: Bases de datos, Seguridad y Monitorización. Cada zona con su decorado, sus enemigos, su música y su ticket (`NET-404`, `DB-500`, `SEC-666`...) |
-| 👹 **Siete jefes** | Minotauro del Firewall (`ACL: DENY ALL`), Hidra RAID (se reconstruye mientras viva la paridad), Dragón Negro, Troll DBA (`LOCK TABLE`), Cancerbero de las 3 AAA (MFA), Lich COBOL (copia en cinta) y El Revisor, jefe secreto que no deja pasar nada sin la Definition of Done |
-| 🤓 **Humor geek** | Goblins del ClickOps, VMs huérfanas, pods en CrashLoopBackOff, consultas N+1, cofres phishing, ransomware, falsos positivos a las 3:00, «SIEMPRE ES EL DNS», el patito de goma y el pergamino de Stack Overflow |
+| 🗺️ **Tres etapas** | **Las Catacumbas**: Sistemas, Network, Storage, Virtualización y CaaS. **Las Cuevas**: Bases de datos, Seguridad y Monitorización. **La Nube**: Kubernetes, Serverless y Facturación. Cada zona con su decorado, sus enemigos, su música y su ticket (`NET-404`, `SEC-666`, `FIN-402`...) |
+| 👹 **Diez jefes** | Minotauro del Firewall (`ACL: DENY ALL`), Hidra RAID (paridad), Dragón Negro, Troll DBA (`LOCK TABLE`), Cancerbero de las 3 AAA (MFA), Lich COBOL (copia en cinta), Kraken del Clúster (control plane), Autoescalador (`SCALE OUT`), la Factura de Fin de Mes (lluvia de cargos) y El Revisor, jefe secreto que no deja pasar nada sin la Definition of Done |
+| 🤓 **Humor geek** | Goblins del ClickOps, VMs huérfanas, pods en CrashLoopBackOff, consultas N+1, cofres phishing, ransomware, falsos positivos a las 3:00, YAML mal indentado, lambdas en frío, NAT Gateways, «SIEMPRE ES EL DNS», el patito de goma y el pergamino de Stack Overflow |
 | 🎨 **Pixel art generado por código** | Personajes articulados con animación interpolada, mazmorra con iluminación dinámica. Ni una sola imagen |
 | 🎵 **Banda sonora chiptune** | Un tema original por departamento, sintetizado en directo con Web Audio |
 | 🕹️ **Mandos** | Xbox, PlayStation y cualquier mando estándar por USB o Bluetooth |
 | 📱 **Móvil y tableta** | Cruceta analógica, botones grandes, pantalla completa, vibración y diseño vertical u horizontal |
-| ⚙️ **Opciones** | Volumen de música y efectos, tres dificultades, modo sin destellos y vibración |
-| 🏅 **20 logros** | «SIEMPRE ES EL DNS», «PAIR PROGRAMMING», «SIN ROLLBACK»... y créditos finales con las estadísticas de la partida |
+| ⚙️ **Opciones** | Volumen de música y efectos, tres dificultades, modo sin destellos, vibración y **teclas reasignables** |
+| ⚔️ **Modo jefes** | Los nueve jefes de las tres etapas seguidos, contra el reloj y con su propio ranking |
+| 🏅 **24 logros** | «SIEMPRE ES EL DNS», «PAIR PROGRAMMING», «SIN ROLLBACK»... y créditos finales con las estadísticas de la partida |
 | 📶 **Sin conexión** | PWA instalable: se añade a la pantalla de inicio y funciona sin internet |
 | 🏆 **Ranking** | Top 5 con iniciales, como en los salones recreativos |
 
@@ -66,6 +69,8 @@
 | C · L | X · Y · □ · △ | **SP** | Especial: cuesta 10 de vida |
 | Enter | START | START | Empezar, pausa, insertar crédito |
 | M | SELECT | SONIDO | Silenciar |
+
+Las teclas del jugador 1 se pueden cambiar en **Opciones › TECLAS**.
 
 **Dos jugadores:** pulsa **2** en el teclado o **START** en un mando, en la selección o en plena partida. En un mismo teclado, el jugador 1 usa flechas, Z, X, C y Enter, y el jugador 2, WASD, J, K y L.
 
@@ -84,8 +89,11 @@ Todos los números del juego (vida, daño, puntos) están en el [documento de di
 | ![Forja de contenedores](docs/img/caas.png) | ![Guarida de Automation](docs/img/automation.png) |
 | ![Minas de Datos](docs/img/minas.png) | ![Cripta de Seguridad](docs/img/cripta.png) |
 | ![Cancerbero de las 3 AAA](docs/img/cancerbero.png) | ![Observatorio](docs/img/observatorio.png) |
-| ![Lich COBOL y su copia en cinta](docs/img/lich.png) | ![Créditos finales](docs/img/creditos.png) |
+| ![Lich COBOL y su copia en cinta](docs/img/lich.png) | ![Archipiélago de Clústeres](docs/img/nube-k8s.png) |
+| ![Nubes Serverless](docs/img/nube-serverless.png) | ![El Autoescalador](docs/img/autoescalador.png) |
+| ![La Factura de Fin de Mes](docs/img/factura.png) | ![Créditos finales](docs/img/creditos.png) |
 | ![Logros](docs/img/logros.png) | ![Opciones](docs/img/opciones.png) |
+| ![Modo jefes contra el Troll DBA](docs/img/modo-jefes.png) | ![Reasignar teclas](docs/img/teclas.png) |
 
 <div align="center">
 
@@ -147,7 +155,7 @@ spawnHydra(camX + 262) // invocar a la Hidra RAID
 ├── js/
 │   ├── core/               Configuración, motor de píxeles, teclado, mandos, táctil y utilidades
 │   ├── sprites/            Personajes articulados y monstruos (de cada etapa)
-│   ├── world/              Mazmorra, Las Cuevas e iluminación
+│   ├── world/              Mazmorra, Las Cuevas, La Nube e iluminación
 │   ├── data/               Héroes, enemigos, objetos y secciones
 │   ├── audio/              Efectos y música
 │   ├── game/               Estado, combate y bucle
@@ -189,7 +197,7 @@ flowchart LR
 
 - **Lint**: sintaxis, orden de carga, coherencia entre `index.html`, el service worker y el manifest, y ESLint.
 - **Unit tests**: datos, poses, combos, jefes, ranking, semillas y música, cargando el juego en un contexto aislado.
-- **Smoke test**: un bot juega las dos etapas seguidas con cada héroe y en cooperativo, con varias semillas; cualquier atasco o error de consola hace fallar la CI, con una URL para reproducirlo.
+- **Smoke test**: un bot juega las tres etapas seguidas con cada héroe y en cooperativo, con varias semillas; cualquier atasco o error de consola hace fallar la CI, con una URL para reproducirlo.
 - **Dependabot** mantiene al día las acciones y las dependencias de desarrollo.
 
 ## Hoja de ruta
@@ -203,9 +211,10 @@ flowchart LR
 - [x] El Revisor, jefe secreto que exige la Definition of Done
 - [x] Logros y créditos finales con estadísticas
 - [x] Etapa 2: Las Cuevas (Bases de datos, Seguridad y Monitorización) con el Lich COBOL
-- [ ] Etapa 3: La Nube
-- [ ] Cambiar las teclas desde el menú de opciones
-- [ ] Modo jefes: solo los combates contra jefes, con su propio ranking
+- [x] Cambiar las teclas desde el menú de opciones
+- [x] Modo jefes: solo los combates contra jefes, con su propio ranking
+- [x] Etapa 3: La Nube (Kubernetes, Serverless y Facturación) con la Factura de Fin de Mes
+- [ ] Etapa 4: Vuelta a on-premise
 
 ## Contribuir
 

@@ -41,6 +41,17 @@ const MUSIC = (() => {
     monitor:{ bpm:120, root:53, sc:'min', prog:[0,5,6,4], arp:true, lead:[
       [7,_,_,_, 6,_,4,_, _,_,_,_, 2,_,4,_], [4,_,_,_, _,_,2,_, 0,_,_,_, R,_,_,_]],
       bass:'x.......x.x.....', k:'x.......x.......', s:'....x.......x...', h:'x.xxx.xxx.xxx.xx' },
+    // Etapa 3: La Nube
+    k8s:{ bpm:128, root:55, sc:'maj', prog:[0,4,5,3], arp:true, lead:[
+      [0,_,2,_, 4,_,_,_, 5,_,4,_, 2,_,_,_], [4,_,5,_, 7,_,_,_, 6,_,4,_, 5,_,_,_],
+      [7,_,_,6, 4,_,_,_, 2,_,4,_, 5,_,_,_], [4,_,2,_, 1,_,_,_, 0,_,_,_, R,_,_,_]],
+      bass:'x.x.x.xxx.x.x.xx', k:'x...x...x...x...', s:'....x.......x...', h:'..x...x...x...x.' },
+    serverless:{ bpm:140, root:60, sc:'dor', prog:[0,3,5,4], arp:true, lead:[
+      [7,_,_,_, _,_,4,_, 5,_,_,_, 2,_,_,_], [4,_,_,_, 6,_,_,_, 7,_,_,_, R,_,_,_]],
+      bass:'x.......x...x...', k:'x.....x...x.....', s:'....x.......x...', h:'xxxxxxxxxxxxxxxx' },
+    facturas:{ bpm:118, root:53, sc:'harm', prog:[0,5,3,4], lead:[
+      [0,_,_,2, 3,_,2,_, 4,_,_,_, 6,_,7,_], [7,_,6,_, 4,_,3,_, 2,_,_,_, R,_,_,_]],
+      bass:'x.x.x.x.x.x.x.x.', k:'x.......x...x...', s:'....x.......x...', h:'..x...x...x...x.' },
     boss:{ bpm:160, root:48, sc:'harm', prog:[0,5,0,4], lead:[
       [0,1,2,_, 0,1,2,_, 4,_,3,_, 2,_,1,_], [7,_,6,_, 5,_,4,_, 3,_,2,_, 4,_,_,_]],
       bass:'x8x8x8x8x8x8x8x8', k:'x...x...x...x.x.', s:'....x.......x...', h:'xxxxxxxxxxxxxxxx' },
@@ -143,15 +154,15 @@ const MUSIC = (() => {
  */
 function musicFor(){
   switch (state) {
-    case 'title': case 'select': case 'initials': case 'ranking': case 'options': case 'logros': return 'title';
-    case 'story': { if (story && (story.key === 'outro' || story.key === 'final')) return 'victory'; const z = ZONE(camX + 160); return boss || z === 'guarida' || z === 'trono' ? 'boss' : z; }
+    case 'title': case 'select': case 'initials': case 'ranking': case 'options': case 'keys': case 'logros': return 'title';
+    case 'story': { if (story && (story.key === 'outro' || story.key === 'final' || story.key === 'epilogo')) return 'victory'; const z = ZONE(camX + 160); return boss || z === 'guarida' || z === 'trono' || z === 'cumbre' ? 'boss' : z; }
     case 'continue': return 'continue';
     case 'over': return 'over';
     case 'clear': case 'credits': return 'victory';
     default: {
       if (boss) return 'boss';
       const z = ZONE(camX + 160);
-      return z === 'guarida' || z === 'trono' ? 'boss' : z;
+      return z === 'guarida' || z === 'trono' || z === 'cumbre' ? 'boss' : z;
     }
   }
 }

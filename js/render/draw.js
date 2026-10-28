@@ -184,6 +184,7 @@ function drawActor(a, cx){
     const down = a.state === 'down' && a.lying;
     const fr = down ? 1 : ((t + a.seed*3) >> 2) % 2;
     if (a.d.look === 'eye') blit(eyeSprite(fr), sx, sy, a.face, 18, 28, fl);
+    else if (a.d.look === 'lambda') blit(lambdaSprite(fr), sx, sy, a.face, 18, 30, fl);
     else if (a.d.look === 'bell') blit(bellSprite(fr), sx, sy, a.face, 18, 30, fl);
     else blit(batSprite(fr), sx, sy, a.face, 20, 28, fl);
     return;
@@ -193,6 +194,7 @@ function drawActor(a, cx){
     const bob = Math.sin((t + a.seed*9)/10)*3;
     const alpha = a.hidden ? .18 : (a.state === 'down' && a.lying ? .5 : .88);
     if (a.d.look === 'horse') blit(trojanSprite((t >> 4) % 2), sx, sy - 6 + bob, a.face, 20, 44, fl, alpha);
+    else if (a.d.look === 'coin') blit(coinGhostSprite((t >> 4) % 2), sx, sy - 10 + bob, a.face, 18, 42, fl, alpha);
     else blit(ghostSprite((t >> 4) % 2), sx, sy - 10 + bob, a.face, 18, 40, fl, alpha);
     if (a.state === 'windup' && (t >> 2) % 2) { r(sx - 1, sy - 62, 3, 6, C.r); r(sx - 1, sy - 54, 3, 2, C.r); }
     return;
@@ -203,6 +205,13 @@ function drawActor(a, cx){
     const hop = a.state === 'attack' ? Math.sin(Math.min(1, a.t/10)*Math.PI)*8 : 0;
     if (a.kind === 'phishing') { blit(phishSprite(open ? 1 : 0), sx, sy - hop, a.face, 18, 33, fl); if (a.state === 'sleep' && (t >> 5) % 2) txt('¡PREMIO!', sx, sy - 44, '#ffd23f', { center:true, outline:true }); }
     else blit(mimicSprite(open ? 1 : 0), sx, sy - hop, a.face, 17, 32, fl);
+    return;
+  }
+  if (a.kind === 'factura') {
+    shadow(sx, a.y, a.z > 0 ? 80 : 90);
+    if (a.state === 'dying' && (t >> 2) % 2) return;
+    const f = a.state === 'beamWind' || a.state === 'beam' ? 2 : a.state === 'rain' || a.state === 'roar' || a.state === 'charge' || a.state === 'chargeWind' ? 1 : 0;
+    blit(invoiceSprite(f), sx, sy, a.face, 60, 114, fl);
     return;
   }
   if (a.kind === 'cinta') {
@@ -222,7 +231,7 @@ function drawActor(a, cx){
     shadow(sx, a.y, a.d.small ? 16 : 26);
     const pose = (a.state === 'down' && a.lying) ? 'flat' : a.state === 'windup' ? 'wind' : (a.state === 'attack' || a.state === 'down' || a.state === 'thrown') ? 'jump' : ((t + (a.seed || 0)*5) >> 3) % 2 ? 'n' : 'wind';
     const hop = a.state === 'attack' ? Math.sin(Math.min(1, a.t/10)*Math.PI)*8 : 0;
-    blit(slimeSprite(!!a.d.small, pose), sx, sy - hop, a.face, 20, 34, fl);
+    blit(slimeSprite(!!a.d.small, pose, a.d.look), sx, sy - hop, a.face, 20, 34, fl);
     if (a.state === 'windup' && (t >> 2) % 2) { r(sx - 1, sy - 34, 3, 6, C.r); r(sx - 1, sy - 26, 3, 2, C.r); }
     return;
   }
@@ -418,11 +427,11 @@ function drawTitle(){
   blit(rigSprite('guerrero', (t >> 5) % 2 ? 'idle0' : 'atk1b'), 58, 192, 1, 40, 80, false);
   blit(rigSprite('mago', (t >> 5) % 2 ? 'special' : 'idle1'), 104, 194, 1, 40, 80, false);
   blit(rigSprite('picara', (t >> 5) % 2 ? 'atk1b' : 'idle0'), 136, 188, 1, 40, 80, false);
-  panel(206, 112, 110, 46, '#0a120d');
+  panel(206, 104, 110, 56, '#0a120d');
   TITLE_MENU.forEach((m, i) => {
-    const on = i === titleSel, y = 117 + i*13;
+    const on = i === titleSel, y = 109 + i*12;
     if (on) r(208, y - 2, 106, 11, '#123a24');
-    txt((on && (t >> 4) % 2 ? '> ' : '  ') + m + (i === 2 ? ' ' + achCount() + '/' + ACHIEVEMENTS.length : ''), 212, y, on ? NEONT : C.w);
+    txt((on && (t >> 4) % 2 ? '> ' : '  ') + m + (i === 3 ? ' ' + achCount() + '/' + ACHIEVEMENTS.length : ''), 212, y, on ? NEONT : C.w);
   });
   txt('RÉCORD ' + ranking[0].n + ' ' + String(ranking[0].s).padStart(7, '0'), 261, 164, '#ffd27a', { center:true, outline:true });
   const mq = "THERE'S NO PLACE LIKE 127.0.0.1  ·  SUDO MAKE ME A SANDWICH  ·  LA RESPUESTA ES 42  ·  ¿HAS PROBADO A APAGAR Y ENCENDER?  ·  RTFM  ·  PEBKAC  ·  ^^vv<><>BA  ·  ";
@@ -439,7 +448,7 @@ function drawSelect(){
   const cx = LEVEL_END + 60;
   drawLevel(cx);
   ctx.fillStyle = 'rgba(8,6,14,.55)'; ctx.fillRect(0, 0, W, H);
-  panel(70, 3, 180, 13, '#123a24'); txt('ELIGE TU AVENTURERO', 160, 6, NEONT, { center:true });
+  panel(70, 3, 180, 13, playMode === 'jefes' ? '#3a1028' : '#123a24'); txt(playMode === 'jefes' ? 'MODO JEFES · ELIGE HÉROE' : 'ELIGE TU AVENTURERO', 160, 6, playMode === 'jefes' ? '#ffd23f' : NEONT, { center:true });
   const cols = [NEON, '#5ec8f2'];
   HERO_ORDER.forEach((k, i) => {
     const h = HEROES[k], x0 = 4 + i*79, who = selP.map((c, s) => c && c.i === i ? s : -1).filter(s => s >= 0);
@@ -501,6 +510,7 @@ function drawScene(){
   if (state === 'ranking') return drawRanking();
   if (state === 'select') return drawSelect();
   if (state === 'options') return drawOptions();
+  if (state === 'keys') return drawKeys();
   if (state === 'logros') return drawAchievements();
   if (state === 'credits') return drawCredits();
   const shk = OPTS.flashes ? shake : 0;
@@ -538,6 +548,7 @@ function drawScene(){
     }
     r(f.x - cx, f.y, f.big ? 3 : 2, f.big ? 3 : 2, f.col);
   }
+  for (const d of drops) { const x = Math.round(d.x - cx); shadow(x, d.y, 6 + Math.max(0, 14 - d.z/12)); ctx.drawImage(coinSprite().c, x - 6, Math.round(d.y - d.z - 6)); }
   drawLights(cx);
   for (const s of eshots) { const x = Math.round(s.x - cx), y = Math.round(s.y - s.z); r(x - 4, y - 4, 8, 8, OUTLINE); r(x - 3, y - 3, 6, 6, '#ff8a3d'); r(x - 1, y - 2, 2, 3, '#ffffff'); r(x - 1, y + 2, 2, 1, '#ffffff'); }
   for (const s of texts) { if (s.life < 12 && (s.life >> 1) % 2) continue; const x = clamp(s.x - cx, 2, W - 2 - 8*s.s.length); txt(s.s, x, s.y, s.col, { outline:true }); }
@@ -590,7 +601,7 @@ function drawScene(){
   }
   if (state === 'clear' && clearBonus) {
     ctx.fillStyle = 'rgba(11,9,18,.9)'; ctx.fillRect(0, 31, W, H - 31);
-    goldText('DEPLOY OK', 160, 38, true);
+    goldText(clearBonus.rush ? 'JEFES SUPERADOS' : 'DEPLOY OK', 160, 38, true);
     txt('pipeline en verde', 160, 56, NEONT, { center:true });
     const rows = [
       ['SPRINT ' + String(Math.floor(clearBonus.secs/60)).padStart(2,'0') + ':' + String(clearBonus.secs % 60).padStart(2,'0'), clearBonus.timeBonus],
@@ -600,10 +611,10 @@ function drawScene(){
     if (clearT > 105) {
       r(40, 124, 240, 30, '#a8722e'); r(42, 126, 236, 26, '#e6dcc0'); r(42, 126, 236, 1, '#fff3c4');
       txt('PÁGINA DEL GRIMORIO DoD', 160, 129, '#3a2a1a', { center:true });
-      txt(stageIdx ? 'MONITORIZACIÓN Y ALERTAS' : 'LOGS Y TRAZAS', 160, 141, '#2f7a5a', { center:true });
+      txt(['LOGS Y TRAZAS', 'MONITORIZACIÓN Y ALERTAS', 'COSTES Y ETIQUETAS'][stageIdx] || 'LOGS Y TRAZAS', 160, 141, '#2f7a5a', { center:true });
     }
     const nextSt = STAGES[stageIdx + 1];
-    if (clearT > 130) txt((clearBonus.revisor ? 'PR APROBADO · ' : '') + (nextSt ? 'SIGUIENTE: ETAPA ' + (stageIdx + 2) + ' · ' + nextSt.name : 'EL MAINFRAME DESCANSA EN PAZ'), 160, 162, clearBonus.revisor ? C.g : C.e, { center:true });
+    if (clearT > 130) txt(clearBonus.rush ? 'NUEVE JEFES SIN DESCANSO' : (clearBonus.revisor ? 'PR APROBADO · ' : '') + (nextSt ? 'SIGUIENTE: ETAPA ' + (stageIdx + 2) + ' · ' + nextSt.name : 'LA FACTURA ESTÁ PAGADA'), 160, 162, clearBonus.revisor ? C.g : C.e, { center:true });
     if (clearT > 150 && (t >> 4) % 2) txt('PULSA START', 160, 178, C.w, { center:true });
   }
 }
