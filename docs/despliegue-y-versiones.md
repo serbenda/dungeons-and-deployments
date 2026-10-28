@@ -36,7 +36,7 @@ flowchart LR
 
 - **Lint** y **Unit tests** corren en paralelo.
 - **Smoke test (Chromium)** solo corre si los dos pasan: todas las partidas, con tres semillas.
-- **Smoke test (Firefox)** y **Smoke test (WebKit / Safari)** corren a la vez que el de Chromium, con una selección corta (`QUICK=1`, una semilla).
+- **Smoke test (Firefox)** y **Smoke test (WebKit / Safari)** corren a la vez que el de Chromium, con una selección corta (`QUICK=1`, una semilla) y servidos por http, como en GitHub Pages: con `file://`, WebKit bloquea las fuentes de otro origen.
 - Un push nuevo a la misma rama cancela la ejecución anterior.
 
 ## Publicación en GitHub Pages
