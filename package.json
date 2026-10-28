@@ -3,6 +3,8 @@
   "version": "0.6.0",
   "private": true,
   "description": "Beat 'em up de fantasía en pixel art: un equipo de desarrollo contra la infraestructura, hasta la Guarida de Automation.",
+  "license": "MIT",
+  "author": "serbenda",
   "homepage": "https://serbenda.github.io/dungeons-and-deployments/",
   "repository": {
     "type": "git",

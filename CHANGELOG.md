@@ -2,9 +2,10 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
-## [0.6.0] - Sin publicar
+## [0.6.0] - 2026-10-28
 
 ### Añadido
+- Licencia MIT.
 - Etapa 3, **La Nube**, tras Las Cuevas: Archipiélago de Clústeres, Nubes Serverless, Torre de Facturación y la Cumbre, a cielo abierto, con tres temas nuevos.
 - Seis enemigos nuevos: sidecar pegajoso, operador de K8s, indentación rota (YAML, se divide), lambda en frío, NAT Gateway e instancia zombi.
 - Tres jefes nuevos: el Kraken del Clúster (control plane), el Autoescalador (`SCALE OUT` con réplicas) y la Factura de Fin de Mes (lluvia de cargos, pico de uso y renovación automática).
@@ -15,7 +16,7 @@ Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https
 - Los créditos llegan al final de la etapa 3.
 - La prueba de humo juega las tres etapas seguidas.
 
-## [0.5.0] - Sin publicar
+## [0.5.0] - 2026-10-28
 
 ### Añadido
 - **Modo jefes**: los seis jefes de las dos etapas seguidos, con +30 de vida entre combate y combate, bonus por tiempo y un ranking propio.
@@ -26,7 +27,7 @@ Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https
 - El menú del título tiene cuatro opciones: JUGAR, MODO JEFES, OPCIONES y LOGROS.
 - La prueba de humo también juega el modo jefes.
 
-## [0.4.0] - Sin publicar
+## [0.4.0] - 2026-10-27
 
 ### Añadido
 - Etapa 2, **Las Cuevas**, a continuación de la primera: Minas de Datos, Cripta de Seguridad, Observatorio y Trono del Mainframe, con su decorado, sus luces y tres temas nuevos.
@@ -39,7 +40,7 @@ Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https
 - La vida del Dragón Negro también depende de la dificultad y del número de jugadores.
 - La prueba de humo juega las dos etapas seguidas.
 
-## [0.3.0] - Sin publicar
+## [0.3.0] - 2026-10-27
 
 ### Añadido
 - Cooperativo para dos jugadores: teclado compartido (tecla 2), mandos o teclado y mando. El jugador 2 puede unirse en plena partida con START.
@@ -56,7 +57,7 @@ Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https
 - En cooperativo los enemigos tienen un 50 % más de vida y pueden atacar tres a la vez.
 - La prueba de humo juega con los cuatro héroes y en cooperativo.
 
-## [0.2.0] - Sin publicar
+## [0.2.0] - 2026-10-27
 
 ### Añadido
 - Minotauro del Firewall, jefe de Network: hachazos, embestidas, tormenta de broadcast y `ACL: DENY ALL` (solo vulnerable por la espalda).
@@ -87,3 +88,10 @@ Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https
 - Edición recreativa con el Guerrero de Rundeck y el Mago Desarrollador.
 - Cinco departamentos: Sistemas, Network, Storage, Virtualización y CaaS, y el Dragón Negro.
 - Música chiptune por zona, animaciones interpoladas, contador de combo y cámara lenta final.
+
+[0.6.0]: https://github.com/serbenda/dungeons-and-deployments/compare/v0.4.0...v0.6.0
+[0.5.0]: https://github.com/serbenda/dungeons-and-deployments/compare/v0.4.0...v0.6.0
+[0.4.0]: https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.4.0
+[0.3.0]: https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.4.0
+[0.2.0]: https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.4.0
+[0.1.0]: https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.4.0

@@ -9,6 +9,7 @@
 ![Versión](https://img.shields.io/github/package-json/v/serbenda/dungeons-and-deployments?label=versi%C3%B3n&color=f4b860)
 ![Sin dependencias](https://img.shields.io/badge/dependencias-0-3ddc84)
 ![PWA](https://img.shields.io/badge/PWA-sin%20conexi%C3%B3n-5ec8f2)
+[![Licencia MIT](https://img.shields.io/badge/licencia-MIT-ffd23f)](LICENSE)
 ![Móvil](https://img.shields.io/badge/m%C3%B3vil%20y%20tableta-t%C3%A1ctil-ff8a3d)
 
 ### [▶ Jugar ahora](https://serbenda.github.io/dungeons-and-deployments/)
@@ -224,7 +225,11 @@ Las contribuciones son bienvenidas. Antes de empezar, lee la [guía de contribuc
 - ¿Una idea de enemigo o de referencia geek? Usa la plantilla de propuestas.
 - ¿Una vulnerabilidad? Sigue la [política de seguridad](SECURITY.md).
 
-Los cambios de cada versión están en el [CHANGELOG](CHANGELOG.md).
+Los cambios de cada versión están en el [CHANGELOG](CHANGELOG.md) y en las [releases](https://github.com/serbenda/dungeons-and-deployments/releases).
+
+## Licencia
+
+[MIT](LICENSE) © 2026 serbenda. Puedes usar, copiar, modificar y distribuir el código, siempre que mantengas el aviso de copyright y la licencia.
 
 <div align="center">
 
