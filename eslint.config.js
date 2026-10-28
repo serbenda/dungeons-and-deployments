@@ -1,4 +1,4 @@
-// Configuración de ESLint (formato «flat config», ESLint 9).
+// Configuración de ESLint (formato «flat config», ESLint 9 o posterior).
 'use strict';
 
 const js = require('@eslint/js');

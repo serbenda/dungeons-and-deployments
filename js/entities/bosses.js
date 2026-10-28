@@ -215,7 +215,7 @@ function drawHead(a, sx, sy, fl){
   const open = a.state === 'windup' || a.state === 'bite' || a.state === 'spitWind';
   blit(headSprite(a.col, open ? 1 : 0, a.state === 'broken' ? 1 : 0), hx, hy + 16, -1, 25, 32, fl);
   txt(a.tag, hx - 8, hy - 2, a.d.parity ? '#ffd23f' : '#e9eefc', { outline:true });
-  if (a.state === 'windup' && (t >> 2) % 2) { r(hx - 2, hy - 18, 3, 6, C.r); r(hx - 2, hy - 10, 3, 2, C.r); }
+  if (a.state === 'windup') windupCue(hx - 1, hy - 18);
 }
 
 /* --- El Revisor (jefe secreto) */
