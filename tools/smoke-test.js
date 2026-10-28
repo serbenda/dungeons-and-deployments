@@ -136,7 +136,9 @@ async function run(browser, team, god, seed, mode){
       console.log(`    Reproducir: ${r.url}`);
       if (r.errors.length) console.log('    Errores: ' + r.errors.join(' | '));
       if (r.player) console.log('    Jugador: ' + JSON.stringify(r.player) + ' camX=' + r.camX + '\n    Enemigos: ' + JSON.stringify(r.foes));
+      // En GitHub Actions, además, una anotación visible en la página de la ejecución.
+      if (process.env.GITHUB_ACTIONS) console.log(`::error title=Smoke test (${BROWSER})::semilla=${r.seed} ${r.hero} estado=${r.state} etapa=${r.stage} sección=${r.section}${r.errors.length ? ' errores=' + r.errors.join(' | ').slice(0, 600) : ''}`);
     }
   }
   process.exit(failed ? 1 : 0);
-})().catch(e => { console.error(e); process.exit(1); });
+})().catch(e => { console.error(e); if (process.env.GITHUB_ACTIONS) console.log(`::error title=Smoke test (${BROWSER})::${String(e && e.message || e).slice(0, 600)}`); process.exit(1); });
