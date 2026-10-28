@@ -2,7 +2,7 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
-## [0.8.0] - Sin publicar
+## [0.8.0] - 2026-10-28
 
 ### Añadido
 - Opción **AVISOS GRANDES** (accesibilidad): los ataques enemigos se avisan con un triángulo «!» fijo en vez de una marca roja que parpadea, la vida se ve en número y con rayas cuando es baja, y las monedas que caen marcan su zona.
@@ -10,6 +10,7 @@ Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https
 
 ### Cambiado
 - La pantalla de título dice «EDICIÓN RECREATIVA», sin «V2», y la vista previa al compartir el enlace se ha rehecho con el título actual.
+- La página está mejor maquetada: cabecera centrada sobre la pantalla, leyenda centrada bajo ella, y controles y consejos en dos paneles con las teclas dibujadas como botones de recreativa.
 - Los textos de la página (cabecera, descripción al compartir, controles y consejos) ya hablan de las tres etapas, los cuatro héroes y el cooperativo; antes decían «Versión 2 · Etapa 1».
 - El Kraken del Clúster tiene mecánica propia: su CONTROL PLANE tiene un *taint* y solo recibe daño con los dos nodos caídos a la vez.
 
