@@ -443,7 +443,7 @@ function drawTitle(){
   ctx.fillStyle = 'rgba(8,6,14,.82)'; ctx.fillRect(0, 12, W, 70);
   goldText('DUNGEONS &', 160, 18, true);
   goldText('DEPLOYMENTS', 160, 38, true);
-  panel(84, 60, 152, 13, '#123a24'); txt('EDICIÓN RECREATIVA · V2', 160, 63, NEONT, { center:true });
+  panel(84, 60, 152, 13, '#123a24'); txt('EDICIÓN RECREATIVA', 160, 63, NEONT, { center:true });
   blit(rigSprite('bardo', (t >> 5) % 2 ? 'idle1' : 'idle0'), 26, 186, 1, 40, 80, false);
   blit(rigSprite('guerrero', (t >> 5) % 2 ? 'idle0' : 'atk1b'), 58, 192, 1, 40, 80, false);
   blit(rigSprite('mago', (t >> 5) % 2 ? 'special' : 'idle1'), 104, 194, 1, 40, 80, false);
