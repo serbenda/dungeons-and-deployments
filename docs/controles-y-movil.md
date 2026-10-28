@@ -111,6 +111,15 @@ Fuera de la partida, tocar la pantalla hace de botón A: empieza, pasa diálogos
 | Pantalla encendida | Screen Wake Lock API | Evita que la pantalla se apague mientras se juega |
 | Pausa automática | `visibilitychange` | Si la app pasa a segundo plano durante la partida, se pausa |
 
+## Accesibilidad
+
+| Opción | Qué hace |
+|---|---|
+| DESTELLOS: NO | Quita los flashes blancos y los temblores de pantalla |
+| AVISOS GRANDES: SÍ | Los ataques enemigos se avisan con un triángulo amarillo con «!» fijo (no una marca roja que parpadea); la vida se ve en número y con rayas cuando baja de 30; las monedas que caen marcan su zona en el suelo. Nada depende de distinguir rojo y verde |
+| VIBRACIÓN | Se puede desactivar |
+| TECLAS | Cualquier acción a cualquier tecla |
+
 ## PWA: instalar y jugar sin conexión
 
 El juego es una Progressive Web App:

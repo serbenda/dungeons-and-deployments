@@ -2,7 +2,16 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
-## [0.7.0] - Sin publicar
+## [0.8.0] - Sin publicar
+
+### Añadido
+- Opción **AVISOS GRANDES** (accesibilidad): los ataques enemigos se avisan con un triángulo «!» fijo en vez de una marca roja que parpadea, la vida se ve en número y con rayas cuando es baja, y las monedas que caen marcan su zona.
+- La CI prueba también **Firefox** y **WebKit** (el motor de Safari), con una selección corta de partidas.
+
+### Cambiado
+- El Kraken del Clúster tiene mecánica propia: su CONTROL PLANE tiene un *taint* y solo recibe daño con los dos nodos caídos a la vez.
+
+## [0.7.0] - 2026-10-28
 
 ### Añadido
 - Partida guardada: al empezar las etapas 2 y 3 se guarda un punto de control y el título ofrece **CONTINUAR**. Tras un GAME OVER también se puede seguir desde ahí, contando como continuación.
