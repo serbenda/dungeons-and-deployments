@@ -9,6 +9,11 @@ let selP = [{ i:0, ok:false }, null];
 let creditsT = 0;
 const TITLE_MENU = ['JUGAR', 'MODO JEFES', 'OPCIONES', 'LOGROS'];
 /**
+ * Opciones del menú del título: CONTINUAR solo aparece si hay partida guardada.
+ * @returns {string[]}
+ */
+const titleMenu = () => (readSave() ? ['CONTINUAR'] : []).concat(TITLE_MENU);
+/**
  * Pasa a la selección de héroe. El dispositivo que ha entrado es el del jugador 1.
  */
 function enterSelect(){
@@ -58,14 +63,18 @@ function update(){
       if (owner0 !== null) resetDevices();
       if (playMode !== 'arcade' || rankMode !== 'arcade') { playMode = 'arcade'; loadRanking('arcade'); }
       if (stageIdx) stageIdx = 0;
-      if (pressed('up')) { titleSel = (titleSel + TITLE_MENU.length - 1) % TITLE_MENU.length; sfx('select'); titleT = 0; }
-      if (pressed('down')) { titleSel = (titleSel + 1) % TITLE_MENU.length; sfx('select'); titleT = 0; }
-      if (pressed('start') || pressed('atk')) {
-        sfx('coin'); titleT = 0;
-        if (titleSel <= 1) { if (titleSel === 1) { playMode = 'jefes'; loadRanking('jefes'); } enterSelect(); }
-        else if (titleSel === 2) { state = 'options'; optSel = 0; } else { state = 'logros'; achScroll = 0; }
-      }
-      else if (++titleT > 540) { titleT = 0; rankShow = { t:0, hi:-1, attract:true }; state = 'ranking'; }
+      { const menu = titleMenu(), n = menu.length;
+        if (titleSel >= n) titleSel = 0;
+        if (pressed('up')) { titleSel = (titleSel + n - 1) % n; sfx('select'); titleT = 0; }
+        if (pressed('down')) { titleSel = (titleSel + 1) % n; sfx('select'); titleT = 0; }
+        if (pressed('start') || pressed('atk')) {
+          sfx('coin'); titleT = 0;
+          const item = menu[titleSel];
+          if (item === 'CONTINUAR') { owner0 = lastDev; assignDevice(owner0, 0); continueGame(); sfx('go'); }
+          else if (item === 'JUGAR' || item === 'MODO JEFES') { if (item === 'MODO JEFES') { playMode = 'jefes'; loadRanking('jefes'); } enterSelect(); }
+          else if (item === 'OPCIONES') { state = 'options'; optSel = 0; } else { state = 'logros'; achScroll = 0; }
+        }
+        else if (++titleT > 540) { titleT = 0; rankShow = { t:0, hi:-1, attract:true }; state = 'ranking'; } }
       break;
     case 'options': updateOptions(); break;
     case 'keys': updateKeys(); break;
@@ -83,13 +92,13 @@ function update(){
         for (const p of PLAYERS) { p.out = false; p.lives = 2; p.hp = p.max; p.state = 'getup'; p.t = 0; p.inv = 160; }
         state = 'play'; sfx('coin'); addText('¡CRÉDITO INSERTADO!', camX + 84, 90, C.a, 90);
       }
-      else if (contT <= 0) { state = 'over'; overT = 0; if (score > best) { best = score; try { localStorage.setItem('dnd-arcade-best', String(best)); } catch(e) {} } }
+      else if (contT <= 0) { state = 'over'; overT = 0; if (playMode === 'arcade') markSaveDead(); if (score > best) { best = score; try { localStorage.setItem('dnd-arcade-best', String(best)); } catch(e) {} } }
       break; }
     case 'over': if (++overT > 120 && (pressed('start') || pressed('atk'))) afterRun(); break;
     case 'clear': if (++clearT > 150 && (pressed('start') || pressed('atk'))) {
       if (playMode === 'jefes') afterRun();
       else if (stageIdx < STAGES.length - 1) { loadStage(stageIdx + 1); sfx('go'); }
-      else { state = 'credits'; creditsT = 0; }
+      else { state = 'credits'; creditsT = 0; clearSave(); }
     } break;
     case 'credits': if (++creditsT > CREDITS_LEN || (creditsT > 60 && (pressed('start') || pressed('atk')))) afterRun(); break;
   }
