@@ -96,6 +96,15 @@ Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la 
 | La Factura | Hace llover monedas y, al pagarla, llega el epílogo |
 | YAML | Se divide en dos tabuladores |
 
+`tests/guardar.test.js`:
+
+| Prueba | Qué garantiza |
+|---|---|
+| Guardar | Al empezar la etapa 2 se guarda la partida y el título ofrece CONTINUAR |
+| Continuar | Sigue en la etapa guardada, con el héroe, la vida y la puntuación de entonces |
+| Tras GAME OVER | Seguir cuenta como continuación (y cierra el paso a El Revisor) |
+| Borrar | El modo jefes no guarda y terminar el juego borra la partida |
+
 `tests/modo-jefes.test.js`:
 
 | Prueba | Qué garantiza |
@@ -113,6 +122,7 @@ Para añadir una prueba, crea un `test(...)` en uno de esos archivos o en uno nu
 `tools/smoke-test.js` abre el juego en Chromium sin ventana y deja que un **bot** juegue la etapa completa:
 
 - Las **tres etapas** seguidas: al terminar cada una pulsa START y sigue.
+- Antes de cada partida borra la partida guardada, para que el título no ofrezca CONTINUAR.
 - Además, por cada semilla, dos partidas del **modo jefes** (un jugador invulnerable y dos jugadores en normal).
 - Con cada uno de los cuatro héroes y en cooperativo (guerrero + bardo, el bot maneja a los dos), en modo invulnerable y en modo normal.
 - Si queda atrapado en un LOCK TABLE, pulsa A hasta liberarse.

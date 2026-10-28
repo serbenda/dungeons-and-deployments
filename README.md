@@ -9,11 +9,12 @@
 ![Versión](https://img.shields.io/github/package-json/v/serbenda/dungeons-and-deployments?label=versi%C3%B3n&color=f4b860)
 ![Sin dependencias](https://img.shields.io/badge/dependencias-0-3ddc84)
 ![PWA](https://img.shields.io/badge/PWA-sin%20conexi%C3%B3n-5ec8f2)
+[![Todos los derechos reservados](https://img.shields.io/badge/%C2%A9-todos%20los%20derechos%20reservados-ffd23f)](LICENSE)
 ![Móvil](https://img.shields.io/badge/m%C3%B3vil%20y%20tableta-t%C3%A1ctil-ff8a3d)
 
 ### [▶ Jugar ahora](https://serbenda.github.io/dungeons-and-deployments/)
 
-<img src="docs/img/gameplay.gif" alt="Partida: combate en la sala de guardia, el Minotauro del Firewall, la Hidra RAID y el Dragón Negro" width="640">
+<img src="docs/img/gameplay.gif" alt="Partida en cooperativo: la sala de guardia, el Troll DBA en Las Cuevas, las Nubes Serverless y la Factura de Fin de Mes" width="640">
 
 </div>
 
@@ -57,6 +58,7 @@
 | ⚔️ **Modo jefes** | Los nueve jefes de las tres etapas seguidos, contra el reloj y con su propio ranking |
 | 🏅 **24 logros** | «SIEMPRE ES EL DNS», «PAIR PROGRAMMING», «SIN ROLLBACK»... y créditos finales con las estadísticas de la partida |
 | 📶 **Sin conexión** | PWA instalable: se añade a la pantalla de inicio y funciona sin internet |
+| 💾 **Partida guardada** | Al empezar cada etapa se guarda un punto de control: CONTINUAR en el título |
 | 🏆 **Ranking** | Top 5 con iniciales, como en los salones recreativos |
 
 ## Cómo se juega
@@ -218,13 +220,17 @@ flowchart LR
 
 ## Contribuir
 
-Las contribuciones son bienvenidas. Antes de empezar, lee la [guía de contribución](CONTRIBUTING.md) y el [código de conducta](CODE_OF_CONDUCT.md).
+Las contribuciones son bienvenidas. Antes de empezar, lee la [guía de contribución](CONTRIBUTING.md) (incluida la cesión de derechos) y el [código de conducta](CODE_OF_CONDUCT.md).
 
 - ¿Un fallo? [Abre un issue](https://github.com/serbenda/dungeons-and-deployments/issues/new/choose) con la plantilla; si puedes, con una URL `?debug&seed=N` que lo reproduzca.
 - ¿Una idea de enemigo o de referencia geek? Usa la plantilla de propuestas.
 - ¿Una vulnerabilidad? Sigue la [política de seguridad](SECURITY.md).
 
-Los cambios de cada versión están en el [CHANGELOG](CHANGELOG.md).
+Los cambios de cada versión están en el [CHANGELOG](CHANGELOG.md) y en las [releases](https://github.com/serbenda/dungeons-and-deployments/releases).
+
+## Licencia
+
+© 2026 serbenda. **Todos los derechos reservados.** El código es visible para que el juego se pueda jugar en GitHub Pages, pero eso no da permiso para copiarlo, modificarlo, distribuirlo ni venderlo. Los detalles están en [LICENSE](LICENSE). Para cualquier otro uso, pide permiso al autor.
 
 <div align="center">
 

@@ -1,8 +1,10 @@
 {
   "name": "dungeons-and-deployments",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Beat 'em up de fantasía en pixel art: un equipo de desarrollo contra la infraestructura, hasta la Guarida de Automation.",
+  "license": "UNLICENSED",
+  "author": "serbenda",
   "homepage": "https://serbenda.github.io/dungeons-and-deployments/",
   "repository": {
     "type": "git",

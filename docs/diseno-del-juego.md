@@ -48,6 +48,15 @@ El orden de la selección está en `HERO_ORDER` y la ficha de cada uno en `HERO_
 - Sin vidas aparece **¿ROLLBACK?**: 10 segundos para insertar crédito (START) y seguir con 2 vidas.
 - En cooperativo, el jugador que se queda sin vidas sale de la partida («P2 FUERA · START PARA VOLVER») y el otro sigue. Pulsando START vuelve con 2 vidas (cuenta como continuación). Solo si caen los dos aparece ¿ROLLBACK?.
 
+## Partida guardada
+
+Al empezar las etapas 2 y 3 (en la partida normal, no en el modo jefes) se guarda un punto de control en el navegador (`dnd-arcade-save`): héroe del jugador 1, vida, vidas, combo máximo, puntuación, créditos y estadísticas.
+
+- Mientras exista, el título muestra **CONTINUAR · ET.N** como primera opción. Se sigue desde el principio de esa etapa.
+- En cooperativo se sigue con el jugador 1; el 2 puede volver a unirse con START.
+- Si la partida terminó en GAME OVER, seguir cuenta como **una continuación** (y empieza con vida llena y 2 vidas extra): así no se puede llegar a El Revisor ni a SIN ROLLBACK haciendo trampa.
+- Al terminar la etapa 3 y pasar a los créditos, se borra.
+
 ## Cooperativo
 
 | Regla | Valor |

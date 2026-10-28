@@ -427,11 +427,12 @@ function drawTitle(){
   blit(rigSprite('guerrero', (t >> 5) % 2 ? 'idle0' : 'atk1b'), 58, 192, 1, 40, 80, false);
   blit(rigSprite('mago', (t >> 5) % 2 ? 'special' : 'idle1'), 104, 194, 1, 40, 80, false);
   blit(rigSprite('picara', (t >> 5) % 2 ? 'atk1b' : 'idle0'), 136, 188, 1, 40, 80, false);
-  panel(206, 104, 110, 56, '#0a120d');
-  TITLE_MENU.forEach((m, i) => {
-    const on = i === titleSel, y = 109 + i*12;
+  const menu = titleMenu(), save = readSave(), y0 = 158 - menu.length*12 - 4;
+  panel(206, y0, 110, menu.length*12 + 8, '#0a120d');
+  menu.forEach((m, i) => {
+    const on = i === titleSel, y = y0 + 5 + i*12;
     if (on) r(208, y - 2, 106, 11, '#123a24');
-    txt((on && (t >> 4) % 2 ? '> ' : '  ') + m + (i === 3 ? ' ' + achCount() + '/' + ACHIEVEMENTS.length : ''), 212, y, on ? NEONT : C.w);
+    txt((on && (t >> 4) % 2 ? '> ' : '  ') + (m === 'CONTINUAR' ? 'CONTINUAR · ET.' + (save.stage + 1) : m) + (m === 'LOGROS' ? ' ' + achCount() + '/' + ACHIEVEMENTS.length : ''), 212, y, on ? NEONT : C.w);
   });
   txt('RÉCORD ' + ranking[0].n + ' ' + String(ranking[0].s).padStart(7, '0'), 261, 164, '#ffd27a', { center:true, outline:true });
   const mq = "THERE'S NO PLACE LIKE 127.0.0.1  ·  SUDO MAKE ME A SANDWICH  ·  LA RESPUESTA ES 42  ·  ¿HAS PROBADO A APAGAR Y ENCENDER?  ·  RTFM  ·  PEBKAC  ·  ^^vv<><>BA  ·  ";
