@@ -53,6 +53,9 @@ const STORIES = {
     ['hero', HERO_LINES[P.hero].cuevas],
     ...p2Line('cuevas'),
     ['narr', 'Atraviesa las Minas de Datos, la Cripta de Seguridad y el Observatorio hasta el Trono del Mainframe.']],
+  jefes: () => [
+    ['narr', 'MODO JEFES: SEIS JEFES SEGUIDOS. ENTRE COMBATE Y COMBATE, +30 DE VIDA.'],
+    ['narr', 'Cuanto antes acabes, más oro. Hay un ranking solo para este modo.']],
   dba: () => [
     ['dba', '¿QUIÉN HA LANZADO UN SELECT SIN WHERE EN MI TABLA? AHORA LA BLOQUEO ENTERA.'],
     ['narr', 'PISTA: si te atrapa un LOCK TABLE, pulsa A rápido para liberarte.']],
@@ -76,7 +79,11 @@ let story = null;
  * @param {string} key Clave de STORIES.
  * @param {Function} [after] Se llama al cerrarla.
  */
-function startStory(key, after){ story = { key, lines:STORIES[key](), i:0, chars:0, after:after || null }; state = 'story'; }
+function startStory(key, after){
+  // En el modo jefes solo se ve la viñeta de entrada: el resto se salta.
+  if (playMode === 'jefes' && key !== 'jefes') { if (after) after(); return; }
+  story = { key, lines:STORIES[key](), i:0, chars:0, after:after || null }; state = 'story';
+}
 /**
  * Avanza el texto tipo máquina de escribir; A, B o START completan o pasan de línea.
  */

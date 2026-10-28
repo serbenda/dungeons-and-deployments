@@ -6,12 +6,28 @@ const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-';
  * Ranking inicial (geek) cuando el navegador no tiene uno guardado.
  */
 const DEFAULT_RANK = [['LTS', 60000], ['K8S', 45000], ['SSH', 30000], ['DNS', 20000], ['GIT', 10000]];
-let ranking = DEFAULT_RANK.map(([n, s]) => ({ n, s })), entry = null, rankShow = null, titleT = 0;
-try { const saved = JSON.parse(localStorage.getItem('dnd-arcade-ranking') || 'null'); if (Array.isArray(saved) && saved.length) ranking = saved.slice(0, 5); } catch(e) {}
 /**
- * Guarda el ranking en localStorage (si el navegador lo permite).
+ * Un ranking por modo de juego: clave de localStorage, título y ranking inicial.
  */
-const saveRanking = () => { try { localStorage.setItem('dnd-arcade-ranking', JSON.stringify(ranking)); } catch(e) {} };
+const RANK_MODES = {
+  arcade:{ key:'dnd-arcade-ranking', title:'RANKING DE DEVS', def:DEFAULT_RANK },
+  jefes:{ key:'dnd-arcade-ranking-jefes', title:'RANKING · MODO JEFES', def:[['SRE', 50000], ['OPS', 40000], ['DBA', 30000], ['SEC', 20000], ['QA.', 10000]] }
+};
+let rankMode = 'arcade', ranking = [], entry = null, rankShow = null, titleT = 0;
+/**
+ * Carga el ranking de un modo (el guardado o, si no hay, el inicial).
+ * @param {'arcade'|'jefes'} mode
+ */
+function loadRanking(mode){
+  rankMode = mode; const M = RANK_MODES[mode];
+  ranking = M.def.map(([n, s]) => ({ n, s }));
+  try { const saved = JSON.parse(localStorage.getItem(M.key) || 'null'); if (Array.isArray(saved) && saved.length) ranking = saved.slice(0, 5); } catch(e) {}
+}
+loadRanking('arcade');
+/**
+ * Guarda el ranking del modo actual en localStorage (si el navegador lo permite).
+ */
+const saveRanking = () => { try { localStorage.setItem(RANK_MODES[rankMode].key, JSON.stringify(ranking)); } catch(e) {} };
 /**
  * Tras ganar o perder: pide iniciales si la puntuación entra en el top 5 o enseña el ranking.
  */
@@ -69,7 +85,7 @@ function drawInitials(){
  */
 function drawRankingTable(y0, hi){
   panel(48, y0, 224, 100, '#0a120d');
-  goldText('RANKING DE DEVS', 160, y0 + 6, false);
+  goldText(RANK_MODES[rankMode].title, 160, y0 + 6, false);
   ranking.forEach((e, i) => {
     const y = y0 + 22 + i*14, col = i === hi && (t >> 3) % 2 ? '#ffd23f' : i === 0 ? '#ffd27a' : C.w;
     txt((i + 1) + '.', 64, y, '#a39bc2'); txt(e.n, 96, y, col); txt(String(e.s).padStart(7, '0'), 256, y, col, { right:true });

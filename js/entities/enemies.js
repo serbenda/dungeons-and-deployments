@@ -255,7 +255,7 @@ function updateDragon(b){
       if (b.z > 0) b.z = Math.max(0, b.z - 6);
       if (b.t % 6 === 0) { burst(b.x + (Math.random() - .5)*90, b.y - Math.random()*90, Math.random() < .5 ? C.g : C.a, 10, 2.2, 'rgb(255,190,110)'); sfx('boom'); }
       shake = 3;
-      if (b.t > 150) { foes.splice(foes.indexOf(b), 1); boss = null; if (revisorUnlocked()) startStory('revisor', spawnRevisor); else startStory('outro', stageClear); }
+      if (b.t > 150) { foes.splice(foes.indexOf(b), 1); boss = null; if (playMode === 'jefes') rushNext(); else if (revisorUnlocked()) startStory('revisor', spawnRevisor); else startStory('outro', stageClear); }
       break; }
   }
 }

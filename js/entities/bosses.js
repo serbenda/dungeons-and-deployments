@@ -471,7 +471,7 @@ function updateLich(e){
       e.z = Math.max(0, e.z - 1);
       if (e.t % 6 === 0) { burst(e.x + (Math.random() - .5)*50, e.y - Math.random()*90, Math.random() < .5 ? '#3ddc84' : C.a, 10, 2.2, 'rgb(61,220,132)'); sfx('boom'); }
       shake = 3;
-      if (e.t > 150) { foes.splice(foes.indexOf(e), 1); boss = null; unlock('cobol'); startStory('final', stageClear); }
+      if (e.t > 150) { foes.splice(foes.indexOf(e), 1); boss = null; unlock('cobol'); if (playMode === 'jefes') rushNext(); else startStory('final', stageClear); }
       break; }
   }
 }

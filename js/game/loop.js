@@ -7,7 +7,7 @@ let titleSel = 0;
 let selP = [{ i:0, ok:false }, null];
 /** Tiempo en la pantalla de créditos finales. */
 let creditsT = 0;
-const TITLE_MENU = ['JUGAR', 'OPCIONES', 'LOGROS'];
+const TITLE_MENU = ['JUGAR', 'MODO JEFES', 'OPCIONES', 'LOGROS'];
 /**
  * Pasa a la selección de héroe. El dispositivo que ha entrado es el del jugador 1.
  */
@@ -41,7 +41,7 @@ function updateSelect(){
   }
   ctxSlot = -1;
   sel = selP[0].i;
-  if (selP[0].ok && (!selP[1] || selP[1].ok)) { startGame(selP.filter(Boolean).map(c => HERO_ORDER[c.i])); sfx('go'); }
+  if (selP[0].ok && (!selP[1] || selP[1].ok)) { (playMode === 'jefes' ? startBossRush : startGame)(selP.filter(Boolean).map(c => HERO_ORDER[c.i])); sfx('go'); }
 }
 /**
  * Una actualización del juego (60 por segundo): lee los mandos, atiende a quien
@@ -56,15 +56,19 @@ function update(){
   switch (state) {
     case 'title':
       if (owner0 !== null) resetDevices();
-      if (pressed('up')) { titleSel = (titleSel + 2) % 3; sfx('select'); titleT = 0; }
-      if (pressed('down')) { titleSel = (titleSel + 1) % 3; sfx('select'); titleT = 0; }
+      if (playMode !== 'arcade' || rankMode !== 'arcade') { playMode = 'arcade'; loadRanking('arcade'); }
+      if (stageIdx) stageIdx = 0;
+      if (pressed('up')) { titleSel = (titleSel + TITLE_MENU.length - 1) % TITLE_MENU.length; sfx('select'); titleT = 0; }
+      if (pressed('down')) { titleSel = (titleSel + 1) % TITLE_MENU.length; sfx('select'); titleT = 0; }
       if (pressed('start') || pressed('atk')) {
         sfx('coin'); titleT = 0;
-        if (titleSel === 0) enterSelect(); else if (titleSel === 1) { state = 'options'; optSel = 0; } else { state = 'logros'; achScroll = 0; }
+        if (titleSel <= 1) { if (titleSel === 1) { playMode = 'jefes'; loadRanking('jefes'); } enterSelect(); }
+        else if (titleSel === 2) { state = 'options'; optSel = 0; } else { state = 'logros'; achScroll = 0; }
       }
       else if (++titleT > 540) { titleT = 0; rankShow = { t:0, hi:-1, attract:true }; state = 'ranking'; }
       break;
     case 'options': updateOptions(); break;
+    case 'keys': updateKeys(); break;
     case 'logros': updateAchievements(); break;
     case 'story': updateStory(); break;
     case 'initials': updateInitials(); break;
@@ -83,7 +87,8 @@ function update(){
       break; }
     case 'over': if (++overT > 120 && (pressed('start') || pressed('atk'))) afterRun(); break;
     case 'clear': if (++clearT > 150 && (pressed('start') || pressed('atk'))) {
-      if (stageIdx < STAGES.length - 1) { loadStage(stageIdx + 1); sfx('go'); }
+      if (playMode === 'jefes') afterRun();
+      else if (stageIdx < STAGES.length - 1) { loadStage(stageIdx + 1); sfx('go'); }
       else { state = 'credits'; creditsT = 0; }
     } break;
     case 'credits': if (++creditsT > CREDITS_LEN || (creditsT > 60 && (pressed('start') || pressed('atk')))) afterRun(); break;
@@ -184,7 +189,7 @@ function updatePlay(){
         locked = false; mission = { text: sec.close, t: 200, closed:true }; goT = 200; sfx('go');
         if (sec.mission.startsWith('NET-404')) unlock('dns');
         if (sec.golem && !RUN.golemAngry) unlock('legacy');
-        secIdx++;
+        if (playMode === 'jefes') rushNext(); else secIdx++;
       }
     }
   }

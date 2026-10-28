@@ -51,8 +51,9 @@
 | 🎵 **Banda sonora chiptune** | Un tema original por departamento, sintetizado en directo con Web Audio |
 | 🕹️ **Mandos** | Xbox, PlayStation y cualquier mando estándar por USB o Bluetooth |
 | 📱 **Móvil y tableta** | Cruceta analógica, botones grandes, pantalla completa, vibración y diseño vertical u horizontal |
-| ⚙️ **Opciones** | Volumen de música y efectos, tres dificultades, modo sin destellos y vibración |
-| 🏅 **20 logros** | «SIEMPRE ES EL DNS», «PAIR PROGRAMMING», «SIN ROLLBACK»... y créditos finales con las estadísticas de la partida |
+| ⚙️ **Opciones** | Volumen de música y efectos, tres dificultades, modo sin destellos, vibración y **teclas reasignables** |
+| ⚔️ **Modo jefes** | Los seis jefes seguidos, contra el reloj y con su propio ranking |
+| 🏅 **21 logros** | «SIEMPRE ES EL DNS», «PAIR PROGRAMMING», «SIN ROLLBACK»... y créditos finales con las estadísticas de la partida |
 | 📶 **Sin conexión** | PWA instalable: se añade a la pantalla de inicio y funciona sin internet |
 | 🏆 **Ranking** | Top 5 con iniciales, como en los salones recreativos |
 
@@ -66,6 +67,8 @@
 | C · L | X · Y · □ · △ | **SP** | Especial: cuesta 10 de vida |
 | Enter | START | START | Empezar, pausa, insertar crédito |
 | M | SELECT | SONIDO | Silenciar |
+
+Las teclas del jugador 1 se pueden cambiar en **Opciones › TECLAS**.
 
 **Dos jugadores:** pulsa **2** en el teclado o **START** en un mando, en la selección o en plena partida. En un mismo teclado, el jugador 1 usa flechas, Z, X, C y Enter, y el jugador 2, WASD, J, K y L.
 
@@ -86,6 +89,7 @@ Todos los números del juego (vida, daño, puntos) están en el [documento de di
 | ![Cancerbero de las 3 AAA](docs/img/cancerbero.png) | ![Observatorio](docs/img/observatorio.png) |
 | ![Lich COBOL y su copia en cinta](docs/img/lich.png) | ![Créditos finales](docs/img/creditos.png) |
 | ![Logros](docs/img/logros.png) | ![Opciones](docs/img/opciones.png) |
+| ![Modo jefes contra el Troll DBA](docs/img/modo-jefes.png) | ![Reasignar teclas](docs/img/teclas.png) |
 
 <div align="center">
 
@@ -203,9 +207,9 @@ flowchart LR
 - [x] El Revisor, jefe secreto que exige la Definition of Done
 - [x] Logros y créditos finales con estadísticas
 - [x] Etapa 2: Las Cuevas (Bases de datos, Seguridad y Monitorización) con el Lich COBOL
+- [x] Cambiar las teclas desde el menú de opciones
+- [x] Modo jefes: solo los combates contra jefes, con su propio ranking
 - [ ] Etapa 3: La Nube
-- [ ] Cambiar las teclas desde el menú de opciones
-- [ ] Modo jefes: solo los combates contra jefes, con su propio ranking
 
 ## Contribuir
 

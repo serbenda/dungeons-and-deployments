@@ -2,6 +2,17 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.5.0] - Sin publicar
+
+### Añadido
+- **Modo jefes**: los seis jefes de las dos etapas seguidos, con +30 de vida entre combate y combate, bonus por tiempo y un ranking propio.
+- **Teclas reasignables** en Opciones › TECLAS: cada acción del jugador 1 a la tecla que quieras; si ya estaba ocupada, se intercambian. Se guardan en el navegador.
+- Logro SIN DESCANSO por superar el modo jefes (21 en total).
+
+### Cambiado
+- El menú del título tiene cuatro opciones: JUGAR, MODO JEFES, OPCIONES y LOGROS.
+- La prueba de humo también juega el modo jefes.
+
 ## [0.4.0] - Sin publicar
 
 ### Añadido
