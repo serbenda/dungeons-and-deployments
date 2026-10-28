@@ -2,6 +2,12 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.8.1] - 2026-10-28
+
+### Cambiado
+- El GIF de la partida pesa 2 MB en vez de 6 MB y las capturas se han recomprimido sin pérdida: `docs/img` pasa de 7,9 MB a 3,6 MB.
+- Los jefes van en un archivo por etapa (`bosses.js`, `bosses-caves.js`, `bosses-cloud.js`) y el dibujo se reparte entre `draw.js` (actores), `hud.js` (HUD y menús) y `scene.js` (la escena). El juego no cambia.
+
 ## [0.8.0] - 2026-10-28
 
 ### Añadido
