@@ -28,7 +28,10 @@ const CONCURRENCY = Number(process.env.CONCURRENCY || 4);
 function playStage([heroes, god, maxFrames, mode]){
   const g = window.dnd;
   const ORDER = ['guerrero', 'mago', 'picara', 'bardo'];
-  g.state = 'title'; g.pressedQ.start = true; g.update();
+  try { localStorage.removeItem('dnd-arcade-save'); } catch (e) {}   // sin CONTINUAR en el título
+  g.state = 'title'; g.update();
+  g.titleSel = g.titleMenu().indexOf('JUGAR');                            // por si otra partida acaba de guardar
+  g.pressedQ.start = true; g.update();
   if (mode === 'jefes') g.startBossRush(heroes);
   else if (heroes.length === 1) {
     for (let n = 0; n < ORDER.indexOf(heroes[0]); n++) { g.pressedQ.right = true; g.update(); }
