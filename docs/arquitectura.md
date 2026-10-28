@@ -27,7 +27,7 @@ flowchart LR
 
 ## Carga de los scripts
 
-`index.html` carga 29 scripts clásicos (no módulos ES) en un orden fijo. Comparten el ámbito global: lo que declara uno con `const`, `let` o `function` lo ven todos los demás.
+`index.html` carga 30 scripts clásicos (no módulos ES) en un orden fijo. Comparten el ámbito global: lo que declara uno con `const`, `let` o `function` lo ven todos los demás.
 
 Se eligieron scripts clásicos por dos motivos:
 
@@ -72,6 +72,7 @@ Cada archivo empieza con `'use strict'` y una línea que resume su contenido.
 | `ui/achievements.js` | `ACHIEVEMENTS`, `unlock()`, pantalla y avisos de logros | `localStorage` |
 | `ui/credits.js` | Créditos finales con estadísticas y elenco | — |
 | `game/bossrush.js` | Modo jefes: `RUSH`, `playMode`, `startBossRush()`, `rushNext()`, `rushClear()` | `LEVEL_END` |
+| `game/save.js` | Partida guardada: `readSave()`, `writeSave()`, `markSaveDead()`, `clearSave()`, `continueGame()` | `localStorage` |
 | `game/loop.js` | `update()`, menú del título, selección para dos, uniones y `updatePlay()` | — |
 | `render/draw.js` | Dibujo de actores, HUD (uno o dos jugadores) y pantallas, `drawScene()` y `draw()` | — |
 | `main.js` | Bucle `requestAnimationFrame`, modo `?debug`, registro del service worker | todo |
@@ -101,6 +102,7 @@ La variable global `state` decide qué hace `update()` y qué dibuja `draw()`:
 ```mermaid
 stateDiagram-v2
   [*] --> title
+  title --> story: CONTINUAR
   title --> select: JUGAR
   title --> select: MODO JEFES
   title --> options: OPCIONES
@@ -221,6 +223,7 @@ Solo se guarda en el navegador:
 |---|---|
 | `dnd-arcade-ranking` | Top 5 de iniciales y puntos (JSON) |
 | `dnd-arcade-ranking-jefes` | Top 5 del modo jefes (JSON) |
+| `dnd-arcade-save` | Punto de control al empezar la etapa 2 o 3 (JSON) |
 | `dnd-arcade-best` | Mejor puntuación (compatibilidad con versiones anteriores) |
 | `dnd-arcade-options` | Opciones: volúmenes, dificultad, destellos, vibración y teclas (JSON) |
 | `dnd-arcade-logros` | Logros desbloqueados con su fecha (JSON) |

@@ -14,7 +14,7 @@
 
 ### [▶ Jugar ahora](https://serbenda.github.io/dungeons-and-deployments/)
 
-<img src="docs/img/gameplay.gif" alt="Partida: combate en la sala de guardia, el Minotauro del Firewall, la Hidra RAID y el Dragón Negro" width="640">
+<img src="docs/img/gameplay.gif" alt="Partida en cooperativo: la sala de guardia, el Troll DBA en Las Cuevas, las Nubes Serverless y la Factura de Fin de Mes" width="640">
 
 </div>
 
@@ -58,6 +58,7 @@
 | ⚔️ **Modo jefes** | Los nueve jefes de las tres etapas seguidos, contra el reloj y con su propio ranking |
 | 🏅 **24 logros** | «SIEMPRE ES EL DNS», «PAIR PROGRAMMING», «SIN ROLLBACK»... y créditos finales con las estadísticas de la partida |
 | 📶 **Sin conexión** | PWA instalable: se añade a la pantalla de inicio y funciona sin internet |
+| 💾 **Partida guardada** | Al empezar cada etapa se guarda un punto de control: CONTINUAR en el título |
 | 🏆 **Ranking** | Top 5 con iniciales, como en los salones recreativos |
 
 ## Cómo se juega

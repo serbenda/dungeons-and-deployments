@@ -2,6 +2,14 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.7.0] - Sin publicar
+
+### Añadido
+- Partida guardada: al empezar las etapas 2 y 3 se guarda un punto de control y el título ofrece **CONTINUAR**. Tras un GAME OVER también se puede seguir desde ahí, contando como continuación.
+
+### Cambiado
+- GIF del README nuevo: cooperativo y las tres etapas.
+
 ## [0.6.0] - 2026-10-28
 
 ### Añadido

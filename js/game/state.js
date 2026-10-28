@@ -65,6 +65,7 @@ function loadStage(i){
   banner = { a:'NIVEL ' + (i + 1), b:st.sub, t:160 };
   mission = null;
   state = 'play';
+  writeSave();
   startStory(st.story);
 }
 /**
