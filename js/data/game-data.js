@@ -52,6 +52,17 @@ const FOES = {
   gnomo: { name:'GNOMO DEL DASHBOARD', short:'GNOMO', rig:'gnomo', hp:34, spd:1.1, dmg:6, wind:16, score:220 },
   cinta: { name:'COPIA EN CINTA', short:'CINTA', nograb:true, hp:90, score:1500 },
   lich: { name:'EL LICH COBOL', short:'LICH COBOL', rig:'lich', boss:true, nograb:true, hp:520, spd:.7, dmg:14, wind:20, score:8000 },
+  // Etapa 3: La Nube
+  sidecar: { name:'SIDECAR PEGAJOSO', short:'SIDECAR', rig:'sidecar', hp:42, spd:1.1, dmg:7, wind:16, score:220 },
+  operador: { name:'OPERADOR DE K8S', short:'OPERADOR', rig:'operador', hp:96, spd:.75, dmg:11, wind:16, score:550 },
+  yaml: { name:'INDENTACIÓN ROTA', short:'YAML', slime:true, look:'yaml', hp:34, spd:.75, dmg:6, wind:20, score:220 },
+  yamlS: { name:'TABULADOR', short:'TAB', slime:true, small:true, look:'yaml', hp:10, spd:1.15, dmg:4, wind:16, score:80 },
+  lambda: { name:'LAMBDA EN FRÍO', short:'LAMBDA', fly:true, look:'lambda', nograb:true, hp:16, spd:1.6, dmg:5, wind:14, score:160 },
+  nat: { name:'NAT GATEWAY', short:'NAT GW', nograb:true, ghost:true, look:'coin', hp:40, spd:.85, dmg:7, wind:18, score:400 },
+  zombieVm: { name:'INSTANCIA ZOMBI', short:'INST. ZOMBI', rig:'zombieVm', hp:36, spd:.8, dmg:8, wind:20, score:280 },
+  autoscaler: { name:'EL AUTOESCALADOR', short:'AUTOESCALADOR', rig:'autoscaler', boss:true, nograb:true, hp:360, spd:.85, dmg:13, wind:16, score:4500 },
+  replica: { name:'RÉPLICA', short:'RÉPLICA', rig:'replica', hp:30, spd:1.2, dmg:6, wind:14, score:150 },
+  factura: { name:'LA FACTURA DE FIN DE MES', short:'FACTURA', boss:true, nograb:true, hp:600, spd:.7, dmg:14, wind:20, score:12000 },
   esqueleto: { name:'PROC. ZOMBI', short:'ZOMBI', rig:'esqueleto', hp:30, spd:.75, dmg:7, wind:20, score:250 }
 };
 /**
@@ -102,11 +113,29 @@ const CRATES_2 = [
   ['barril',3080,160,'pollo'], ['cofre',3440,164,'bocata']
 ];
 /**
+ * Secciones de la etapa 3, La Nube: Kubernetes gestionado, Serverless y Facturación.
+ */
+const SECTIONS_3 = [
+  { cam:110, mission:'K8S-101 NODOS NOTREADY', close:'kubectl drain', waves:[ [['sidecar',1],['sidecar',-1]], [['yaml',1],['sidecar',1],['pod',-1]] ] },
+  { cam:760, mission:'K8S-404 CONTROL PLANE CAÍDO', close:'CLÚSTER SANO', miniboss:'kraken', waves:[ [['operador',1],['yaml',-1]], [['pod',1],['pod',-1],['sidecar',1]] ] },
+  { cam:1400, mission:'FN-500 COLD START', close:'PROVISIONED CONCURRENCY', waves:[ [['lambda',1],['lambda',-1],['lambda',1]], [['zombieVm',0],['lambda',1],['sidecar',-1]] ] },
+  { cam:2040, mission:'FN-429 TOO MANY REQUESTS', close:'RATE LIMIT OK', miniboss:'autoscaler', waves:[ [['operador',1],['lambda',-1],['lambda',1]] ] },
+  { cam:2680, mission:'FIN-402 PAYMENT REQUIRED', close:'TAGS DE COSTE OK', waves:[ [['nat',1],['zombieVm',0],['zombieVm',-1]], [['nat',-1],['operador',1],['lambda',1]] ] },
+  { cam:LEVEL_END, mission:'FIN-999 LA FACTURA DE FIN DE MES', boss:true }
+];
+/** Cajas y barriles de la etapa 3. */
+const CRATES_3 = [
+  ['barril',280,170,'pocion'], ['cofre',580,146,'baculo'], ['barril',1000,176,'tortilla'], ['cofre',1240,142,'stack'],
+  ['barril',1770,172,'pollo'], ['cofre',1870,146,'martillo'], ['barril',2390,150,'pocion'], ['cofre',2510,172,'patito'],
+  ['barril',3070,162,'tortilla'], ['cofre',3440,164,'bocata']
+];
+/**
  * Etapas: secciones, cajas, jefe final, viñeta de entrada y textos del cartel.
  */
 const STAGES = [
   { name:'LAS CATACUMBAS', sub:'LAS CATACUMBAS DE SISTEMAS', sections:SECTIONS_1, crates:CRATES_1, boss:'dragon', story:'intro' },
-  { name:'LAS CUEVAS', sub:'LAS MINAS DE DATOS', sections:SECTIONS_2, crates:CRATES_2, boss:'lich', story:'cuevas' }
+  { name:'LAS CUEVAS', sub:'LAS MINAS DE DATOS', sections:SECTIONS_2, crates:CRATES_2, boss:'lich', story:'cuevas' },
+  { name:'LA NUBE', sub:'EL ARCHIPIÉLAGO DE CLÚSTERES', sections:SECTIONS_3, crates:CRATES_3, boss:'factura', story:'nube' }
 ];
 /** Secciones y cajas de la etapa en curso (cambian con loadStage()). */
 let SECTIONS = SECTIONS_1, CRATES = CRATES_1;

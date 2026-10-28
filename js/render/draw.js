@@ -184,6 +184,7 @@ function drawActor(a, cx){
     const down = a.state === 'down' && a.lying;
     const fr = down ? 1 : ((t + a.seed*3) >> 2) % 2;
     if (a.d.look === 'eye') blit(eyeSprite(fr), sx, sy, a.face, 18, 28, fl);
+    else if (a.d.look === 'lambda') blit(lambdaSprite(fr), sx, sy, a.face, 18, 30, fl);
     else if (a.d.look === 'bell') blit(bellSprite(fr), sx, sy, a.face, 18, 30, fl);
     else blit(batSprite(fr), sx, sy, a.face, 20, 28, fl);
     return;
@@ -193,6 +194,7 @@ function drawActor(a, cx){
     const bob = Math.sin((t + a.seed*9)/10)*3;
     const alpha = a.hidden ? .18 : (a.state === 'down' && a.lying ? .5 : .88);
     if (a.d.look === 'horse') blit(trojanSprite((t >> 4) % 2), sx, sy - 6 + bob, a.face, 20, 44, fl, alpha);
+    else if (a.d.look === 'coin') blit(coinGhostSprite((t >> 4) % 2), sx, sy - 10 + bob, a.face, 18, 42, fl, alpha);
     else blit(ghostSprite((t >> 4) % 2), sx, sy - 10 + bob, a.face, 18, 40, fl, alpha);
     if (a.state === 'windup' && (t >> 2) % 2) { r(sx - 1, sy - 62, 3, 6, C.r); r(sx - 1, sy - 54, 3, 2, C.r); }
     return;
@@ -203,6 +205,13 @@ function drawActor(a, cx){
     const hop = a.state === 'attack' ? Math.sin(Math.min(1, a.t/10)*Math.PI)*8 : 0;
     if (a.kind === 'phishing') { blit(phishSprite(open ? 1 : 0), sx, sy - hop, a.face, 18, 33, fl); if (a.state === 'sleep' && (t >> 5) % 2) txt('¡PREMIO!', sx, sy - 44, '#ffd23f', { center:true, outline:true }); }
     else blit(mimicSprite(open ? 1 : 0), sx, sy - hop, a.face, 17, 32, fl);
+    return;
+  }
+  if (a.kind === 'factura') {
+    shadow(sx, a.y, a.z > 0 ? 80 : 90);
+    if (a.state === 'dying' && (t >> 2) % 2) return;
+    const f = a.state === 'beamWind' || a.state === 'beam' ? 2 : a.state === 'rain' || a.state === 'roar' || a.state === 'charge' || a.state === 'chargeWind' ? 1 : 0;
+    blit(invoiceSprite(f), sx, sy, a.face, 60, 114, fl);
     return;
   }
   if (a.kind === 'cinta') {
@@ -222,7 +231,7 @@ function drawActor(a, cx){
     shadow(sx, a.y, a.d.small ? 16 : 26);
     const pose = (a.state === 'down' && a.lying) ? 'flat' : a.state === 'windup' ? 'wind' : (a.state === 'attack' || a.state === 'down' || a.state === 'thrown') ? 'jump' : ((t + (a.seed || 0)*5) >> 3) % 2 ? 'n' : 'wind';
     const hop = a.state === 'attack' ? Math.sin(Math.min(1, a.t/10)*Math.PI)*8 : 0;
-    blit(slimeSprite(!!a.d.small, pose), sx, sy - hop, a.face, 20, 34, fl);
+    blit(slimeSprite(!!a.d.small, pose, a.d.look), sx, sy - hop, a.face, 20, 34, fl);
     if (a.state === 'windup' && (t >> 2) % 2) { r(sx - 1, sy - 34, 3, 6, C.r); r(sx - 1, sy - 26, 3, 2, C.r); }
     return;
   }
@@ -539,6 +548,7 @@ function drawScene(){
     }
     r(f.x - cx, f.y, f.big ? 3 : 2, f.big ? 3 : 2, f.col);
   }
+  for (const d of drops) { const x = Math.round(d.x - cx); shadow(x, d.y, 6 + Math.max(0, 14 - d.z/12)); ctx.drawImage(coinSprite().c, x - 6, Math.round(d.y - d.z - 6)); }
   drawLights(cx);
   for (const s of eshots) { const x = Math.round(s.x - cx), y = Math.round(s.y - s.z); r(x - 4, y - 4, 8, 8, OUTLINE); r(x - 3, y - 3, 6, 6, '#ff8a3d'); r(x - 1, y - 2, 2, 3, '#ffffff'); r(x - 1, y + 2, 2, 1, '#ffffff'); }
   for (const s of texts) { if (s.life < 12 && (s.life >> 1) % 2) continue; const x = clamp(s.x - cx, 2, W - 2 - 8*s.s.length); txt(s.s, x, s.y, s.col, { outline:true }); }
@@ -601,10 +611,10 @@ function drawScene(){
     if (clearT > 105) {
       r(40, 124, 240, 30, '#a8722e'); r(42, 126, 236, 26, '#e6dcc0'); r(42, 126, 236, 1, '#fff3c4');
       txt('PÁGINA DEL GRIMORIO DoD', 160, 129, '#3a2a1a', { center:true });
-      txt(stageIdx ? 'MONITORIZACIÓN Y ALERTAS' : 'LOGS Y TRAZAS', 160, 141, '#2f7a5a', { center:true });
+      txt(['LOGS Y TRAZAS', 'MONITORIZACIÓN Y ALERTAS', 'COSTES Y ETIQUETAS'][stageIdx] || 'LOGS Y TRAZAS', 160, 141, '#2f7a5a', { center:true });
     }
     const nextSt = STAGES[stageIdx + 1];
-    if (clearT > 130) txt(clearBonus.rush ? 'SEIS JEFES SIN DESCANSO' : (clearBonus.revisor ? 'PR APROBADO · ' : '') + (nextSt ? 'SIGUIENTE: ETAPA ' + (stageIdx + 2) + ' · ' + nextSt.name : 'EL MAINFRAME DESCANSA EN PAZ'), 160, 162, clearBonus.revisor ? C.g : C.e, { center:true });
+    if (clearT > 130) txt(clearBonus.rush ? 'NUEVE JEFES SIN DESCANSO' : (clearBonus.revisor ? 'PR APROBADO · ' : '') + (nextSt ? 'SIGUIENTE: ETAPA ' + (stageIdx + 2) + ' · ' + nextSt.name : 'LA FACTURA ESTÁ PAGADA'), 160, 162, clearBonus.revisor ? C.g : C.e, { center:true });
     if (clearT > 150 && (t >> 4) % 2) txt('PULSA START', 160, 178, C.w, { center:true });
   }
 }

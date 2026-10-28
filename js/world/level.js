@@ -12,7 +12,7 @@ const ZONE1 = x => x < 640 ? 'sistemas' : x < 1280 ? 'network' : x < 1920 ? 'sto
  * @param {number} x
  * @returns {string}
  */
-const ZONE = x => stageIdx === 1 ? ZONE2(x) : ZONE1(x);
+const ZONE = x => stageIdx === 2 ? ZONE3(x) : stageIdx === 1 ? ZONE2(x) : ZONE1(x);
 const RACKS = [656, 756, 856, 956, 1056, 1156];
 const RACK_LABELS = ['CORE', 'DMZ', 'VLAN 10', 'PROD', 'WIFI', 'VPN'];
 const SHELVES = [1296, 1396, 1496, 1596, 1696, 1796];
@@ -249,6 +249,7 @@ function buildLevel(){
  */
 function drawLevel(cx){
   if (stageIdx === 1) return drawCaves(cx);
+  if (stageIdx === 2) return drawSky(cx);
   if (!LEVEL) buildLevel();
   ctx.drawImage(LEVEL, cx, 0, W, H, 0, 0, W, H);
   // pantallas de la sala de guardia
@@ -302,8 +303,9 @@ function drawLights(cx){
   ctx.globalCompositeOperation = 'source-over';
   ctx.drawImage(VIG, 0, 0);
   ctx.globalCompositeOperation = 'lighter';
-  const cave = stageIdx === 1, torches = cave ? CAVE_TORCHES : TORCHES;
-  if (cave) caveLights(cx);
+  const cave = stageIdx > 0, torches = stageIdx === 2 ? SKY_TORCHES : cave ? CAVE_TORCHES : TORCHES;
+  if (stageIdx === 1) caveLights(cx);
+  if (stageIdx === 2) skyLights(cx);
   for (const tc of torches) {
     const sx = tc.x - cx; if (sx < -90 || sx > W + 90) continue;
     const fl = .8 + .2*Math.sin(t*.3 + tc.x) + Math.random()*.06;
@@ -337,7 +339,7 @@ function drawLights(cx){
   ctx.globalCompositeOperation = 'source-over';
   // llamas por encima de la luz
   for (const tc of torches) {
-    const sx = tc.x - cx; if (sx < -20 || sx > W + 20) continue;
+    const sx = tc.x - cx; if (tc.lamp || sx < -20 || sx > W + 20) continue;
     const fsp = flameSprite(((t >> 3) + tc.x) % 3);
     ctx.drawImage(fsp.c, Math.round(sx - 7), Math.round(tc.y - (tc.brazier ? 8 : 12)));
   }

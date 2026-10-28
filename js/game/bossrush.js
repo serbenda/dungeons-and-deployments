@@ -1,4 +1,4 @@
-// Modo jefes: los seis jefes de las dos etapas seguidos, con su propio ranking.
+// Modo jefes: los nueve jefes de las tres etapas seguidos, con su propio ranking.
 'use strict';
 
 /**
@@ -6,12 +6,15 @@
  * donde se libra y el jefe: un jefe de sección (miniboss) o el final de la etapa (boss).
  */
 const RUSH = [
-  { stage:0, cam:760, mission:'JEFE 1/6 MINOTAURO', miniboss:'minotauro', waves:[[]] },
-  { stage:0, cam:1400, mission:'JEFE 2/6 HIDRA RAID', miniboss:'hidra', waves:[[]] },
-  { stage:0, cam:LEVEL_END, mission:'JEFE 3/6 DRAGÓN NEGRO', boss:true },
-  { stage:1, cam:760, mission:'JEFE 4/6 TROLL DBA', miniboss:'dba', waves:[[]] },
-  { stage:1, cam:2040, mission:'JEFE 5/6 CANCERBERO', miniboss:'cancerbero', waves:[[]] },
-  { stage:1, cam:LEVEL_END, mission:'JEFE 6/6 LICH COBOL', boss:true }
+  { stage:0, cam:760, mission:'JEFE 1/9 MINOTAURO', miniboss:'minotauro', waves:[[]] },
+  { stage:0, cam:1400, mission:'JEFE 2/9 HIDRA RAID', miniboss:'hidra', waves:[[]] },
+  { stage:0, cam:LEVEL_END, mission:'JEFE 3/9 DRAGÓN NEGRO', boss:true },
+  { stage:1, cam:760, mission:'JEFE 4/9 TROLL DBA', miniboss:'dba', waves:[[]] },
+  { stage:1, cam:2040, mission:'JEFE 5/9 CANCERBERO', miniboss:'cancerbero', waves:[[]] },
+  { stage:1, cam:LEVEL_END, mission:'JEFE 6/9 LICH COBOL', boss:true },
+  { stage:2, cam:760, mission:'JEFE 7/9 KRAKEN', miniboss:'kraken', waves:[[]] },
+  { stage:2, cam:2040, mission:'JEFE 8/9 AUTOESCALADOR', miniboss:'autoscaler', waves:[[]] },
+  { stage:2, cam:LEVEL_END, mission:'JEFE 9/9 LA FACTURA', boss:true }
 ];
 /** Modo de la partida en curso: 'arcade' (las dos etapas) o 'jefes'. */
 let playMode = 'arcade';
@@ -25,7 +28,7 @@ function startBossRush(heroKeys){
   playMode = 'jefes'; RUN.rush = true;
   SECTIONS = RUSH; crates = [];
   secIdx = -1; rushNext();
-  banner = { a:'MODO JEFES', b:'SEIS JEFES SEGUIDOS', t:160 };
+  banner = { a:'MODO JEFES', b:'NUEVE JEFES SEGUIDOS', t:160 };
   startStory('jefes');
 }
 /**
@@ -37,7 +40,7 @@ function rushNext(){
   if (secIdx >= RUSH.length) { rushClear(); return; }
   const s = RUSH[secIdx];
   stageIdx = s.stage;
-  foes = []; items = []; shots = []; eshots = []; locks = []; texts = [];
+  foes = []; items = []; shots = []; eshots = []; locks = []; drops = []; texts = [];
   boss = null; golem = null; lastFoe = null; mission = null; goT = 0;
   camX = s.cam; locked = false; waveIdx = 0;
   activePlayers().forEach((p, n) => {
@@ -52,7 +55,7 @@ function rushNext(){
 function rushClear(){
   const secs = Math.floor(stageT/60), act = activePlayers();
   const maxChain = Math.max(0, ...PLAYERS.map(p => p.maxChain));
-  const timeBonus = Math.max(0, 90000 - secs*100), lifeBonus = act.reduce((a, p) => a + p.hp*50 + p.lives*5000, 0), comboBonus = maxChain*100;
+  const timeBonus = Math.max(0, 120000 - secs*100), lifeBonus = act.reduce((a, p) => a + p.hp*50 + p.lives*5000, 0), comboBonus = maxChain*100;
   clearBonus = { secs, timeBonus, lifeBonus, comboBonus, maxChain, rush:true };
   score += timeBonus + lifeBonus + comboBonus;
   unlock('jefes');

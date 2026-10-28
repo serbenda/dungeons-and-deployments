@@ -42,15 +42,17 @@ function paintGolem(S, pose, angry){
  * @param {string} pose n, wind, jump o flat.
  * @returns {object}
  */
-function slimeSprite(small, pose){
+function slimeSprite(small, pose, look){
   const sz = small ? 7 : 11;
-  return sprite('slime|' + small + '|' + pose, 40, 36, S => {
+  const P = look === 'yaml' ? ['#8a3a10', '#f08a3a', '#ffe0c0', '#c45a1a'] : ['#2f7a5a', '#6ee7a8', '#d8fff0', '#3aa678'];
+  return sprite('slime|' + small + '|' + pose + '|' + (look || ''), 40, 36, S => {
     const wx = pose === 'wind' ? 1.35 : pose === 'jump' ? .8 : pose === 'flat' ? 1.6 : 1, wy = pose === 'wind' ? .7 : pose === 'jump' ? 1.3 : pose === 'flat' ? .45 : 1;
     const rx = sz*wx, ry = sz*.85*wy, cy = 33 - ry;
-    S.ell(20, cy, rx, ry, '#2f7a5a');
-    S.ell(20.5, cy - 1, rx - 1.2, ry - 1.2, '#6ee7a8');
-    S.ell(17, cy - ry*.45, rx*.35, ry*.25, '#d8fff0');
-    for (const [x, y] of [[-4, 3], [3, 4], [-1, 6], [5, 1]]) if (Math.abs(x) < rx - 2 && y < ry) S.px(20 + x*sz/11, cy + y*sz/11, '#3aa678');
+    S.ell(20, cy, rx, ry, P[0]);
+    S.ell(20.5, cy - 1, rx - 1.2, ry - 1.2, P[1]);
+    S.ell(17, cy - ry*.45, rx*.35, ry*.25, P[2]);
+    for (const [x, y] of [[-4, 3], [3, 4], [-1, 6], [5, 1]]) if (Math.abs(x) < rx - 2 && y < ry) S.px(20 + x*sz/11, cy + y*sz/11, P[3]);
+    if (look === 'yaml' && !small && pose !== 'flat') { S.rect(12, cy + 2, 2, 1, '#8a3a10'); S.rect(15, cy + 2, 6, 1, '#8a3a10'); S.rect(14, cy + 4, 2, 1, '#8a3a10'); S.rect(17, cy + 4, 5, 1, '#8a3a10'); }
     if (pose !== 'flat') { const ey = cy - ry*.1; S.rect(22, ey - 1, 2, 3, OUTLINE); S.rect(26 - (small ? 1 : 0), ey - 1, 2, 3, OUTLINE); S.px(22, ey - 1, '#ffffff'); S.px(26 - (small ? 1 : 0), ey - 1, '#ffffff'); if (pose === 'jump' || pose === 'wind') S.rect(23, ey + 3, 3, 1, OUTLINE); }
     else { S.px(22, cy, OUTLINE); S.px(25, cy, OUTLINE); }
   });
