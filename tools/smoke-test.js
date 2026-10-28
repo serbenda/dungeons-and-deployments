@@ -28,7 +28,7 @@ const CONCURRENCY = Number(process.env.CONCURRENCY || 4);
 function playStage([heroes, god, maxFrames, mode]){
   const g = window.dnd;
   const ORDER = ['guerrero', 'mago', 'picara', 'bardo'];
-  try { localStorage.removeItem('dnd-arcade-save'); } catch (e) {}   // sin CONTINUAR en el título
+  try { localStorage.removeItem('dnd-arcade-save'); } catch (e) { /* sin almacenamiento: no hay partida guardada */ }
   g.state = 'title'; g.update();
   g.titleSel = g.titleMenu().indexOf('JUGAR');                            // por si otra partida acaba de guardar
   g.pressedQ.start = true; g.update();
