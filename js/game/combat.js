@@ -70,6 +70,11 @@ function damageRaw(tg, dmg, src, opt){
   }
   if (tg.kind === 'hidra') { if (isHero(src) && t - (tg.msgT || 0) > 50) { tg.msgT = t; addText(tg.txt.hint, tg.x - 72, tg.y - 80, '#ffd27a', 40); } return false; }
   if (tg.kind === 'cabeza' && tg.state === 'broken') return false;
+  if (tg.kind === 'cabeza' && krakenGuarded(tg)) {
+    tg.flash = 4; sfx('clink'); spark(tg.x - 10, tg.y - 24);
+    if (t - (tg.msgT || 0) > 40) { tg.msgT = t; addText('TAINT: NoSchedule · DRENA LOS DOS NODOS', tg.x - 150, tg.y - 70, '#9fd0ff', 50); }
+    return false;
+  }
   if (tg.kind === 'minotauro' && tg.guard > 0 && !opt.pierce && Math.sign(src.x - tg.x) === tg.face && tg.state !== 'down') {
     tg.flash = 4; sfx('clink'); spark(tg.x + tg.face*14, tg.y - 40);
     if (t - (tg.msgT || 0) > 30) { tg.msgT = t; addText('DENY ALL', tg.x - 32, tg.y - 90, C.r, 36); }

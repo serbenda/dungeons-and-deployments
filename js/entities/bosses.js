@@ -92,7 +92,7 @@ const CERBERUS = {
  */
 function spawnHydra(x, variant){
   const body = mkFoe('hidra', x, 156); body.state = 'idle'; body.face = -1;
-  body.txt = variant ? variant.txt : HYDRA_TXT; body.ach = variant ? variant.ach : 'paridad';
+  body.txt = variant ? variant.txt : HYDRA_TXT; body.ach = variant ? variant.ach : 'paridad'; body.taint = !!(variant && variant.taint);
   if (variant) { body.d = Object.assign({}, FOES.hidra, { name:variant.name, short:variant.short }); body.variant = true; }
   foes.push(body);
   (variant ? variant.heads : HEADS).forEach((h, i) => {
@@ -493,7 +493,7 @@ function lichBlocks(tg){
  * los nodos se vuelven a programar.
  */
 const KRAKEN = {
-  name:'EL KRAKEN DEL CLÚSTER', short:'KRAKEN', ach:'kraken',
+  name:'EL KRAKEN DEL CLÚSTER', short:'KRAKEN', ach:'kraken', taint:true,
   heads:[
     { name:'NODO 1', short:'NODO 1', tag:'N1', col:'#326ce5', lane:0 },
     { name:'CONTROL PLANE', short:'CONTROL PLANE', tag:'CP', col:'#1a4a9a', lane:1, parity:true },
@@ -501,6 +501,13 @@ const KRAKEN = {
   ],
   txt:{ spit:'kubectl apply', rebuild:'RESCHEDULING', done:'POD RUNNING', death:'CLÚSTER DRENADO: KRAKEN ELIMINADO', lost:'¡CONTROL PLANE CAÍDO! NO HAY RESCHEDULING', failed:'NODO NOTREADY', hint:'¡ATACA LOS TENTÁCULOS!' }
 };
+/**
+ * El CONTROL PLANE del Kraken tiene un taint: no acepta golpes mientras quede
+ * algún nodo en pie. Hay que tumbar (drenar) los dos nodos a la vez.
+ * @param {object} head Cabeza de la Hidra o variante.
+ * @returns {boolean} true si está protegida.
+ */
+const krakenGuarded = head => !!(head.d.parity && head.body && head.body.taint && foes.some(h => h.kind === 'cabeza' && h.body === head.body && h !== head && h.state !== 'broken' && !h.dead));
 /**
  * IA del Autoescalador: lucha cuerpo a cuerpo y, cada vez que pierde un 25 % de
  * vida, escala horizontalmente con dos réplicas. Con réplicas vivas, sus golpes
