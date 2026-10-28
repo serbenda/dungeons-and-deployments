@@ -5,19 +5,19 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { loadGame } = require('./harness');
 
-test('el modo jefes encadena los seis jefes de las dos etapas', () => {
+test('el modo jefes encadena los nueve jefes de las tres etapas', () => {
   const game = loadGame();
   game.ev("startBossRush('guerrero'); story = null; state = 'play'");
   assert.equal(game.ev('playMode'), 'jefes');
   assert.equal(game.ev('crates.length'), 0, 'sin cajas');
   const seen = [];
-  for (let n = 0; n < 6; n++) {
+  for (let n = 0; n < 9; n++) {
     seen.push([game.ev('stageIdx'), game.ev('RUSH[secIdx].miniboss || STAGES[stageIdx].boss')]);
     game.ev('P.hp = 50');
     game.ev('rushNext(); story = null; if (state === "story") state = "play"');
-    if (n < 5) assert.equal(game.ev('P.hp'), 80, 'entre jefes se recuperan 30 de vida');
+    if (n < 8) assert.equal(game.ev('P.hp'), 80, 'entre jefes se recuperan 30 de vida');
   }
-  assert.deepEqual(seen, [[0, 'minotauro'], [0, 'hidra'], [0, 'dragon'], [1, 'dba'], [1, 'cancerbero'], [1, 'lich']]);
+  assert.deepEqual(seen, [[0, 'minotauro'], [0, 'hidra'], [0, 'dragon'], [1, 'dba'], [1, 'cancerbero'], [1, 'lich'], [2, 'kraken'], [2, 'autoscaler'], [2, 'factura']]);
   assert.equal(game.ev('state'), 'clear');
   assert.equal(game.ev('clearBonus.rush'), true);
   assert.ok(game.ev('unlocked.jefes'));

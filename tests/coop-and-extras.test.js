@@ -155,7 +155,7 @@ test('cada héroe tiene esqueleto, frases, descripción y está en la selección
   assert.deepEqual([...game.ev('HERO_ORDER')].sort(), [...heroes].sort());
   for (const k of heroes) {
     assert.ok(game.ev(`!!RIGS[HEROES.${k}.rig]`), `${k}: falta su esqueleto`);
-    for (const line of ['intro', 'mino', 'dragon', 'outro', 'cuevas', 'lich']) assert.ok(game.ev(`HERO_LINES.${k}.${line}`), `${k}: falta la frase ${line}`);
+    for (const line of ['intro', 'mino', 'dragon', 'outro', 'cuevas', 'lich', 'nube', 'factura']) assert.ok(game.ev(`HERO_LINES.${k}.${line}`), `${k}: falta la frase ${line}`);
     assert.equal(game.ev(`HERO_INFO.${k}.length`), 3, `${k}: la descripción tiene 3 líneas`);
     for (const ln of game.ev(`HERO_INFO.${k}`)) assert.ok(ln.length <= 32, `${k}: «${ln}» no cabe en la ficha`);
   }
