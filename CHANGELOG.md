@@ -10,6 +10,7 @@ Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https
 
 ### Cambiado
 - La pantalla de título dice «EDICIÓN RECREATIVA», sin «V2», y la vista previa al compartir el enlace se ha rehecho con el título actual.
+- Los textos de la página (cabecera, descripción al compartir, controles y consejos) ya hablan de las tres etapas, los cuatro héroes y el cooperativo; antes decían «Versión 2 · Etapa 1».
 - El Kraken del Clúster tiene mecánica propia: su CONTROL PLANE tiene un *taint* y solo recibe daño con los dos nodos caídos a la vez.
 
 ## [0.7.0] - 2026-10-28

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Beat 'em up de fantasía en pixel art: el Guerrero de Rundeck y el Mago Desarrollador cruzan el CPD hasta la Guarida de Automation.">
+<meta name="description" content="Beat 'em up de fantasía en pixel art: cuatro héroes del equipo de desarrollo, solos o en cooperativo, cruzan las catacumbas del CPD, las cuevas del Mainframe y la nube.">
 <meta name="theme-color" content="#0b0912">
 <meta name="color-scheme" content="dark">
 <link rel="canonical" href="https://serbenda.github.io/dungeons-and-deployments/">
@@ -17,15 +17,15 @@
 <meta property="og:locale" content="es_ES">
 <meta property="og:site_name" content="Dungeons &amp; Deployments">
 <meta property="og:title" content="Dungeons &amp; Deployments Arcade">
-<meta property="og:description" content="Beat 'em up de fantasía en pixel art: el Guerrero de Rundeck y el Mago Desarrollador cruzan el CPD hasta la Guarida de Automation.">
+<meta property="og:description" content="Beat 'em up de fantasía en pixel art: cuatro héroes del equipo de desarrollo, solos o en cooperativo, cruzan las catacumbas del CPD, las cuevas del Mainframe y la nube.">
 <meta property="og:url" content="https://serbenda.github.io/dungeons-and-deployments/">
 <meta property="og:image" content="https://serbenda.github.io/dungeons-and-deployments/img/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Pantalla de título: el Guerrero de Rundeck y el Mago Desarrollador frente al Dragón Negro">
+<meta property="og:image:alt" content="Pantalla de título: los cuatro héroes frente al Dragón Negro">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Dungeons &amp; Deployments Arcade">
-<meta name="twitter:description" content="Beat 'em up de fantasía en pixel art: el Guerrero de Rundeck y el Mago Desarrollador cruzan el CPD hasta la Guarida de Automation.">
+<meta name="twitter:description" content="Beat 'em up de fantasía en pixel art: cuatro héroes del equipo de desarrollo, solos o en cooperativo, cruzan las catacumbas del CPD, las cuevas del Mainframe y la nube.">
 <meta name="twitter:image" content="https://serbenda.github.io/dungeons-and-deployments/img/og-image.png">
 <title>Dungeons &amp; Deployments Arcade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,11 +42,10 @@
 
 <div class="wrap">
   <header>
-    <p class="eyebrow">Versión 2 · Edición recreativa · Etapa 1</p>
+    <p class="eyebrow">Edición recreativa · 3 etapas · 1 o 2 jugadores</p>
     <h1>Dungeons &amp; Deployments Arcade</h1>
-    <p class="lede">Las catacumbas del CPD se han llenado de goblins del ClickOps, paquetes perdidos, discos llenos, VMs huérfanas y pods en bucle. Elige al Guerrero de Rundeck o al Mago Desarrollador, cierra los tickets de cada sala y derrota al Dragón Negro que se ha adueñado de la Guarida de Automation.</p>
+    <p class="lede">Alguien ha tocado producción a mano. Elige al Guerrero de Rundeck, al Mago Desarrollador, a la Pícara del Frontend o al Bardo Scrum Master, solo o con alguien más, y cierra los tickets de cada departamento: de las catacumbas del CPD a las cuevas del Mainframe y, al final, la nube, donde espera la Factura de Fin de Mes.</p>
   </header>
-
   <div class="stage" id="stage">
     <div class="cabinet">
       <canvas id="game" width="320" height="200" tabindex="0" aria-label="Pantalla del juego Dungeons and Deployments Arcade"></canvas>
@@ -82,23 +81,24 @@
         <dt>X · K</dt><dd>Saltar; ataque en el aire para la patada</dd>
         <dt>C · L</dt><dd>Especial: cuesta 10 de vida</dd>
         <dt>Enter</dt><dd>Insertar crédito, empezar, pausa</dd>
+        <dt>2</dt><dd>Segundo jugador: se une en cualquier momento (WASD, J, K y L pasan a ser suyos)</dd>
+        <dt>Mando</dt><dd>Xbox, PlayStation o cualquier mando estándar; START en otro mando para el jugador 2</dd>
         <dt>M</dt><dd>Silenciar la música y el sonido</dd>
       </dl>
+      <p>Las teclas se pueden cambiar en Opciones. En el móvil y la tableta aparecen una cruceta y botones táctiles.</p>
     </div>
     <div>
-      <h2>Bestiario y botín</h2>
+      <h2>Consejos</h2>
       <ul>
         <li>Camina contra un enemigo para agarrarlo: dos rodillazos y al tercero lo lanzas contra los demás.</li>
-        <li>Cada sala es un departamento con su ticket: Sistemas, Network, Storage, Virtualización y CaaS.</li>
-        <li>Network: murciélagos de paquetes perdidos y el Caballero Firewall, que bloquea de frente (ACL: DENY). Rodéalo o lánzale a alguien.</li>
-        <li>Storage: los cofres de la sala pueden ser mímicos de disco lleno. Virtualización: las VMs huérfanas se apagan y no se les puede pegar.</li>
-        <li>CaaS: los pods reaparecen hasta que destruyes el Deployment.</li>
-        <li>Jefes: el Minotauro del Firewall (cuando activa ACL: DENY ALL, por la espalda) y la Hidra RAID (mata primero la paridad).</li>
-        <li>Los esqueletos son procesos zombi: alguno se levanta otra vez.</li>
-        <li>Las fugas de memoria se dividen al reventar: <code>malloc()</code> por dos.</li>
-        <li>El Gólem Mainframe es pacífico hasta que un goblin le graba una runa de parche manual.</li>
+        <li>Al Caballero Firewall y al Minotauro, por la espalda. A la Hidra RAID, primero la paridad.</li>
+        <li>Si el Troll DBA te atrapa con un LOCK TABLE, pulsa A rápido para salir.</li>
+        <li>El Lich COBOL no recibe daño mientras exista su copia en cinta: destrúyela.</li>
+        <li>El control plane del Kraken solo cae con los dos nodos tumbados a la vez.</li>
+        <li>La lluvia de cargos de la Factura avisa con sombras en el suelo.</li>
         <li>Rompe barriles y cofres: comida, el Báculo de Ping, el Martillo de Teclas, el patito de goma y el pergamino de Stack Overflow.</li>
-        <li>Hay un código secreto en la pantalla de título. Pista: la marquesina.</li>
+        <li>Al empezar cada etapa se guarda la partida: CONTINUAR en el título.</li>
+        <li>Llega al final de la primera etapa sin continuar y conocerás a El Revisor. Y hay un código secreto en el título: pista, la marquesina.</li>
       </ul>
     </div>
   </section>
