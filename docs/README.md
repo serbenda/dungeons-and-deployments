@@ -10,7 +10,7 @@ Guías para entender, modificar y publicar Dungeons & Deployments. Si es tu prim
 | [Audio](audio.md) | Efectos de sonido y el secuenciador de música chiptune |
 | [Controles, móvil y PWA](controles-y-movil.md) | Teclas lógicas, dos jugadores, teclado y teclas reasignables, mandos, controles táctiles, accesibilidad e instalación sin conexión |
 | [Recetas](recetas.md) | Paso a paso para añadir enemigos, jefes, secciones, objetos, diálogos, temas, héroes, logros, opciones, etapas y archivos |
-| [Pruebas](pruebas.md) | Lint, las 50 pruebas unitarias, la prueba de humo en tres navegadores, semillas y modo depuración |
+| [Pruebas](pruebas.md) | Lint, las 53 pruebas unitarias, la prueba de humo en tres navegadores, semillas y modo depuración |
 | [Despliegue y versiones](despliegue-y-versiones.md) | Ramas y su protección, CI, GitHub Pages, caché de la PWA, cómo publicar una versión y las releases publicadas |
 
 La referencia de cada función está en el propio código: todas las funciones y tablas de datos tienen su comentario JSDoc, que los editores (VS Code y otros) muestran al pasar el ratón.

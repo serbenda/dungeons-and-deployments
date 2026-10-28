@@ -67,7 +67,7 @@ flowchart LR
 | Job | Qué hace | Tiempo aproximado |
 |---|---|---|
 | **Lint** | `npm run lint:project` y `npm run lint:js` | < 1 min |
-| **Unit tests** | `npm test` (50 pruebas) | < 1 min |
+| **Unit tests** | `npm test` (53 pruebas) | < 1 min |
 | **Smoke test (Chromium)** | `npm run test:e2e` con `SEEDS=1,2,3`: todas las partidas | ~2 min |
 | **Smoke test (Firefox)** | La selección corta (`QUICK=1`, `SEEDS=1`), servida por http | ~1 min |
 | **Smoke test (WebKit / Safari)** | Igual, en WebKit | ~3 min |

@@ -5,7 +5,7 @@ Hay tres niveles de comprobación. Todos se ejecutan en la CI en cada push a `ma
 | Comando | Qué comprueba | Tiempo | Necesita |
 |---|---|---|---|
 | `npm run lint` | Estructura del proyecto y ESLint | Segundos | `npm install` |
-| `npm test` | Lógica del juego (50 pruebas unitarias) | ~12 s | Solo Node |
+| `npm test` | Lógica del juego (53 pruebas unitarias) | ~12 s | Solo Node |
 | `npm run test:e2e` | El juego completo en un navegador real | 1-2 min | Chromium de Playwright (o Firefox y WebKit) |
 
 Preparación (una vez):
@@ -46,7 +46,7 @@ Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la 
 | Archivo | Pruebas | Tema |
 |---|---|---|
 | `tests/game.test.js` | 10 | Base del juego: carga, datos, poses, combos, etapa 1, ranking, semilla y música |
-| `tests/coop-and-extras.test.js` | 15 | Cooperativo, mandos, dificultad, opciones, logros, héroes y El Revisor |
+| `tests/coop-and-extras.test.js` | 18 | Cooperativo, mandos, dificultad, opciones, sonido, accesibilidad, logros, héroes y El Revisor |
 | `tests/etapa2.test.js` | 10 | Etapas y Las Cuevas |
 | `tests/etapa3.test.js` | 6 | La Nube |
 | `tests/guardar.test.js` | 4 | Partida guardada |
@@ -81,7 +81,9 @@ Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la 
 | Bardo y pícara | La daily cura a todo el equipo; la carga cruza y golpea a todos |
 | El Revisor | Protegido mientras quedan tareas pendientes; solo aparece sin continuar |
 | Héroes completos | Cada héroe tiene esqueleto, frases de todas las etapas, ficha que cabe en la tarjeta y está en la selección |
-| AVISOS GRANDES | Se activa en Opciones y se guarda |
+| AVISOS GRANDES | Se activa en Opciones y se guarda; con él, las cabezas de la Hidra (y sus variantes) también avisan con `windupCue()` |
+| EFECTOS | El volumen de los efectos es proporcional a la opción y a 0 no suenan (con un `AudioContext` falso) |
+| Sonido al recibir un golpe | El jugador golpeado suena con `hurt` |
 
 `tests/etapa2.test.js`:
 
