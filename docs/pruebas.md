@@ -135,6 +135,8 @@ npm run test:e2e
 SEEDS=1,2,3,4,5 npm run test:e2e              # más partidas
 CONCURRENCY=2 npm run test:e2e                # menos partidas a la vez (por defecto 4)
 BASE_URL=http://localhost:8000/ npm run test:e2e   # contra un servidor, como GitHub Pages
+BROWSER=firefox npm run test:e2e              # o webkit (el motor de Safari); necesita npx playwright install firefox
+QUICK=1 npm run test:e2e                      # selección corta: un héroe, cooperativo y modo jefes
 ```
 
 El bot no simula teclas del sistema operativo: escribe directamente en `held` y `pressedQ` a través de `window.dnd` y llama a `update()` en bucle, así que una partida de varios minutos se juega en segundos.

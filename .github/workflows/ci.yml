@@ -75,3 +75,44 @@ jobs:
         run: npm run test:e2e
         env:
           SEEDS: "1,2,3"
+
+  smoke-test-browsers:
+    name: Smoke test (${{ matrix.label }})
+    needs: [lint, unit-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - browser: firefox
+            label: Firefox
+          - browser: webkit
+            label: WebKit / Safari
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      # Por http, como en GitHub Pages: con file:// WebKit bloquea las peticiones
+      # a otros orígenes (las fuentes) y lo cuenta como error de consola.
+      - name: Start local server
+        run: python3 -m http.server 8000 &
+
+      - name: Run smoke test
+        run: npm run test:e2e
+        env:
+          BROWSER: ${{ matrix.browser }}
+          BASE_URL: http://localhost:8000/
+          QUICK: "1"
+          SEEDS: "1"

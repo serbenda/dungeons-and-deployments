@@ -54,7 +54,7 @@
 | 🎵 **Banda sonora chiptune** | Un tema original por departamento, sintetizado en directo con Web Audio |
 | 🕹️ **Mandos** | Xbox, PlayStation y cualquier mando estándar por USB o Bluetooth |
 | 📱 **Móvil y tableta** | Cruceta analógica, botones grandes, pantalla completa, vibración y diseño vertical u horizontal |
-| ⚙️ **Opciones** | Volumen de música y efectos, tres dificultades, modo sin destellos, vibración y **teclas reasignables** |
+| ⚙️ **Opciones** | Volumen de música y efectos, tres dificultades, modo sin destellos, **avisos grandes** (sin depender del color), vibración y **teclas reasignables** |
 | ⚔️ **Modo jefes** | Los nueve jefes de las tres etapas seguidos, contra el reloj y con su propio ranking |
 | 🏅 **24 logros** | «SIEMPRE ES EL DNS», «PAIR PROGRAMMING», «SIN ROLLBACK»... y créditos finales con las estadísticas de la partida |
 | 📶 **Sin conexión** | PWA instalable: se añade a la pantalla de inicio y funciona sin internet |
@@ -200,6 +200,7 @@ flowchart LR
 - **Lint**: sintaxis, orden de carga, coherencia entre `index.html`, el service worker y el manifest, y ESLint.
 - **Unit tests**: datos, poses, combos, jefes, ranking, semillas y música, cargando el juego en un contexto aislado.
 - **Smoke test**: un bot juega las tres etapas seguidas con cada héroe y en cooperativo, con varias semillas; cualquier atasco o error de consola hace fallar la CI, con una URL para reproducirlo.
+- **Firefox y Safari**: la misma prueba de humo, en versión corta, en Firefox y en WebKit (el motor de Safari).
 - **Dependabot** mantiene al día las acciones y las dependencias de desarrollo.
 
 ## Hoja de ruta

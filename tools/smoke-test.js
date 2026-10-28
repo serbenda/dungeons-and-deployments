@@ -13,13 +13,17 @@
 
 const path = require('path');
 const { pathToFileURL } = require('url');
-const { chromium } = require('playwright');
+const playwright = require('playwright');
 
 const BASE_URL = process.env.BASE_URL || pathToFileURL(path.join(__dirname, '..', 'index.html')).href;
 const MAX_FRAMES = 60*60*60; // una hora de juego simulado como mucho (tres etapas)
 const SEEDS = (process.env.SEEDS || '1,2').split(',').map(Number);
 // Una partida por héroe y una en cooperativo.
-const TEAMS = [['guerrero'], ['mago'], ['picara'], ['bardo'], ['guerrero', 'bardo']];
+// BROWSER=firefox o webkit (el motor de Safari) prueba otros navegadores.
+// QUICK=1 juega una selección corta: un héroe, el cooperativo y el modo jefes.
+const BROWSER = process.env.BROWSER || 'chromium';
+const QUICK = process.env.QUICK === '1';
+const TEAMS = QUICK ? [['guerrero'], ['picara', 'bardo']] : [['guerrero'], ['mago'], ['picara'], ['bardo'], ['guerrero', 'bardo']];
 const CONCURRENCY = Number(process.env.CONCURRENCY || 4);
 
 // El bot se ejecuta dentro de la página contra window.dnd (modo ?debug).
@@ -44,7 +48,8 @@ function playStage([heroes, god, maxFrames, mode]){
     if (P.out) { if (i % 30 === 0) Q.start = true; return; }
     if (P.state === 'stuck') { if (i % 3 === 0) Q.atk = true; return; }
     if (god) P.inv = Math.max(P.inv, 2);
-    const enemies = g.foes.filter(e => !e.dead && e.hp > 0 && (e.kind !== 'golem' || e.angry) && e.state !== 'rise' && !e.hidden && e.kind !== 'hidra' && !(e.kind === 'revisor' && e.guarded) && !(e.kind === 'lich' && e.shielded));
+    const enemies = g.foes.filter(e => !e.dead && e.hp > 0 && (e.kind !== 'golem' || e.angry) && e.state !== 'rise' && !e.hidden && e.kind !== 'hidra' && !(e.kind === 'revisor' && e.guarded) && !(e.kind === 'lich' && e.shielded)
+      && !(e.kind === 'cabeza' && e.d.parity && e.body && e.body.taint && g.foes.some(h => h.kind === 'cabeza' && h.body === e.body && h !== e && h.state !== 'broken' && !h.dead)));
     let target = null, best = 1e9;
     for (const e of enemies) { const d = Math.abs(e.x - P.x) + Math.abs(e.y - P.y)*2; if (d < best) { best = d; target = e; } }
     // Solo objetos visibles: la cámara nunca retrocede, lo que queda a la izquierda se pierde.
@@ -107,12 +112,13 @@ async function run(browser, team, god, seed, mode){
 }
 
 (async () => {
-  console.log(`Juego: ${BASE_URL}`);
-  const browser = await chromium.launch();
+  console.log(`Juego: ${BASE_URL} · navegador: ${BROWSER}${QUICK ? ' (selección corta)' : ''}`);
+  const browser = await playwright[BROWSER].launch();
   const queue = [];
   for (const seed of SEEDS) {
-    for (const team of TEAMS) for (const god of [true, false]) queue.push([team, god, seed]);
-    queue.push([['mago'], true, seed, 'jefes'], [['bardo', 'picara'], false, seed, 'jefes']);   // modo jefes
+    for (const team of TEAMS) for (const god of QUICK ? [true] : [true, false]) queue.push([team, god, seed]);
+    queue.push([['mago'], true, seed, 'jefes']);                                    // modo jefes
+    if (!QUICK) queue.push([['bardo', 'picara'], false, seed, 'jefes']);
   }
   // Como mucho CONCURRENCY partidas a la vez para no agotar la memoria.
   const results = [];
@@ -130,7 +136,9 @@ async function run(browser, team, god, seed, mode){
       console.log(`    Reproducir: ${r.url}`);
       if (r.errors.length) console.log('    Errores: ' + r.errors.join(' | '));
       if (r.player) console.log('    Jugador: ' + JSON.stringify(r.player) + ' camX=' + r.camX + '\n    Enemigos: ' + JSON.stringify(r.foes));
+      // En GitHub Actions, además, una anotación visible en la página de la ejecución.
+      if (process.env.GITHUB_ACTIONS) console.log(`::error title=Smoke test (${BROWSER})::semilla=${r.seed} ${r.hero} estado=${r.state} etapa=${r.stage} sección=${r.section}${r.errors.length ? ' errores=' + r.errors.join(' | ').slice(0, 600) : ''}`);
     }
   }
   process.exit(failed ? 1 : 0);
-})().catch(e => { console.error(e); process.exit(1); });
+})().catch(e => { console.error(e); if (process.env.GITHUB_ACTIONS) console.log(`::error title=Smoke test (${BROWSER})::${String(e && e.message || e).slice(0, 600)}`); process.exit(1); });

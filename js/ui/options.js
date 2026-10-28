@@ -2,7 +2,7 @@
 'use strict';
 
 /** Opciones por defecto. music y sfx van de 0 a 10; diff es el índice de DIFFS. */
-const OPTS_DEFAULT = { music:8, sfx:8, diff:1, flashes:true, vibration:true, keys:{} };
+const OPTS_DEFAULT = { music:8, sfx:8, diff:1, flashes:true, vibration:true, bigCues:false, keys:{} };
 let OPTS = Object.assign({}, OPTS_DEFAULT);
 try { Object.assign(OPTS, JSON.parse(localStorage.getItem('dnd-arcade-options') || '{}')); } catch(e) {}
 rebuildKeymap(OPTS.keys);
@@ -33,6 +33,7 @@ const OPT_ROWS = [
   { label:'DIFICULTAD', show:() => DIFF().name, change:d => { OPTS.diff = (OPTS.diff + d + DIFFS.length) % DIFFS.length; } },
   { label:'DESTELLOS', show:() => OPTS.flashes ? 'SÍ' : 'NO', change:() => { OPTS.flashes = !OPTS.flashes; } },
   { label:'VIBRACIÓN', show:() => OPTS.vibration ? 'SÍ' : 'NO', change:() => { OPTS.vibration = !OPTS.vibration; } },
+  { label:'AVISOS GRANDES', show:() => OPTS.bigCues ? 'SÍ' : 'NO', change:() => { OPTS.bigCues = !OPTS.bigCues; } },
   { label:'TECLAS', show:() => Object.keys(OPTS.keys || {}).length ? 'PERSONALIZADAS' : 'POR DEFECTO', change:null, open:true },
   { label:'VOLVER', show:() => '', change:null }
 ];
@@ -63,9 +64,9 @@ function drawOptions(){
   drawLevel(1500);
   ctx.fillStyle = 'rgba(8,6,14,.78)'; ctx.fillRect(0, 0, W, H);
   goldText('OPCIONES', 160, 10, true);
-  panel(30, 34, 260, 122, '#0a120d');
+  panel(30, 32, 260, 126, '#0a120d');
   OPT_ROWS.forEach((row, i) => {
-    const y = 41 + i*16, on = i === optSel;
+    const y = 37 + i*15, on = i === optSel;
     if (on) r(32, y - 3, 256, 14, '#123a24');
     txt((on ? '> ' : '  ') + row.label, 38, y, on ? NEONT : C.w);
     const v = row.show();
@@ -75,7 +76,7 @@ function drawOptions(){
     } else if (v) txt(row.change && on ? '< ' + v + ' >' : v, 282, y, on ? '#ffd23f' : '#a39bc2', { right:true });
   });
   panel(30, 160, 260, 26, '#0a120d');
-  const help = optSel === 2 ? DIFF().desc : optSel === 3 ? 'Sin flashes ni temblores.' : optSel === 4 ? 'Vibrar con los golpes (móvil).' : optSel === 5 ? 'A: cambiar las teclas del teclado.' : 'A CAMBIAR · START SALIR';
+  const help = optSel === 2 ? DIFF().desc : optSel === 3 ? 'Sin flashes ni temblores.' : optSel === 4 ? 'Vibrar con los golpes (móvil).' : optSel === 5 ? 'Ataques y peligros sin depender del color.' : optSel === 6 ? 'A: cambiar las teclas del teclado.' : 'A CAMBIAR · START SALIR';
   txt(help, 160, 169, '#a39bc2', { center:true });
 }
 

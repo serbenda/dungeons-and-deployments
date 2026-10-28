@@ -67,7 +67,7 @@ const STORIES = {
     ['narr', 'Cruza el Archipiélago de Clústeres y las Nubes Serverless hasta la Cumbre de Facturación.']],
   kraken: () => [
     ['kraken', 'MIS TENTÁCULOS SON NODOS. MIENTRAS VIVA MI CONTROL PLANE, NADA ME TUMBA.'],
-    ['narr', 'PISTA: ataca primero el tentáculo del CONTROL PLANE.']],
+    ['narr', 'PISTA: el CONTROL PLANE solo cae si los dos nodos están caídos a la vez. Drénalos y ataca.']],
   autoscaler: () => [
     ['autoscaler', '¿MÁS CARGA? ¡MÁS RÉPLICAS! MI LÍMITE ES TU PRESUPUESTO.'],
     ['narr', 'PISTA: mientras tenga réplicas, la carga se reparte y pega más flojo. Acaba con ellas.']],
