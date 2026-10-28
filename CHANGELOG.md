@@ -2,6 +2,11 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [Sin publicar]
+
+### Cambiado
+- La prueba de humo reinicia la semilla aleatoria al empezar cada partida, para que un fallo se pueda reproducir siempre igual.
+
 ## [0.8.1] - 2026-10-28
 
 ### Cambiado
