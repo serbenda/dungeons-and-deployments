@@ -29,8 +29,18 @@ const CONCURRENCY = Number(process.env.CONCURRENCY || 4);
 // El bot se ejecuta dentro de la página contra window.dnd (modo ?debug).
 // heroes es un héroe (una partida de un jugador, elegido en la pantalla de
 // selección) o dos (cooperativo: el bot maneja a los dos).
-function playStage([heroes, god, maxFrames, mode]){
+function playStage([heroes, god, maxFrames, mode, seed]){
   const g = window.dnd;
+  // La pantalla de título corre un número variable de fotogramas antes de que llegue
+  // el bot y gasta números aleatorios: se reinicia la semilla para que cada partida
+  // sea siempre la misma y un fallo se pueda reproducir.
+  let a = seed >>> 0;
+  Math.random = () => {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let x = Math.imul(a ^ (a >>> 15), a | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0)/4294967296;
+  };
   const ORDER = ['guerrero', 'mago', 'picara', 'bardo'];
   try { localStorage.removeItem('dnd-arcade-save'); } catch (e) { /* sin almacenamiento: no hay partida guardada */ }
   g.state = 'title'; g.update();
@@ -106,7 +116,7 @@ async function run(browser, team, god, seed, mode){
   const url = `${BASE_URL}${BASE_URL.includes('?') ? '&' : '?'}debug&seed=${seed}`;
   await page.goto(url);
   await page.waitForFunction(() => !!window.dnd, null, { timeout: 10000 });
-  const r = await page.evaluate(playStage, [team, god, MAX_FRAMES, mode]);
+  const r = await page.evaluate(playStage, [team, god, MAX_FRAMES, mode, seed]);
   await page.close();
   return Object.assign(r, { seed, url, errors });
 }
