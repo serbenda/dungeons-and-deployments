@@ -5,7 +5,7 @@ Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https
 ## [0.6.0] - 2026-10-28
 
 ### Añadido
-- Licencia MIT.
+- Aviso de derechos: © 2026 serbenda, todos los derechos reservados (`LICENSE`).
 - Etapa 3, **La Nube**, tras Las Cuevas: Archipiélago de Clústeres, Nubes Serverless, Torre de Facturación y la Cumbre, a cielo abierto, con tres temas nuevos.
 - Seis enemigos nuevos: sidecar pegajoso, operador de K8s, indentación rota (YAML, se divide), lambda en frío, NAT Gateway e instancia zombi.
 - Tres jefes nuevos: el Kraken del Clúster (control plane), el Autoescalador (`SCALE OUT` con réplicas) y la Factura de Fin de Mes (lluvia de cargos, pico de uso y renovación automática).

@@ -9,7 +9,7 @@
 ![Versión](https://img.shields.io/github/package-json/v/serbenda/dungeons-and-deployments?label=versi%C3%B3n&color=f4b860)
 ![Sin dependencias](https://img.shields.io/badge/dependencias-0-3ddc84)
 ![PWA](https://img.shields.io/badge/PWA-sin%20conexi%C3%B3n-5ec8f2)
-[![Licencia MIT](https://img.shields.io/badge/licencia-MIT-ffd23f)](LICENSE)
+[![Todos los derechos reservados](https://img.shields.io/badge/%C2%A9-todos%20los%20derechos%20reservados-ffd23f)](LICENSE)
 ![Móvil](https://img.shields.io/badge/m%C3%B3vil%20y%20tableta-t%C3%A1ctil-ff8a3d)
 
 ### [▶ Jugar ahora](https://serbenda.github.io/dungeons-and-deployments/)
@@ -219,7 +219,7 @@ flowchart LR
 
 ## Contribuir
 
-Las contribuciones son bienvenidas. Antes de empezar, lee la [guía de contribución](CONTRIBUTING.md) y el [código de conducta](CODE_OF_CONDUCT.md).
+Las contribuciones son bienvenidas. Antes de empezar, lee la [guía de contribución](CONTRIBUTING.md) (incluida la cesión de derechos) y el [código de conducta](CODE_OF_CONDUCT.md).
 
 - ¿Un fallo? [Abre un issue](https://github.com/serbenda/dungeons-and-deployments/issues/new/choose) con la plantilla; si puedes, con una URL `?debug&seed=N` que lo reproduzca.
 - ¿Una idea de enemigo o de referencia geek? Usa la plantilla de propuestas.
@@ -229,7 +229,7 @@ Los cambios de cada versión están en el [CHANGELOG](CHANGELOG.md) y en las [re
 
 ## Licencia
 
-[MIT](LICENSE) © 2026 serbenda. Puedes usar, copiar, modificar y distribuir el código, siempre que mantengas el aviso de copyright y la licencia.
+© 2026 serbenda. **Todos los derechos reservados.** El código es visible para que el juego se pueda jugar en GitHub Pages, pero eso no da permiso para copiarlo, modificarlo, distribuirlo ni venderlo. Los detalles están en [LICENSE](LICENSE). Para cualquier otro uso, pide permiso al autor.
 
 <div align="center">
 

@@ -1,5 +1,14 @@
 # Cómo contribuir
 
+## Derechos
+
+Dungeons & Deployments es © 2026 serbenda, con todos los derechos reservados (ver [LICENSE](LICENSE)). Al enviar una Pull Request:
+
+- Confirmas que la contribución es tuya y que puedes cederla.
+- Cedes a serbenda, de forma gratuita y sin límite de tiempo, los derechos sobre esa contribución, para que pueda usarla, modificarla y distribuirla como parte del juego.
+
+Si no estás de acuerdo, no envíes la Pull Request: abre un issue con la idea.
+
 ## Ramas
 
 - `main` es lo que está publicado en GitHub Pages. No se trabaja directamente sobre ella.

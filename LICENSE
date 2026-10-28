@@ -1,21 +1,24 @@
-MIT License
+Copyright (c) 2026 serbenda. Todos los derechos reservados.
 
-Copyright (c) 2026 serbenda
+Dungeons & Deployments, incluidos su código, gráficos, música, textos, nombre,
+personajes e historia, es obra de serbenda y está protegido por las leyes de
+propiedad intelectual.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Este repositorio es público para que el juego pueda verse y jugarse en
+https://serbenda.github.io/dungeons-and-deployments/. Que el código sea visible
+no concede ninguna licencia: sin el permiso previo y por escrito del autor no
+se permite copiar, modificar, distribuir, publicar, sublicenciar ni vender el
+juego ni ninguna de sus partes, ni crear obras derivadas.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Se permite jugar al juego desde su web oficial y usar las funciones de GitHub
+que forman parte de sus condiciones de servicio (ver el repositorio y hacer un
+fork dentro de GitHub para proponer cambios mediante Pull Request).
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Las contribuciones se rigen por CONTRIBUTING.md: al enviar una Pull Request, su
+autor cede a serbenda los derechos sobre esa contribución para que pueda
+incorporarla al juego.
+
+EL JUEGO SE OFRECE «TAL CUAL», SIN GARANTÍAS DE NINGÚN TIPO. EL AUTOR NO SERÁ
+RESPONSABLE DE NINGÚN DAÑO DERIVADO DE SU USO.
+
+Para pedir permisos: https://github.com/serbenda
