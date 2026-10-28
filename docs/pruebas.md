@@ -5,14 +5,14 @@ Hay tres niveles de comprobación. Todos se ejecutan en la CI en cada push a `ma
 | Comando | Qué comprueba | Tiempo | Necesita |
 |---|---|---|---|
 | `npm run lint` | Estructura del proyecto y ESLint | Segundos | `npm install` |
-| `npm test` | Lógica del juego (pruebas unitarias) | ~3 s | Solo Node |
-| `npm run test:e2e` | El juego completo en un navegador real | Minutos | Chromium de Playwright |
+| `npm test` | Lógica del juego (50 pruebas unitarias) | ~12 s | Solo Node |
+| `npm run test:e2e` | El juego completo en un navegador real | 1-2 min | Chromium de Playwright (o Firefox y WebKit) |
 
 Preparación (una vez):
 
 ```bash
 npm install
-npx playwright install chromium
+npx playwright install chromium          # y, si quieres probarlos, firefox webkit
 ```
 
 ## Lint
@@ -26,7 +26,7 @@ npx playwright install chromium
 - `sw.js` precarga exactamente los scripts de `index.html`.
 - Existen todos los archivos que citan `index.html`, `sw.js` y el manifest.
 
-**`lint:js`**: ESLint 9 con las reglas recomendadas (`eslint.config.js`). Como los scripts comparten ámbito global, `no-undef` está desactivada (el orden de carga ya lo vigila `lint:project`) y `no-unused-vars` solo revisa variables locales.
+**`lint:js`**: ESLint (versión 10, en formato *flat config*) con las reglas recomendadas (`eslint.config.js`). Como los scripts comparten ámbito global, `no-undef` está desactivada (el orden de carga ya lo vigila `lint:project`) y `no-unused-vars` solo revisa variables locales.
 
 ## Pruebas unitarias
 
@@ -42,6 +42,17 @@ game.press('atk');                          // simula una pulsación
 ```
 
 Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la semilla de una prueba no afecta a las demás.
+
+| Archivo | Pruebas | Tema |
+|---|---|---|
+| `tests/game.test.js` | 10 | Base del juego: carga, datos, poses, combos, etapa 1, ranking, semilla y música |
+| `tests/coop-and-extras.test.js` | 15 | Cooperativo, mandos, dificultad, opciones, logros, héroes y El Revisor |
+| `tests/etapa2.test.js` | 10 | Etapas y Las Cuevas |
+| `tests/etapa3.test.js` | 6 | La Nube |
+| `tests/guardar.test.js` | 4 | Partida guardada |
+| `tests/modo-jefes.test.js` | 5 | Modo jefes y teclas reasignables |
+
+`tests/game.test.js`:
 
 | Prueba | Qué garantiza |
 |---|---|
@@ -69,19 +80,20 @@ Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la 
 | Logros | Se desbloquean una vez, se guardan, y el combo de 20 da 10X DEVELOPER |
 | Bardo y pícara | La daily cura a todo el equipo; la carga cruza y golpea a todos |
 | El Revisor | Protegido mientras quedan tareas pendientes; solo aparece sin continuar |
-| Héroes completos | Cada héroe tiene esqueleto, frases, ficha y está en la selección |
+| Héroes completos | Cada héroe tiene esqueleto, frases de todas las etapas, ficha que cabe en la tarjeta y está en la selección |
+| AVISOS GRANDES | Se activa en Opciones y se guarda |
 
 `tests/etapa2.test.js`:
 
 | Prueba | Qué garantiza |
 |---|---|
-| Datos de las etapas | Secciones en orden, tickets bien formados, enemigos, mímicos, jefes, cajas y viñetas existentes en las dos etapas |
+| Datos de las etapas | Secciones en orden, tickets bien formados, enemigos, mímicos, jefes, cajas y viñetas existentes en todas las etapas |
 | `loadStage` | Cambia secciones, cajas y cámara y conserva la vida y las vidas |
-| Paso de etapa | Al terminar la etapa 1, START lleva a Las Cuevas; al terminar la 2, a los créditos |
+| Paso de etapa | Al terminar la etapa 1, START lleva a Las Cuevas; al terminar la 2, a La Nube; y tras la 3 llegan los créditos |
 | Zonas y música | Las zonas de la etapa 2 tienen su tema y la etapa 1 conserva las suyas |
 | LOCK TABLE | Atrapa al jugador y cinco pulsaciones de A lo liberan |
 | Lich COBOL | No recibe daño mientras existe su copia en cinta |
-| Cancerbero | Es una Hidra con MFA y da su propio logro |
+| Cancerbero | Es una Hidra con MFA en vez de paridad y da su propio logro |
 | Ransomware | Cifra el arma del jugador |
 | Copia en cinta | El HOTFIX no la tumba (tumbada sería invulnerable y el Lich no se podría vencer) |
 
@@ -90,7 +102,7 @@ Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la 
 | Prueba | Qué garantiza |
 |---|---|
 | Zonas y música | La Nube tiene sus tres temas |
-| Kraken | Variante de la Hidra con CONTROL PLANE y su logro |
+| Kraken | El CONTROL PLANE no recibe daño (ni con especiales) hasta que caen los dos nodos a la vez; al caer da su logro |
 | Autoescalador | Saca dos réplicas cada 25 % y, con ellas vivas, reparte la carga |
 | Monedas | Solo dañan a quien está debajo al caer |
 | La Factura | Hace llover monedas y, al pagarla, llega el epílogo |
@@ -119,23 +131,24 @@ Para añadir una prueba, crea un `test(...)` en uno de esos archivos o en uno nu
 
 ## Prueba de humo (end-to-end)
 
-`tools/smoke-test.js` abre el juego en Chromium sin ventana y deja que un **bot** juegue la etapa completa:
+`tools/smoke-test.js` abre el juego en un navegador sin ventana (Chromium por defecto) y deja que un **bot** juegue partidas enteras:
 
 - Las **tres etapas** seguidas: al terminar cada una pulsa START y sigue.
-- Antes de cada partida borra la partida guardada, para que el título no ofrezca CONTINUAR.
+- Antes de cada partida borra la partida guardada, para que el título no ofrezca CONTINUAR, y reinicia `Math.random` con la semilla: la pantalla de título gasta un número variable de números aleatorios antes de que llegue el bot, y así cada partida se juega siempre igual.
 - Además, por cada semilla, dos partidas del **modo jefes** (un jugador invulnerable y dos jugadores en normal).
 - Con cada uno de los cuatro héroes y en cooperativo (guerrero + bardo, el bot maneja a los dos), en modo invulnerable y en modo normal.
 - Si queda atrapado en un LOCK TABLE, pulsa A hasta liberarse.
 - En modo invulnerable nunca se continúa, así que el bot también tiene que vencer a El Revisor (la salida lo indica con `revisor=OK`).
 - Con varias semillas (`SEEDS`, por defecto `1,2`; en la CI `1,2,3`).
-- Falla si alguna partida no termina la etapa 3 (o el modo jefes) o si hay errores en la consola.
+- En total, 12 partidas por semilla (36 en la CI de Chromium). Con `QUICK=1`, 3 por semilla: el guerrero y la pareja pícara + bardo en invulnerable, y el modo jefes.
+- Falla si alguna partida no termina la etapa 3 (o el modo jefes) en una hora de juego simulado (`MAX_FRAMES`) o si hay errores en la consola. En la CI, cada fallo sale además como anotación `::error` en el resumen de la ejecución.
 
 ```bash
 npm run test:e2e
 SEEDS=1,2,3,4,5 npm run test:e2e              # más partidas
 CONCURRENCY=2 npm run test:e2e                # menos partidas a la vez (por defecto 4)
 BASE_URL=http://localhost:8000/ npm run test:e2e   # contra un servidor, como GitHub Pages
-BROWSER=firefox npm run test:e2e              # o webkit (el motor de Safari); necesita npx playwright install firefox
+BROWSER=firefox npm run test:e2e              # o webkit (el motor de Safari); necesita npx playwright install firefox webkit
 QUICK=1 npm run test:e2e                      # selección corta: un héroe, cooperativo y modo jefes
 ```
 
@@ -144,9 +157,9 @@ El bot no simula teclas del sistema operativo: escribe directamente en `held` y 
 Si una partida falla, la salida incluye la URL para reproducirla y el estado del jugador y de los enemigos:
 
 ```
-ERR semilla=2 mago normal estado=play sección=1 ...
+ERR semilla=2 mago                   normal       estado=play etapa=1 sección=1 fotogramas=... oro=... continues=0
     Reproducir: file:///.../index.html?debug&seed=2
-    Jugador: {"x":1068,"y":131,"state":"walk","hp":34} camX=760
+    Jugador: [{"x":1068,"y":131,"state":"walk","hp":34,"out":false}] camX=760
     Enemigos: [{"kind":"firewall","state":"walk","x":1128,...}]
 ```
 

@@ -6,7 +6,9 @@ Todo el sonido se sintetiza en tiempo real con la Web Audio API. No hay archivos
 
 Los navegadores no dejan sonar nada hasta que el usuario interactúa. `initAudio()` crea el `AudioContext` en la primera pulsación (tecla, botón o toque) y, si estaba suspendido, lo reanuda. Hasta entonces `sfx()` y la música no hacen nada.
 
-La tecla **M** (o el botón SONIDO en móvil) silencia todo: pone `muted = true`, la música baja su volumen a 0 y la vibración se desactiva.
+La tecla **M** (o el botón SONIDO en móvil, o SELECT en un mando) silencia todo: pone `muted = true`, la música baja su volumen a 0 y la vibración se desactiva.
+
+En Opciones, **MÚSICA** y **EFECTOS** van de 0 a 10 (8 es el volumen original). La música lo aplica con `MUSIC.setVol()` en cada `update()` (y a un tercio durante la pausa); los efectos, con `sfxVol()` al sonar, y a 0 no suenan.
 
 ## Efectos de sonido (`js/audio/sfx.js`)
 
@@ -71,7 +73,7 @@ network: {
 
 | Tema | Cuándo | Tempo | Carácter |
 |---|---|---|---|
-| `title` | Título, selección, ranking | 104 | Épico, La menor |
+| `title` | Título, selección, opciones, teclas, logros, iniciales y ranking | 104 | Épico, La menor |
 | `sistemas` | Sistemas | 126 | Aventura, Re dórico |
 | `network` | Network | 138 | Electrónico con arpegio, Mi menor |
 | `storage` | Storage | 116 | Polvoriento, La frigio |
@@ -81,9 +83,9 @@ network: {
 | `seguridad` | Cripta de Seguridad | 132 | Tenso con arpegio, Re frigio |
 | `monitor` | Observatorio | 120 | Nocturno con arpegio, Fa menor |
 | `k8s` | Archipiélago de Clústeres | 128 | Luminoso con arpegio, Sol mayor |
-| `serverless` | Nubes Serverless | 140 | Ligero y rápido, Do dórico |
+| `serverless` | Nubes Serverless | 140 | Ligero y rápido con arpegio, Do dórico |
 | `facturas` | Torre de Facturación | 118 | Solemne, Fa menor armónica |
-| `boss` | Jefes, Guarida, Trono del Mainframe y Cumbre | 160 | Tenso, Do menor armónica. Acelera un 12 % a media vida del dragón |
+| `boss` | Jefes finales y sus zonas: Guarida, Trono del Mainframe y Cumbre | 160 | Tenso, Do menor armónica. Acelera un 12 % cuando el jefe final baja de la mitad de la vida |
 | `continue` | ¿ROLLBACK? | 120 | Cuenta atrás |
 | `victory` | Final de la etapa | 150 | Jingle, Do mayor |
 | `over` | Game over | 80 | Jingle descendente |
