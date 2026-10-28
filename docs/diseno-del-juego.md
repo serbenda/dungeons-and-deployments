@@ -2,6 +2,8 @@
 
 Todos los números de esta guía salen del código. Los tiempos están en **actualizaciones** (60 = 1 segundo). Si cambias un valor, actualiza también esta tabla.
 
+La vida de enemigos y jefes es la de **SENIOR con un jugador**. Casi todas pasan por `foeHpMul()` (`js/game/state.js`): se multiplican por la dificultad (×0,8, ×1 o ×1,3) y por 1,5 en cooperativo, y se redondean. No escalan el Gólem Hipervisor (siempre 120) ni los 22 de vida con los que se reinicia un proceso zombi.
+
 ## Premisa
 
 Viernes, 17:45. Alguien ha tocado producción a mano. Un equipo de desarrollo baja a las catacumbas del CPD y cierra el ticket de cada departamento hasta llegar a la Guarida de Automation, donde el Dragón Negro se ha adueñado de todos los jobs.
@@ -25,7 +27,7 @@ Datos en `HEROES` (`js/data/game-data.js`) y aspecto en `RIGS` (`js/sprites/char
 | Patada en el aire | 14 | 12 | 12 | 12 |
 | Especial | `RUN JOB`: salta y golpea el suelo | `GIT PUSH -F`: explosión arcana | `!IMPORTANT`: carga en línea recta | `DAILY`: reunión relámpago |
 | Efecto del especial | 74 px · 24 de daño | 88 px · 18 (además borra los proyectiles enemigos) | Avanza ~100 px y hace 16 a cada enemigo que cruza; rompe cajas | 110 px · 10 de daño y derriba; **cura 20 a todo el equipo** |
-| Extra | — | El tercer golpe lanza un `console.log()` (10 de daño) | — | — |
+| Extra | — | Sin arma, el tercer golpe lanza un `console.log()` (10 de daño) | — | — |
 
 Todos empiezan con 100 de vida y 2 vidas extra (8 con el código Konami), más o menos según la dificultad.
 
@@ -35,16 +37,16 @@ El orden de la selección está en `HERO_ORDER` y la ficha de cada uno en `HERO_
 
 | Movimiento | Cómo | Detalles |
 |---|---|---|
-| Combo | A, A, A | Golpes de 12 actualizaciones (el tercero, 18). El tercero derriba. Si el golpe anterior no ha dado, el combo vuelve a empezar |
+| Combo | A, A, A | Golpes de 12 actualizaciones (el tercero, 18) con 24 px de alcance (el tercero, 27). Tras el primero o el segundo hay 14 actualizaciones para encadenar el siguiente. El tercero derriba. Si el golpe anterior no ha dado, el combo vuelve a empezar |
 | Salto y patada | B, y A en el aire | La patada derriba |
-| Agarre | Caminar contra un enemigo durante 10 actualizaciones | Solo enemigos con `nograb` falso |
+| Agarre | Caminar contra un enemigo durante más de 10 actualizaciones, a menos de 20 px y casi en su mismo carril (menos de 6 px), sin saltar | Solo enemigos normales (los de `GRUNTS`) sin `nograb`; no se agarran las fugas de memoria, el YAML ni sus trozos. Se suelta solo a las 110 actualizaciones |
 | Rodillazos | A con el enemigo agarrado | 6 de daño; al tercero, o con A hacia atrás, se lanza |
 | Lanzamiento | — | El lanzado hace 20 de daño a quien golpee y 20 más al caer |
 | Especial | SP (o A+B) | Cuesta 10 de vida; no se puede con 10 o menos. Invulnerable mientras dura |
 
 ### Vidas y continuar
 
-- Al perder toda la vida se gasta una vida: «¡HOTFIX APLICADO!» recupera la vida, da invulnerabilidad y derriba a los enemigos cercanos (no a los jefes).
+- Al perder toda la vida se gasta una vida: «¡HOTFIX APLICADO!» recupera la vida, da 160 actualizaciones de invulnerabilidad y derriba a los enemigos a menos de 100 px (no a los jefes, ni al tótem ni a la copia en cinta). Unirse o volver en cooperativo también da 160 de invulnerabilidad.
 - Sin vidas aparece **¿ROLLBACK?**: 10 segundos para insertar crédito (START) y seguir con 2 vidas.
 - En cooperativo, el jugador que se queda sin vidas sale de la partida («P2 FUERA · START PARA VOLVER») y el otro sigue. Pulsando START vuelve con 2 vidas (cuenta como continuación). Solo si caen los dos aparece ¿ROLLBACK?.
 
@@ -62,16 +64,16 @@ Al empezar las etapas 2 y 3 (en la partida normal, no en el modo jefes) se guard
 | Regla | Valor |
 |---|---|
 | Unirse | En la selección, o en cualquier momento de la partida, pulsando START en otro dispositivo (tecla 2 o un mando). Gasta un crédito y entra con 1 vida extra menos |
-| Vida de los enemigos | +50 % |
+| Vida de los enemigos | +50 % (salvo el Gólem) |
 | Enemigos atacando a la vez | Hasta 3 (2 con un jugador) |
 | Objetivo de cada enemigo | El jugador más cercano que siga en pie; se revisa cada medio segundo |
 | Cámara | Sigue al que va delante sin dejar fuera al que va detrás |
-| Puntuación | Compartida; el bonus de vida suma a los dos y el de combo usa el mejor |
+| Puntuación | Compartida; el bonus de vida suma a los jugadores que siguen en la partida (no a uno que esté FUERA) y el de combo usa el mejor |
 | Combos | Cada jugador lleva el suyo |
 
 ## Modo jefes
 
-Desde el título, **MODO JEFES** (`js/game/bossrush.js`): los nueve jefes de las tres etapas seguidos, sin oleadas ni viñetas.
+Desde el título, **MODO JEFES** (`js/game/bossrush.js`): los nueve jefes de las tres etapas seguidos, sin oleadas. Solo hay una viñeta, la de entrada; las de cada jefe se saltan.
 
 | Orden | Jefe | Decorado |
 |---|---|---|
@@ -100,29 +102,44 @@ Se elige en Opciones (`DIFFS`, `js/ui/options.js`).
 | SENIOR | ×1 | ×1 | 2 |
 | GUARDIA 24/7 | ×1,3 | ×1,35 | 1 |
 
+## Opciones
+
+Desde el título, **OPCIONES** (`OPT_ROWS`, `js/ui/options.js`). Se guardan en el navegador (`dnd-arcade-options`).
+
+| Opción | Valores | Por defecto |
+|---|---|---|
+| MÚSICA | 0 a 10 | 8 |
+| EFECTOS | 0 a 10 | 8 |
+| DIFICULTAD | BECARIO · SENIOR · GUARDIA 24/7 | SENIOR |
+| DESTELLOS | SÍ · NO (sin flashes ni temblores) | SÍ |
+| VIBRACIÓN | SÍ · NO | SÍ |
+| AVISOS GRANDES | SÍ · NO (ataques y peligros sin depender del color) | NO |
+| TECLAS | Pantalla para reasignar las teclas del jugador 1 | Por defecto |
+
 ## Enemigos
 
 Datos en `FOES`. `wind` es lo que tardan en golpear tras avisar con la marca roja.
 
 | Enemigo | Zona | Vida | Velocidad | Daño | `wind` | Puntos | Comportamiento |
 |---|---|---|---|---|---|---|---|
-| Goblin ClickOps | Todas | 34 | 1,0 | 6 | 18 | 150 | Básico. Uno parchea al gólem («runa de parche manual») |
-| Orco consultor | Varias | 80 | 0,8 | 10 | 15 | 450 | Doble golpe; el segundo derriba |
+| Goblin ClickOps | Todas menos CaaS | 34 | 1,0 | 6 | 18 | 150 | Básico. Uno parchea al gólem («runa de parche manual») |
+| Orco consultor | Varias | 80 | 0,8 | 10 | 15 | 450 | El 60 % de las veces encadena un segundo golpe, que derriba |
 | Proceso zombi | Sistemas, Virtualización | 30 | 0,75 | 7 | 20 | 250 | Sale del suelo. Al morir, 60 % de que «se reinicie» una vez con 22 de vida |
 | Paquete perdido | Network | 14 | 1,4 | 4 | 14 | 120 | Vuela en círculo (radio 54) y se lanza en picado. No se puede agarrar |
 | Caballero Firewall | Network | 64 | 0,6 | 9 | 18 | 500 | Bloquea de frente (`ACL: DENY`) y gira despacio. Tras 7 bloqueos pierde el escudo |
 | Fuga de memoria | Storage | 30 | 0,7 | 6 | 22 | 200 | Salta al atacar. Al morir se divide en dos mini leaks |
 | Mini leak | Storage | 10 | 1,1 | 4 | 16 | 80 | — |
+| Tarea pendiente | Guarida (El Revisor) | 26 | 1,05 | 5 | 16 | 300 | Esbirros de El Revisor, con el nombre de una tarea de la Definition of Done |
 | Mímico de disco lleno | Storage | 40 | 0,9 | 8 | 20 | 400 | Dormido como un cofre hasta que te acercas (60 px) o le pegas |
-| VM huérfana | Virtualización | 30 | 0,8 | 6 | 18 | 300 | Se apaga 80 de cada 240 actualizaciones: apagada no se le puede golpear ni ataca |
+| VM huérfana | Virtualización | 30 | 0,8 | 6 | 18 | 300 | Mientras camina, se apaga unas 80 de cada 240 actualizaciones: apagada no se le puede golpear ni ataca |
 | Pod | CaaS | 12 | 1,25 | 4 | 14 | 100 | El tótem Deployment los repone |
 | Deployment (tótem) | CaaS | 80 | — | — | — | 1.200 | Mantiene 3 réplicas: crea un pod cada 130 actualizaciones si faltan |
 
-Como mucho **dos enemigos atacan a la vez**; el resto merodea a distancia esperando turno.
+Como mucho **dos enemigos atacan a la vez** con un jugador (tres en cooperativo); el resto merodea a distancia esperando turno. Un enemigo cae derribado al recibir su cuarto golpe en menos de 45 actualizaciones. Cada caja y barril aguanta 2 golpes; los especiales del guerrero, el mago y la pícara también las rompen.
 
 ### El Gólem Hipervisor
 
-En Virtualización. 120 de vida. Es pacífico hasta que un goblin le graba una runa de parche manual (70 actualizaciones) o hasta que alguien le pega. Enfadado, embiste en línea recta (16 de daño) contra **todos**, enemigos incluidos. La sección no se cierra mientras siga enfadado y vivo.
+En Virtualización. 120 de vida y 1.500 puntos. Es pacífico hasta que un goblin le graba una runa de parche manual (70 actualizaciones) o hasta que alguien le pega. Enfadado, embiste en línea recta (16 de daño) contra **todos**, enemigos incluidos. La sección no se cierra mientras siga enfadado y vivo.
 
 ## Jefes
 
@@ -134,7 +151,7 @@ En Virtualización. 120 de vida. Es pacífico hasta que un goblin le graba una r
 | Hachazo | 14, derriba; alcance 34 px |
 | `SYN FLOOD` | Embestida en su carril cuando estás a más de 90 px (50 %): 16 de daño |
 | Tormenta de broadcast | Al bajar del 70 %, invoca 2 paquetes perdidos (una vez) |
-| `ACL: DENY ALL` | Por debajo del 50 %: 170 actualizaciones de bloqueo frontal, cada 420. Solo gira cada 55 actualizaciones: hay que atacarle por la espalda. Los especiales y los lanzamientos atraviesan el bloqueo |
+| `ACL: DENY ALL` | Por debajo del 50 %: 170 actualizaciones de bloqueo frontal, cada 420. Solo gira una vez cada 56 actualizaciones: hay que atacarle por la espalda. Los especiales y los lanzamientos atraviesan el bloqueo |
 | Puntos | 3.000 |
 
 ### Hidra RAID (Storage)
@@ -147,22 +164,22 @@ Un cuerpo invulnerable («¡ATACA LAS CABEZAS!») y tres cabezas de 80 de vida, 
 | Paridad | 158 | Escupe sectores defectuosos dirigidos: 8 |
 | Disco 2 | 180 | Mordisco en su carril: 12, derriba |
 
-Mecánica RAID: una cabeza de disco rota se **reconstruye** en 420 actualizaciones (con el 60 % de la vida) mientras la paridad siga viva. Si cae la paridad, las cabezas rotas mueren para siempre. Estrategia: la paridad primero. 3.000 puntos al caer la última cabeza.
+Mecánica RAID: una cabeza de disco rota se **reconstruye** en 420 actualizaciones (con el 60 % de la vida) mientras la paridad siga viva. Si cae la paridad, las cabezas rotas mueren para siempre. Estrategia: la paridad primero. 3.000 puntos al caer la última cabeza (también en el Cancerbero y el Kraken, que heredan los datos de la Hidra).
 
 ### Dragón Negro (Guarida de Automation)
 
 | Dato | Valor |
 |---|---|
 | Vida | 440 |
-| Aliento de ácido (`rm -rf /*`) | En línea recta, 190 px: 5 de daño cada 12 actualizaciones durante 70 |
+| Aliento de ácido (`rm -rf /*`) | En línea recta, 190 px desde la boca (unos 270 desde su centro): 5 de daño cada 12 actualizaciones durante 70 |
 | Mordisco (`SEGFAULT`) | 15, derriba |
-| Coletazo | 11 si estás detrás a menos de 80 px |
-| Vuelo y pisotón (`KERNEL PANIC`) | Por debajo del 65 % (30 % de probabilidad): te sigue desde el aire y cae con 18 de daño en 60 px |
+| Coletazo | Lo lanza si estás detrás a menos de 80 px; alcanza 92 px y hace 11 |
+| Vuelo y pisotón (`KERNEL PANIC`) | Por debajo del 65 % (30 % de probabilidad): te sigue desde el aire durante 70 actualizaciones y cae con 18 de daño en 60 px |
 | Refuerzos | Al 50 %, un goblin y un orco (una vez) |
-| `STACK OVERFLOW` | Si acumula 45 de daño mientras prepara un ataque, se tambalea 40 actualizaciones |
+| `STACK OVERFLOW` | Acumula el daño recibido desde su último aliento o mordisco; si llega a 45 con un golpe mientras prepara un ataque, se tambalea 41 actualizaciones |
 | Final | 5.000 puntos, cámara lenta y «¡CRÍTICO! INCIDENTE CERRADO» |
 
-La música del jefe acelera un 12 % por debajo de la mitad de la vida.
+La música del jefe acelera un 12 % por debajo de la mitad de la vida. Pasa igual con el Lich COBOL y la Factura de Fin de Mes: los jefes finales usan el tema `boss`; los de sección (Minotauro, Hidra, Troll DBA, Cancerbero, Kraken y Autoescalador) mantienen el tema de su zona.
 
 ### Troll DBA (Bases de datos)
 
@@ -170,8 +187,9 @@ La música del jefe acelera un 12 % por debajo de la mitad de la vida.
 |---|---|
 | Vida | 340 |
 | Martillazos | 15; cada tercer golpe, `DROP TABLE`: onda expansiva de 56 px (10, derriba) |
-| `LOCK TABLE` | Cada 5-7 s marca una zona en el suelo bajo su objetivo. Al armarse (40 actualizaciones), quien esté dentro queda **atrapado**: 5 pulsaciones de A para liberarse (o 2,5 s) |
+| `LOCK TABLE` | El primero, 2 s después de aparecer; luego cada 5-7 s marca una zona de 34 px de radio bajo su objetivo, que dura 170 actualizaciones. Al armarse (40 actualizaciones), quien esté dentro queda **atrapado**: 5 pulsaciones de A para liberarse (o 2,5 s) |
 | Refuerzos | Al 50 %, tres consultas N+1 |
+| Puntos | 4.000 |
 
 ### Cancerbero de las 3 AAA (Seguridad)
 
@@ -186,7 +204,7 @@ La misma mecánica que la Hidra RAID con otras cabezas: **AUTENTICACIÓN**, **MF
 | `SUBMIT BATCH` | Levanta dos procesos zombi a los lados del objetivo (si hay menos de dos) |
 | `IPL` | Desaparece y reaparece en el otro lado de la pantalla |
 | Báculo | 14, derriba, si estás cerca |
-| Copia en cinta | Al 60 % y al 25 % invoca una **COPIA EN CINTA** (90 de vida) en el lado contrario y no recibe daño hasta que se destruye |
+| Copia en cinta | Al 60 % y al 25 % invoca una **COPIA EN CINTA** (90 de vida, 1.500 puntos) en el lado contrario y no recibe daño hasta que se destruye. El HOTFIX no la derriba |
 | Final | 8.000 puntos, cámara lenta y «STOP RUN» |
 
 ### Kraken del Clúster (Kubernetes)
@@ -202,8 +220,9 @@ Variante de la Hidra (`KRAKEN`) con una regla propia: tentáculos **NODO 1**, **
 |---|---|
 | Vida | 360 |
 | Espadazo | 13, derriba |
-| `SCALE OUT` | Cada vez que pierde un 25 % de vida, invoca dos **réplicas** (30 de vida, 6 de daño) |
+| `SCALE OUT` | Cada vez que pierde un 25 % de vida, invoca dos **réplicas** (30 de vida, 6 de daño, 150 puntos) |
 | Carga repartida | Mientras quede alguna réplica, sus golpes hacen la mitad y no derriban |
+| Puntos | 4.500 |
 
 ### La Factura de Fin de Mes (Cumbre de Facturación)
 
@@ -284,9 +303,10 @@ Zonas por x: Archipiélago de Clústeres 0–1279, Nubes Serverless 1280–2559,
 | Sidecar pegajoso | 42 | 1,1 | 7 | 220 | Básico y rápido |
 | Operador de K8s | 96 | 0,75 | 11 | 550 | Pesado, con hacha |
 | Indentación rota (YAML) | 34 | 0,75 | 6 | 220 | Como la fuga de memoria: al morir se divide en dos tabuladores |
+| Tabulador | 10 | 1,15 | 4 | 80 | Los trozos del YAML |
 | Lambda en frío | 16 | 1,6 | 5 | 160 | Vuela en círculo y se lanza en picado |
 | NAT Gateway | 40 | 0,85 | 7 | 400 | Moneda fantasma: se vuelve invisible a ratos |
-| Instancia zombi | 36 | 0,8 | 8 | 280 | Sale del suelo y puede «reiniciarse» al morir |
+| Instancia zombi | 36 | 0,8 | 8 | 280 | Suele salir del suelo; a diferencia del proceso zombi, no se reinicia al morir |
 
 ## Objetos
 
@@ -301,24 +321,26 @@ Salen de barriles y cofres (`CRATES`). Se recogen con A.
 | Báculo de Ping | 12 disparos de 13 de daño | — |
 | Martillo de Teclas | +7 de daño y 30 px de alcance durante 10 golpes | — |
 | Patito de goma | «DEBUG CON PATITO»: 7 segundos de invulnerabilidad | 500 |
-| Pergamino de Stack Overflow | 28 de daño a todos los enemigos de la pantalla | 500 |
+| Pergamino de Stack Overflow | 28 de daño (con derribo y atravesando bloqueos) a todos los enemigos de la pantalla y al jefe final; no despierta al gólem si está tranquilo | 500 |
 
 ## Puntuación
 
 | Acción | Puntos |
 |---|---|
-| Cada punto de daño | ×10 |
+| Cada punto de daño | ×10 (cuenta el golpe entero, aunque el enemigo tuviera menos vida) |
 | Eliminar un enemigo | Sus puntos de la tabla |
 | Romper una caja | 50 |
-| Lanzar a un enemigo | 100 (+200 si muere al caer) |
+| Lanzar a un enemigo | 100 al lanzarlo y 200 más al caer, si aún le quedaba vida |
 | Vencer al Dragón Negro | 5.000 |
 | Bonus de tiempo | 30.000 − 100 por segundo de etapa |
 | Bonus de vida | vida × 50 + vidas × 5.000 |
 | Bonus de combo | combo máximo × 100 |
 
+Al terminar una etapa, la pantalla **DEPLOY OK** («pipeline en verde») suma los bonus uno a uno: SPRINT (el tiempo), VIDA Y VIDAS, COMBO MÁX y ORO TOTAL. Después enseña la **página del grimorio DoD** que se ha ganado (LOGS Y TRAZAS, MONITORIZACIÓN Y ALERTAS o COSTES Y ETIQUETAS), «PR APROBADO» si se venció a El Revisor y cuál es la siguiente etapa. En el modo jefes se titula JEFES SUPERADOS.
+
 ### Combos
 
-Cada golpe que entra suma al combo; se pierde tras 2 segundos sin golpear o al recibir un golpe («COMBO ROTO» a partir de 5).
+Cada golpe que entra suma al combo; se pierde tras 2 segundos sin golpear o al recibir un golpe («COMBO ROTO» a partir de 5). A partir de 2 golpes, el HUD muestra el contador (blanco, amarillo desde 10 y rojo desde 20) y una barra con el tiempo que queda para seguirlo; en cooperativo, cada jugador en su lado (1P COMBO a la izquierda, 2P COMBO a la derecha).
 
 | Golpes | Rango |
 |---|---|
@@ -330,7 +352,7 @@ Cada golpe que entra suma al combo; se pierde tras 2 segundos sin golpear o al r
 
 ### Ranking
 
-Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SSH 30.000, DNS 20.000 y GIT 10.000.
+Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SSH 30.000, DNS 20.000 y GIT 10.000. El del modo jefes empieza con SRE 50.000, OPS 40.000, DBA 30.000, SEC 20.000 y QA. 10.000.
 
 ## Logros
 
@@ -346,7 +368,7 @@ Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SS
 | A PRODUCCIÓN | Lanzar 10 enemigos en una partida |
 | RUBBER DUCK DEBUGGING · COPIAR Y PEGAR | Coger el patito · el pergamino de Stack Overflow |
 | DESPLIEGUE EN VIERNES | Terminar la etapa 1 |
-| SIN ROLLBACK | Terminar una etapa sin haber continuado |
+| SIN ROLLBACK | Terminar una etapa (o el modo jefes) sin haber continuado |
 | HOTFIX EXPRÉS | Terminar una etapa en menos de 8 minutos |
 | PAIR PROGRAMMING | Terminar una etapa en cooperativo |
 | APPROVED | Derrotar a El Revisor |
@@ -364,5 +386,5 @@ Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SS
 ## Secretos
 
 - **El Revisor**: llega al Dragón Negro sin usar continuaciones.
-- **Código Konami** en el título o la selección: arriba, arriba, abajo, abajo, izquierda, derecha, izquierda, derecha, B, A. Empiezas con 9 vidas.
+- **Código Konami** en el título o la selección: arriba, arriba, abajo, abajo, izquierda, derecha, izquierda, derecha, B, A. Aparece «¡CÓDIGO KONAMI! 9 VIDAS», se desbloquea MODO DIOS y empiezas con 8 vidas extra (más o menos según la dificultad).
 - La marquesina del título da la pista (`^^vv<><>BA`).

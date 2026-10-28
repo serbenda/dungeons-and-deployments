@@ -2,11 +2,11 @@
 
 ## Versiones con soporte
 
-Solo se mantiene la versión publicada en `main` (la que sirve GitHub Pages).
+Solo se mantiene la última versión publicada en `main`, la que sirve GitHub Pages (ver las [releases](https://github.com/serbenda/dungeons-and-deployments/releases)). Los arreglos no se aplican a versiones anteriores.
 
 ## Superficie del proyecto
 
-El juego es una web estática: no tiene servidor, cuentas ni datos personales. Solo guarda en el navegador (`localStorage`) el ranking y el récord, y el service worker guarda en caché los archivos del juego y sus fuentes para jugar sin conexión.
+El juego es una web estática: no tiene servidor, cuentas, analítica ni datos personales, y no envía nada a ningún sitio. Solo guarda en el navegador (`localStorage`) los dos rankings y el récord, las opciones, los logros y la partida guardada (ver [Persistencia](docs/arquitectura.md#persistencia)). El service worker guarda en caché los archivos del juego y sus fuentes para jugar sin conexión. Las únicas peticiones externas son las de las fuentes de Google Fonts.
 
 ## Cómo informar de una vulnerabilidad
 

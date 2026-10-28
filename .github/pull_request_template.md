@@ -12,4 +12,6 @@
 - [ ] `npm test` pasa (pruebas unitarias)
 - [ ] `npm run test:e2e` pasa (prueba de humo)
 - [ ] Probado en el navegador con teclado y en modo táctil (`?touch`)
-- [ ] Documentación (JSDoc, `docs/`) y CHANGELOG actualizados si hace falta
+- [ ] Si toca controles o menús: probado también con mando y con dos jugadores
+- [ ] Archivo nuevo en `js/`: añadido a `index.html` y a `ASSETS` en `sw.js`
+- [ ] Documentación (JSDoc, `docs/`) y CHANGELOG («Sin publicar») actualizados si hace falta

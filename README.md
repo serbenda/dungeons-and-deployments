@@ -39,6 +39,7 @@
 - [Calidad y CI](#calidad-y-ci)
 - [Hoja de ruta](#hoja-de-ruta)
 - [Contribuir](#contribuir)
+- [Licencia](#licencia)
 
 ## Características
 
@@ -58,7 +59,7 @@
 | ⚔️ **Modo jefes** | Los nueve jefes de las tres etapas seguidos, contra el reloj y con su propio ranking |
 | 🏅 **24 logros** | «SIEMPRE ES EL DNS», «PAIR PROGRAMMING», «SIN ROLLBACK»... y créditos finales con las estadísticas de la partida |
 | 📶 **Sin conexión** | PWA instalable: se añade a la pantalla de inicio y funciona sin internet |
-| 💾 **Partida guardada** | Al empezar cada etapa se guarda un punto de control: CONTINUAR en el título |
+| 💾 **Partida guardada** | Al empezar las etapas 2 y 3 se guarda un punto de control: CONTINUAR en el título |
 | 🏆 **Ranking** | Top 5 con iniciales, como en los salones recreativos |
 
 ## Cómo se juega
@@ -96,6 +97,7 @@ Todos los números del juego (vida, daño, puntos) están en el [documento de di
 | ![La Factura de Fin de Mes](docs/img/factura.png) | ![Créditos finales](docs/img/creditos.png) |
 | ![Logros](docs/img/logros.png) | ![Opciones](docs/img/opciones.png) |
 | ![Modo jefes contra el Troll DBA](docs/img/modo-jefes.png) | ![Reasignar teclas](docs/img/teclas.png) |
+| ![Ranking de los mejores](docs/img/ranking.png) | |
 
 <div align="center">
 
@@ -122,16 +124,18 @@ npm install
 npx playwright install chromium
 
 npm run lint        # estructura del proyecto + ESLint
-npm test            # pruebas unitarias (sin navegador, ~3 s)
-npm run test:e2e    # un bot juega la etapa completa en Chromium
+npm test            # 54 pruebas unitarias (sin navegador, ~12 s)
+npm run test:e2e    # un bot juega las tres etapas y el modo jefes en Chromium
 ```
 
-**Depurar:** abre `index.html?debug&seed=42` y tendrás `window.dnd` en la consola, con una partida reproducible.
+**Depurar:** abre `index.html?debug&seed=42` y tendrás `window.dnd` en la consola, con una partida reproducible. Como los scripts son clásicos, también puedes usar directamente cualquier variable o función global:
 
 ```js
 dnd.P.hp = 100;        // vida al máximo
 camX = 2600;           // saltar a la Forja de contenedores
 spawnHydra(camX + 262) // invocar a la Hidra RAID
+loadStage(2)           // en plena partida: ir a La Nube
+startBossRush('mago')  // empezar el modo jefes con el mago
 ```
 
 ## Tecnología
@@ -143,7 +147,7 @@ spawnHydra(camX + 262) // invocar a la Hidra RAID
 - **PWA**: manifest y service worker (primero la red, caché sin conexión).
 - **Gamepad API** para mandos.
 - **Pointer Events, Fullscreen, Vibration y Screen Wake Lock** para móvil.
-- **Node.js** solo para desarrollo: `node:test`, ESLint 9 y Playwright.
+- **Node.js** solo para desarrollo: `node:test`, ESLint y Playwright.
 - **GitHub Actions** para CI y despliegue en GitHub Pages.
 
 ## Estructura del proyecto
@@ -178,13 +182,13 @@ Cada archivo empieza con una línea que resume su contenido, y cada función y t
 | Guía | Contenido |
 |---|---|
 | [Arquitectura](docs/arquitectura.md) | Carga de scripts, bucle de paso fijo, máquina de estados, coordenadas y secciones |
-| [Diseño del juego](docs/diseno-del-juego.md) | Héroes, enemigos, jefes, etapa, objetos y puntuación, con todos los números |
+| [Diseño del juego](docs/diseno-del-juego.md) | Héroes, cooperativo, dificultad, enemigos y jefes de las tres etapas, objetos, puntuación y logros, con todos los números |
 | [Gráficos](docs/graficos.md) | Motor de píxeles, esqueletos y poses, mazmorra e iluminación |
 | [Audio](docs/audio.md) | Efectos y formato de los temas del secuenciador |
-| [Controles, móvil y PWA](docs/controles-y-movil.md) | Teclas lógicas, cruceta analógica, disposición táctil e instalación |
-| [Recetas](docs/recetas.md) | Paso a paso: enemigos, jefes, secciones, objetos, diálogos, temas y héroes |
+| [Controles, móvil y PWA](docs/controles-y-movil.md) | Teclas lógicas, dos jugadores, mandos, teclas reasignables, cruceta analógica, accesibilidad e instalación |
+| [Recetas](docs/recetas.md) | Paso a paso: enemigos, jefes, secciones, objetos, diálogos, temas, héroes, logros, opciones, etapas y archivos |
 | [Pruebas](docs/pruebas.md) | Lint, pruebas unitarias, prueba de humo, semillas y modo depuración |
-| [Despliegue y versiones](docs/despliegue-y-versiones.md) | Ramas, CI, GitHub Pages, caché de la PWA y publicación de versiones |
+| [Despliegue y versiones](docs/despliegue-y-versiones.md) | Ramas y su protección, CI, GitHub Pages, caché de la PWA y publicación de versiones y releases |
 
 ## Calidad y CI
 
@@ -192,15 +196,21 @@ Cada archivo empieza con una línea que resume su contenido, y cada función y t
 flowchart LR
   PR[Push o PR] --> L[Lint<br>estructura + ESLint]
   PR --> U[Unit tests<br>node:test]
-  L --> S[Smoke test<br>bot en Chromium]
+  L --> S[Smoke test<br>Chromium]
   U --> S
-  M[Merge a main] --> D[Deploy to<br>GitHub Pages]
+  L --> SB[Smoke test<br>Firefox · WebKit]
+  U --> SB
+  S --> OK{5 checks<br>en verde}
+  SB --> OK
+  OK --> M[Merge a main]
+  M --> D[Deploy to<br>GitHub Pages]
 ```
 
 - **Lint**: sintaxis, orden de carga, coherencia entre `index.html`, el service worker y el manifest, y ESLint.
 - **Unit tests**: datos, poses, combos, jefes, ranking, semillas y música, cargando el juego en un contexto aislado.
 - **Smoke test**: un bot juega las tres etapas seguidas con cada héroe y en cooperativo, con varias semillas; cualquier atasco o error de consola hace fallar la CI, con una URL para reproducirlo.
 - **Firefox y Safari**: la misma prueba de humo, en versión corta, en Firefox y en WebKit (el motor de Safari).
+- **Ramas protegidas**: `main` y `development` solo aceptan cambios por Pull Request y con los cinco checks en verde; no admiten push forzado ni borrado.
 - **Dependabot** mantiene al día las acciones y las dependencias de desarrollo.
 
 ## Hoja de ruta
@@ -217,6 +227,9 @@ flowchart LR
 - [x] Cambiar las teclas desde el menú de opciones
 - [x] Modo jefes: solo los combates contra jefes, con su propio ranking
 - [x] Etapa 3: La Nube (Kubernetes, Serverless y Facturación) con la Factura de Fin de Mes
+- [x] Partida guardada: CONTINUAR desde el principio de cada etapa
+- [x] Accesibilidad: avisos grandes que no dependen del color
+- [x] Prueba de humo también en Firefox y Safari (WebKit)
 - [ ] Etapa 4: Vuelta a on-premise
 
 ## Contribuir

@@ -170,3 +170,34 @@ test('AVISOS GRANDES se activa en Opciones y se guarda', () => {
   assert.equal(game.ev("JSON.parse(localStorage.getItem('dnd-arcade-options')).bigCues"), true);
   assert.equal(game.ev('typeof windupCue'), 'function');
 });
+
+/** AudioContext falso que apunta cada efecto y su volumen inicial. */
+const FAKE_AUDIO = `var played = []; actx = { currentTime:0, destination:{},
+  createOscillator(){ return { type:'', frequency:{ setValueAtTime(){}, exponentialRampToValueAtTime(){} }, connect(){}, start(){}, stop(){} }; },
+  createGain(){ const g = { gain:{ setValueAtTime(v){ played.push(v); }, exponentialRampToValueAtTime(){} }, connect(){} }; return g; } }`;
+
+test('EFECTOS cambia el volumen de los efectos y a 0 los silencia', () => {
+  const game = loadGame();
+  game.ev(FAKE_AUDIO);
+  game.ev("OPTS.sfx = 8; sfx('punch'); OPTS.sfx = 4; sfx('punch'); OPTS.sfx = 0; sfx('punch')");
+  const vols = game.ev('played');
+  assert.equal(vols.length, 2, 'con EFECTOS a 0 no suena');
+  assert.ok(Math.abs(vols[0] - .05) < 1e-9 && Math.abs(vols[1] - .025) < 1e-9, 'el volumen es proporcional a la opción');
+});
+
+test('recibir un golpe suena (hurt)', () => {
+  const game = loadGame();
+  startPlaying(game, 'guerrero');
+  game.ev(FAKE_AUDIO);
+  game.ev("var names = []; var _sfx = sfx; sfx = n => { names.push(n); _sfx(n); }; P.inv = 0; damage(P, 5, { x:P.x + 10, y:P.y }, {})");
+  assert.ok(game.ev("names.includes('hurt')"));
+});
+
+test('con AVISOS GRANDES, las cabezas de la Hidra también avisan con el triángulo', () => {
+  const game = loadGame();
+  startPlaying(game, 'guerrero');
+  game.ev('camX = 1400; spawnHydra(camX + 262); var h = foes.find(f => f.kind === "cabeza"); h.state = "windup"');
+  game.ev('var cues = 0; var _cue = windupCue; windupCue = (x, y) => { cues++; _cue(x, y); }; OPTS.bigCues = true');
+  game.ev('drawScene()');
+  assert.ok(game.ev('cues') >= 1, 'la cabeza que prepara el mordisco usa windupCue()');
+});

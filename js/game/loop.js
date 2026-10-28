@@ -1,7 +1,7 @@
 // Máquina de estados y actualización de cada fotograma.
 'use strict';
 
-/** Opción elegida en el menú del título: 0 jugar, 1 opciones, 2 logros. */
+/** Índice de la opción elegida en el menú del título (ver titleMenu(): CONTINUAR va primero si hay partida guardada). */
 let titleSel = 0;
 /** Cursores de la selección de héroe: uno por jugador ({ i: índice en HERO_ORDER, ok: confirmado }). */
 let selP = [{ i:0, ok:false }, null];
@@ -110,7 +110,7 @@ function update(){
 }
 /**
  * Hace aparecer al jefe de sección con su cartel y su viñeta.
- * @param {'minotauro'|'hidra'|'dba'|'cancerbero'} name
+ * @param {'minotauro'|'hidra'|'dba'|'cancerbero'|'kraken'|'autoscaler'} name
  */
 function spawnMiniboss(name){
   if (name === 'minotauro' || name === 'dba' || name === 'autoscaler') {
