@@ -21,12 +21,17 @@ test('La Nube tiene sus zonas y su música', () => {
   }
 });
 
-test('el Kraken es una Hidra con CONTROL PLANE y su propio logro', () => {
+test('el CONTROL PLANE del Kraken solo cae con los dos nodos drenados', () => {
   const game = loadGame();
   startStage3(game);
   game.ev('camX = 760; spawnMiniboss("kraken"); story = null; state = "play"');
-  assert.equal(game.ev("foes.find(f => f.kind === 'cabeza' && f.d.parity).d.name"), 'CONTROL PLANE');
-  game.ev("var cp = foes.find(f => f.kind === 'cabeza' && f.d.parity); cp.state = 'idle'; damage(cp, 9999, P, {})");
+  game.ev("var cp = foes.find(f => f.kind === 'cabeza' && f.d.parity), nodes = foes.filter(f => f.kind === 'cabeza' && !f.d.parity)");
+  assert.equal(game.ev('cp.d.name'), 'CONTROL PLANE');
+  assert.equal(game.ev('damage(cp, 10, P, { pierce:true })'), false, 'con los nodos en pie, taint: no recibe daño');
+  game.ev("damage(nodes[0], 9999, P, {})");
+  assert.equal(game.ev('damage(cp, 10, P, {})'), false, 'con un solo nodo caído sigue protegido');
+  game.ev("nodes[1].state = 'idle'; damage(nodes[1], 9999, P, {})");
+  assert.equal(game.ev("cp.state = 'idle'; damage(cp, 9999, P, {})"), true, 'con los dos nodos caídos, cae');
   assert.ok(game.ev('unlocked.kraken'));
 });
 
