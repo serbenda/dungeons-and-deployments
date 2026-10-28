@@ -5,7 +5,7 @@ Hay tres niveles de comprobación. Todos se ejecutan en la CI en cada push a `ma
 | Comando | Qué comprueba | Tiempo | Necesita |
 |---|---|---|---|
 | `npm run lint` | Estructura del proyecto y ESLint | Segundos | `npm install` |
-| `npm test` | Lógica del juego (53 pruebas unitarias) | ~12 s | Solo Node |
+| `npm test` | Lógica del juego (54 pruebas unitarias) | ~12 s | Solo Node |
 | `npm run test:e2e` | El juego completo en un navegador real | 1-2 min | Chromium de Playwright (o Firefox y WebKit) |
 
 Preparación (una vez):
@@ -48,7 +48,7 @@ Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la 
 | `tests/game.test.js` | 10 | Base del juego: carga, datos, poses, combos, etapa 1, ranking, semilla y música |
 | `tests/coop-and-extras.test.js` | 18 | Cooperativo, mandos, dificultad, opciones, sonido, accesibilidad, logros, héroes y El Revisor |
 | `tests/etapa2.test.js` | 10 | Etapas y Las Cuevas |
-| `tests/etapa3.test.js` | 6 | La Nube |
+| `tests/etapa3.test.js` | 7 | La Nube |
 | `tests/guardar.test.js` | 4 | Partida guardada |
 | `tests/modo-jefes.test.js` | 5 | Modo jefes y teclas reasignables |
 
@@ -109,6 +109,7 @@ Cada `loadGame()` crea un juego independiente con su propio `Math`, así que la 
 | Monedas | Solo dañan a quien está debajo al caer |
 | La Factura | Hace llover monedas y, al pagarla, llega el epílogo |
 | YAML | Se divide en dos tabuladores |
+| Pergamino | Golpea una sola vez al jefe final (antes, dos) |
 
 `tests/guardar.test.js`:
 

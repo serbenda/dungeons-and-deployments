@@ -78,3 +78,12 @@ test('los elementales YAML se dividen en tabuladores', () => {
   game.ev("var y = mkFoe('yaml', P.x + 20, P.y); foes.push(y); damage(y, 999, P, {})");
   assert.equal(game.ev("foes.filter(f => f.kind === 'yamlS').length"), 2);
 });
+
+test('el pergamino de Stack Overflow golpea una sola vez al jefe final', () => {
+  const game = loadGame();
+  startStage3(game);
+  game.ev('camX = LEVEL_END; boss = mkFactura(camX + 200, 156); foes.push(boss); boss.state = "idle"; boss.inv = 0');
+  const hp0 = game.ev('boss.hp');
+  game.ev("items.push({ k:'stack', x:P.x, y:P.y }); tryPickup()");
+  assert.equal(game.ev('boss.hp'), hp0 - 28, 'la Factura pierde 28, no 56');
+});

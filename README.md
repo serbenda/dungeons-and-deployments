@@ -124,7 +124,7 @@ npm install
 npx playwright install chromium
 
 npm run lint        # estructura del proyecto + ESLint
-npm test            # 53 pruebas unitarias (sin navegador, ~12 s)
+npm test            # 54 pruebas unitarias (sin navegador, ~12 s)
 npm run test:e2e    # un bot juega las tres etapas y el modo jefes en Chromium
 ```
 

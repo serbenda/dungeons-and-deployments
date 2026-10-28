@@ -26,9 +26,15 @@ gitGraph
   commit id: "Semilla fija"
   checkout development
   merge fix/semilla-humo
+  branch docs/actualizacion-completa
+  commit id: "Revisa la doc"
+  checkout development
+  merge docs/actualizacion-completa
+  checkout main
+  merge development tag: "v0.8.2"
 ```
 
-Así se publicaron la 0.8.0 y la 0.8.1. Lo que entra en `development` después de la última release (aquí, `fix/semilla-humo`) espera a la siguiente versión.
+Así se publicaron la 0.8.0, la 0.8.1 y la 0.8.2. Lo que entra en `development` después de una release espera en ella hasta la siguiente versión, como `fix/semilla-humo` hasta la 0.8.2.
 
 | Rama | Para qué | Cómo entra el código |
 |---|---|---|
@@ -67,7 +73,7 @@ flowchart LR
 | Job | Qué hace | Tiempo aproximado |
 |---|---|---|
 | **Lint** | `npm run lint:project` y `npm run lint:js` | < 1 min |
-| **Unit tests** | `npm test` (53 pruebas) | < 1 min |
+| **Unit tests** | `npm test` (54 pruebas) | < 1 min |
 | **Smoke test (Chromium)** | `npm run test:e2e` con `SEEDS=1,2,3`: todas las partidas | ~2 min |
 | **Smoke test (Firefox)** | La selección corta (`QUICK=1`, `SEEDS=1`), servida por http | ~1 min |
 | **Smoke test (WebKit / Safari)** | Igual, en WebKit | ~3 min |
@@ -122,6 +128,7 @@ Si una versión nunca llegó a `main` por separado (porque se publicó junto con
 
 | Release | Commit en `main` | Incluye |
 |---|---|---|
+| [v0.8.2](https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.8.2) | — | Documentación revisada contra el código; EFECTOS, sonido al recibir golpes, avisos grandes en la Hidra y el pergamino contra jefes finales |
 | [v0.8.1](https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.8.1) | `8075cf5` | GIF y capturas más ligeros; jefes y dibujo repartidos en archivos |
 | [v0.8.0](https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.8.0) | `2d3ebf7` | Avisos grandes, CI en Firefox y WebKit, Kraken con *taint*, textos de la página |
 | [v0.7.0](https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.7.0) | `4f9e453` | Partida guardada |
