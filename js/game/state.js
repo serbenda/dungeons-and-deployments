@@ -60,7 +60,7 @@ function loadStage(i){
   foes = []; items = []; shots = []; fx = []; texts = []; eshots = []; mbDone = {};
   crates = CRATES.map(([k, x, y, item]) => ({ kind:'crate', k, x, y, z:0, hp:2, item, flash:0 }));
   camX = 0; secIdx = 0; locked = false; waveIdx = 0; goT = 0; boss = null; golem = null; lastFoe = null; clearBonus = null;
-  stageT = 0; hitstop = 0; slowmo = 0; flashT = 0; rankFx = null; locks = [];
+  stageT = 0; hitstop = 0; slowmo = 0; flashT = 0; rankFx = null; locks = []; drops = [];
   PLAYERS.forEach((p, n) => { p.x = 60 - n*24; p.y = 150 + n*18; p.z = 0; p.vz = 0; p.state = 'idle'; p.t = 0; p.inv = 90; p.held = null; p.chain = 0; });
   banner = { a:'NIVEL ' + (i + 1), b:st.sub, t:160 };
   mission = null;

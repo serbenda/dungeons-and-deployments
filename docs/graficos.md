@@ -119,6 +119,8 @@ Traduce el estado de un actor (`walk`, `punch`, `jump`, `grab`...) y su tiempo e
 
 `js/sprites/monsters.js` pinta a mano los que no son humanoides: gólem, dragón (180×124, con fotogramas de alas, boca, mordisco, cola, vuelo y mareo), slime, murciélago, fantasma, mímico, pod, tótem, objetos y llamas. Los jefes del Sprint 2 (cuerpo y cabezas de la Hidra) están en `js/entities/bosses.js`.
 
+`js/sprites/cloud.js` añade los de la etapa 3: lambda en frío, NAT Gateway (moneda fantasma), la Factura de Fin de Mes (120×120, con tres caras) y las monedas que caen. El elemental YAML usa el sprite del slime con otra paleta (`look:'yaml'`).
+
 `js/sprites/caves.js` añade los de la etapa 2: el ojo de la consulta N+1, la campana del falso positivo, el cofre phishing, el troyano y la copia en cinta (con bobinas que giran). Los humanoides nuevos (kobold, troll, Troll DBA, ransomware, gnomo y Lich COBOL) no tienen dibujo propio: `reRig(base, cambios, colores)` reutiliza el esqueleto y el estilo de otro personaje con otra escala y otra paleta. Para dibujar un monstruo volador o fantasmal con otro aspecto basta con `look` en `FOES` (`'eye'`, `'bell'`, `'horse'`, `'phish'`).
 
 ## La mazmorra (`js/world/level.js`)
@@ -146,6 +148,17 @@ La etapa 2 sigue el mismo esquema: `buildCaves()` pinta una vez el canvas `LEVEL
 | Cripta de Seguridad | Sillares azulados | Losas oscuras | Bóvedas acorazadas, candados y láseres rojos que se encienden y apagan |
 | Observatorio | Roca violeta | Rejilla metálica | Muro de pantallas con gráficas en directo, «99.9% SLA» y balizas de alarma |
 | Trono del Mainframe | Roca verdosa | Suelo técnico | Armarios con bobinas de cinta que giran, el trono y el código COBOL en fósforo verde |
+
+## La Nube (`js/world/cloud.js`)
+
+`buildSky()` pinta el canvas `LEVEL3` con `prng(2031)` y `drawSky(cx)` añade lo animado. Es la única etapa a cielo abierto: el fondo es un degradado en bandas con estrellas y nubes, y en vez de muros hay una barandilla.
+
+| Zona | Cielo | Suelo | Decorado |
+|---|---|---|---|
+| Archipiélago de Clústeres | Azul noche | Pasarela de rejilla | Islas flotantes con contenedores y pods, y timones de Kubernetes que giran |
+| Nubes Serverless | Violeta | Plataforma de nubes | Cúmulos, símbolos λ con rayos que iluminan la pantalla y cajas `fn()` que pasan a COLD |
+| Torre de Facturación | Atardecer | Mármol dorado | Muro de oro, pilas de monedas, etiquetas de precio y el contador «ESTE MES» que no para de subir |
+| Cumbre | Noche dorada | Mármol dorado | El arco de FACTURACIÓN |
 
 ## Iluminación (`drawLights`)
 

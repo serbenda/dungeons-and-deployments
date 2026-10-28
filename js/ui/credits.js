@@ -14,7 +14,10 @@ const CAST = [
   ['kobold', 'KOBOLD DEL SELECT *', 'BASES DE DATOS'], ['troll', 'TROLL DEL LEGACY', 'BASES DE DATOS'], [null, 'CONSULTA N+1', 'BASES DE DATOS'],
   ['dba', 'TROLL DBA', 'JEFE DE BASES DE DATOS'], [null, 'COFRE PHISHING', 'SEGURIDAD'], ['ransom', 'RANSOMWARE', 'SEGURIDAD'],
   [null, 'TROYANO', 'SEGURIDAD'], [null, 'CANCERBERO DE LAS 3 AAA', 'JEFE DE SEGURIDAD'], [null, 'FALSO POSITIVO', 'MONITORIZACIÓN'],
-  ['gnomo', 'GNOMO DEL DASHBOARD', 'MONITORIZACIÓN'], ['lich', 'EL LICH COBOL', 'MAINFRAME']
+  ['gnomo', 'GNOMO DEL DASHBOARD', 'MONITORIZACIÓN'], ['lich', 'EL LICH COBOL', 'MAINFRAME'],
+  ['sidecar', 'SIDECAR PEGAJOSO', 'KUBERNETES'], ['operador', 'OPERADOR DE K8S', 'KUBERNETES'], [null, 'INDENTACIÓN ROTA', 'KUBERNETES'],
+  [null, 'EL KRAKEN DEL CLÚSTER', 'JEFE DE KUBERNETES'], [null, 'LAMBDA EN FRÍO', 'SERVERLESS'], ['zombieVm', 'INSTANCIA ZOMBI', 'SERVERLESS'],
+  ['autoscaler', 'EL AUTOESCALADOR', 'JEFE DE SERVERLESS'], [null, 'NAT GATEWAY', 'FACTURACIÓN'], [null, 'LA FACTURA DE FIN DE MES', 'FACTURACIÓN']
 ];
 /**
  * Filas de los créditos: { h: alto, draw(y) }. Se construyen al empezar para usar
@@ -28,7 +31,7 @@ function creditRows(){
   const gap = h => rows.push({ h, draw:() => {} });
   const stat = (a, b) => rows.push({ h:12, draw:y => { txt(a, 40, y, '#a39bc2'); txt(String(b), 280, y, C.w, { right:true }); } });
   title('GRACIAS POR JUGAR', 'big'); gap(8);
-  line('DUNGEONS & DEPLOYMENTS · ETAPAS 1 Y 2', NEONT); gap(20);
+  line('DUNGEONS & DEPLOYMENTS · ETAPAS 1, 2 Y 3', NEONT); gap(20);
   title('LA PARTIDA'); gap(4);
   const secs = clearBonus ? clearBonus.secs : Math.floor(stageT/60);
   stat('TIEMPO', String(Math.floor(secs/60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0'));
@@ -52,7 +55,7 @@ function creditRows(){
   title('IDEA, DISEÑO Y DIRECCIÓN'); line('SERBENDA', C.w); gap(20);
   title('AGRADECIMIENTOS'); line('A QUIEN REVISA LOS JOBS', C.w); line('Y CUMPLE LA DEFINITION OF DONE', C.w); gap(24);
   line('NINGÚN SERVIDOR DE PRODUCCIÓN', '#a39bc2'); line('SUFRIÓ DAÑOS EN ESTE DESARROLLO.', '#a39bc2'); gap(30);
-  line('CONTINUARÁ...', C.e); line('ETAPA 3 · LA NUBE', C.e);
+  line('CONTINUARÁ...', C.e); line('ETAPA 4 · VUELTA A ON-PREMISE', C.e);
   return rows;
 }
 let creditList = null;

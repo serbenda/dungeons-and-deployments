@@ -104,11 +104,11 @@ function update(){
  * @param {'minotauro'|'hidra'|'dba'|'cancerbero'} name
  */
 function spawnMiniboss(name){
-  if (name === 'minotauro' || name === 'dba') {
+  if (name === 'minotauro' || name === 'dba' || name === 'autoscaler') {
     const m = mkFoe(name, camX + W + 30, 158); m.state = 'enter'; m.face = -1; foes.push(m); lastFoe = m;
     banner = { a:'¡JEFE!', b:m.d.name, t:140 };
   } else {
-    lastFoe = spawnHydra(camX + 262, name === 'cancerbero' ? CERBERUS : null);
+    lastFoe = spawnHydra(camX + 262, name === 'cancerbero' ? CERBERUS : name === 'kraken' ? KRAKEN : null);
     banner = { a:'¡JEFE!', b:lastFoe.d.name, t:140 }; sfx('roar'); shake = 6;
   }
   startStory(name === 'minotauro' ? 'mino' : name);
@@ -138,7 +138,7 @@ function updatePlay(){
   ctxSlot = -1; P = PLAYERS[0];
   if (state !== 'play') return;
   for (const e of foes.slice()) { P = targetFor(e); updateFoe(e); }
-  updateLocks();
+  updateLocks(); updateDrops();
   P = PLAYERS[0];
   if (state !== 'play') return;
   for (const s of shots.slice()) {
@@ -168,7 +168,8 @@ function updatePlay(){
     locked = true; waveIdx = 0;
     const sec = SECTIONS[secIdx];
     mission = { text: sec.mission, t: 200 };
-    if (sec.boss && STAGES[stageIdx].boss === 'lich') { boss = mkLich(camX + W + 40, 156); foes.push(boss); banner = { a:'¡CUIDADO!', b:'TRONO DEL MAINFRAME', t:150 }; startStory('lich'); }
+    if (sec.boss && STAGES[stageIdx].boss === 'factura') { boss = mkFactura(camX + W + 50, 156); foes.push(boss); banner = { a:'¡CUIDADO!', b:'LA CUMBRE DE FACTURACIÓN', t:150 }; startStory('factura'); }
+    else if (sec.boss && STAGES[stageIdx].boss === 'lich') { boss = mkLich(camX + W + 40, 156); foes.push(boss); banner = { a:'¡CUIDADO!', b:'TRONO DEL MAINFRAME', t:150 }; startStory('lich'); }
     else if (sec.boss) { boss = mkDragon(camX + W + 80, 158); foes.push(boss); banner = { a:'¡CUIDADO!', b:'GUARIDA DE AUTOMATION', t:150 }; startStory('dragon'); }
     else {
       if (sec.golem) { golem = mkGolem(camX + 215, 152); foes.push(golem); addText('Un GÓLEM HIPERVISOR vigila la granja...', camX + 4, 58, C.u, 120); }

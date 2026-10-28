@@ -31,7 +31,7 @@ test('las dos etapas tienen datos coherentes', () => {
       assert.match(s.mission, /^[A-Z0-9]+-\d+ /, `${st.name}: ticket mal formado ${s.mission}`);
       for (const wave of s.waves || []) for (const [kind] of wave) assert.ok(foes.includes(kind), `${st.name}: ${kind} no está en FOES`);
       for (const [, , kind] of s.mimics || []) if (kind) assert.ok(foes.includes(kind), `${st.name}: mímico ${kind} no está en FOES`);
-      if (s.miniboss) assert.ok(['minotauro', 'hidra', 'dba', 'cancerbero'].includes(s.miniboss), `jefe de sección desconocido: ${s.miniboss}`);
+      if (s.miniboss) assert.ok(['minotauro', 'hidra', 'dba', 'cancerbero', 'kraken', 'autoscaler'].includes(s.miniboss), `jefe de sección desconocido: ${s.miniboss}`);
     }
     assert.equal(st.sections[st.sections.length - 1].boss, true, `${st.name}: la última sección es la del jefe`);
     for (const [, , , item] of st.crates) assert.ok(items.has(item), `${st.name}: objeto desconocido ${item}`);
@@ -66,11 +66,17 @@ test('al terminar la etapa 1, START lleva a Las Cuevas', () => {
   assert.equal(game.ev('story && story.key'), 'cuevas');
 });
 
-test('al terminar la etapa 2 llegan los créditos', () => {
+test('al terminar la etapa 2 se sube a La Nube, y tras la 3 llegan los créditos', () => {
   const game = loadGame();
   startStage2(game);
   game.ev('stageClear()');
   assert.ok(game.ev('unlocked.cuevas'));
+  game.step(160);
+  game.press('start');
+  assert.equal(game.ev('stageIdx'), 2);
+  assert.equal(game.ev('story && story.key'), 'nube');
+  game.ev("story = null; state = 'play'; stageClear()");
+  assert.ok(game.ev('unlocked.nube'));
   game.step(160);
   game.press('start');
   assert.equal(game.ev('state'), 'credits');

@@ -8,7 +8,9 @@ Viernes, 17:45. Alguien ha tocado producción a mano. Un equipo de desarrollo ba
 
 Lunes, 03:00. Un batch nocturno sale de **Las Cuevas**, más abajo todavía, donde nadie baja desde 1987: Bases de datos, Seguridad, Monitorización y, al fondo, el Trono del Mainframe del Lich COBOL.
 
-El juego tiene dos etapas seguidas (`STAGES`). Al terminar la primera, START lleva a la segunda conservando vida, vidas y puntuación.
+Fin de mes. Llega el correo de facturación y nadie se atreve a abrirlo: toca subir a **La Nube**, por el Archipiélago de Clústeres y las Nubes Serverless, hasta la Cumbre donde espera la Factura de Fin de Mes.
+
+El juego tiene tres etapas seguidas (`STAGES`). Al terminar cada una, START lleva a la siguiente conservando vida, vidas y puntuación.
 
 Las bromas giran en torno a la informática: tickets, ClickOps, DNS, RAID, VMs huérfanas, CrashLoopBackOff… Nunca sobre personas.
 
@@ -60,7 +62,7 @@ El orden de la selección está en `HERO_ORDER` y la ficha de cada uno en `HERO_
 
 ## Modo jefes
 
-Desde el título, **MODO JEFES** (`js/game/bossrush.js`): los seis jefes seguidos, sin oleadas ni viñetas.
+Desde el título, **MODO JEFES** (`js/game/bossrush.js`): los nueve jefes de las tres etapas seguidos, sin oleadas ni viñetas.
 
 | Orden | Jefe | Decorado |
 |---|---|---|
@@ -70,9 +72,12 @@ Desde el título, **MODO JEFES** (`js/game/bossrush.js`): los seis jefes seguido
 | 4 | Troll DBA | Minas de Datos |
 | 5 | Cancerbero de las 3 AAA | Cripta de Seguridad |
 | 6 | Lich COBOL | Trono del Mainframe |
+| 7 | Kraken del Clúster | Archipiélago de Clústeres |
+| 8 | Autoescalador | Nubes Serverless |
+| 9 | Factura de Fin de Mes | Cumbre de Facturación |
 
 - Entre combate y combate, cada jugador recupera 30 de vida.
-- Al final: bonus de tiempo (90.000 menos 100 por segundo), de vida y de combo.
+- Al final: bonus de tiempo (120.000 menos 100 por segundo), de vida y de combo.
 - Tiene su propio ranking (`dnd-arcade-ranking-jefes`), con iniciales como el normal.
 - El Revisor no aparece en este modo.
 
@@ -175,6 +180,30 @@ La misma mecánica que la Hidra RAID con otras cabezas: **AUTENTICACIÓN**, **MF
 | Copia en cinta | Al 60 % y al 25 % invoca una **COPIA EN CINTA** (90 de vida) en el lado contrario y no recibe daño hasta que se destruye |
 | Final | 8.000 puntos, cámara lenta y «STOP RUN» |
 
+### Kraken del Clúster (Kubernetes)
+
+Otra variante de la Hidra (`KRAKEN`): tentáculos **NODO 1**, **CONTROL PLANE** y **NODO 2**. Mientras viva el control plane, los nodos se vuelven a programar («RESCHEDULING»).
+
+### El Autoescalador (Serverless)
+
+| Dato | Valor |
+|---|---|
+| Vida | 360 |
+| Espadazo | 13, derriba |
+| `SCALE OUT` | Cada vez que pierde un 25 % de vida, invoca dos **réplicas** (30 de vida, 6 de daño) |
+| Carga repartida | Mientras quede alguna réplica, sus golpes hacen la mitad y no derriban |
+
+### La Factura de Fin de Mes (Cumbre de Facturación)
+
+| Dato | Valor |
+|---|---|
+| Vida | 600 |
+| `CARGOS` | Lluvia de monedas sobre cada jugador: 8 de daño al caer. Su sombra en el suelo avisa de dónde caen |
+| `PICO DE USO` | Rayo a lo largo de su carril, 220 px: 6 de daño cada 10 actualizaciones durante 60 |
+| `RENOVACIÓN AUTOMÁTICA` | Embestida de lado a lado: 15, derriba |
+| Cargos ocultos | Al 66 % y al 33 %, dos NAT Gateways |
+| Final | 12.000 puntos y «FACTURA PAGADA · FINOPS NIVEL DIOS» |
+
 ### El Revisor (jefe secreto)
 
 Aparece después del Dragón Negro **solo si se ha llegado sin continuar** (`revisorUnlocked()`). Exige la Definition of Done.
@@ -225,6 +254,28 @@ Zonas por x: Minas de Datos 0–1279, Cripta de Seguridad 1280–2559, Observato
 | Falso positivo | 14 | 1,5 | 5 | 150 | Campana de alarma voladora |
 | Gnomo del dashboard | 34 | 1,1 | 6 | 220 | Rápido y pequeño |
 
+## Etapa 3: La Nube
+
+| Sección | Cámara | Ticket | Oleadas | Extra | Al cerrar |
+|---|---|---|---|---|---|
+| Kubernetes | 110 | `K8S-101 NODOS NOTREADY` | 2 sidecars · YAML + sidecar + pod | — | `kubectl drain` |
+| Kubernetes | 760 | `K8S-404 CONTROL PLANE CAÍDO` | operador + YAML · 2 pods + sidecar | Kraken | CLÚSTER SANO |
+| Serverless | 1400 | `FN-500 COLD START` | 3 lambdas · instancia zombi + lambda + sidecar | — | PROVISIONED CONCURRENCY |
+| Serverless | 2040 | `FN-429 TOO MANY REQUESTS` | operador + 2 lambdas | Autoescalador | RATE LIMIT OK |
+| Facturación | 2680 | `FIN-402 PAYMENT REQUIRED` | NAT + 2 instancias zombi · NAT + operador + lambda | — | TAGS DE COSTE OK |
+| Cumbre | 3520 | `FIN-999 LA FACTURA DE FIN DE MES` | — | La Factura | — |
+
+Zonas por x: Archipiélago de Clústeres 0–1279, Nubes Serverless 1280–2559, Torre de Facturación 2560–3199 y Cumbre desde 3200 (`ZONE3`).
+
+| Enemigo | Vida | Velocidad | Daño | Puntos | Comportamiento |
+|---|---|---|---|---|---|
+| Sidecar pegajoso | 42 | 1,1 | 7 | 220 | Básico y rápido |
+| Operador de K8s | 96 | 0,75 | 11 | 550 | Pesado, con hacha |
+| Indentación rota (YAML) | 34 | 0,75 | 6 | 220 | Como la fuga de memoria: al morir se divide en dos tabuladores |
+| Lambda en frío | 16 | 1,6 | 5 | 160 | Vuela en círculo y se lanza en picado |
+| NAT Gateway | 40 | 0,85 | 7 | 400 | Moneda fantasma: se vuelve invisible a ratos |
+| Instancia zombi | 36 | 0,8 | 8 | 280 | Sale del suelo y puede «reiniciarse» al morir |
+
 ## Objetos
 
 Salen de barriles y cofres (`CRATES`). Se recogen con A.
@@ -271,7 +322,7 @@ Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SS
 
 ## Logros
 
-21 logros en `ACHIEVEMENTS` (`js/ui/achievements.js`), guardados en el navegador. Se ven desde el título (LOGROS) y aparece un aviso al conseguir cada uno.
+24 logros en `ACHIEVEMENTS` (`js/ui/achievements.js`), guardados en el navegador. Se ven desde el título (LOGROS) y aparece un aviso al conseguir cada uno.
 
 | Logro | Cómo |
 |---|---|
@@ -292,6 +343,9 @@ Top 5 guardado en el navegador. El ranking inicial es LTS 60.000, K8S 45.000, SS
 | BATCH NOCTURNO | Terminar la etapa 2 |
 | MFA ROTO | Romper la cabeza del MFA del Cancerbero |
 | STOP RUN | Derrotar al Lich COBOL |
+| EN LA NUBE | Terminar la etapa 3 |
+| CONTROL PLANE CAÍDO | Tumbar el control plane del Kraken |
+| FINOPS | Pagar la Factura de Fin de Mes |
 | UNLOCK TABLES | Liberarse de un LOCK TABLE |
 | MODO DIOS | Código Konami |
 
