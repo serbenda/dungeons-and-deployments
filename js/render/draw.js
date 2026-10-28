@@ -109,6 +109,18 @@ function rigPose(a){
   }
 }
 /**
+ * Aviso de que un enemigo va a golpear: una marca roja que parpadea o, con AVISOS
+ * GRANDES, un triángulo amarillo con «!» fijo y bien contorneado (no depende del color).
+ * @param {number} x
+ * @param {number} y Parte superior del aviso.
+ */
+function windupCue(x, y){
+  if (!OPTS.bigCues) { if ((t >> 2) % 2) { r(x - 1, y, 3, 6, C.r); r(x - 1, y + 8, 3, 2, C.r); } return; }
+  ctx.fillStyle = OUTLINE; ctx.beginPath(); ctx.moveTo(x, y - 6); ctx.lineTo(x - 9, y + 11); ctx.lineTo(x + 9, y + 11); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.moveTo(x, y - 3); ctx.lineTo(x - 6.5, y + 9); ctx.lineTo(x + 6.5, y + 9); ctx.closePath(); ctx.fill();
+  r(x - 1, y + 1, 2, 4, OUTLINE); r(x - 1, y + 6, 2, 2, OUTLINE);
+}
+/**
  * Sombra elíptica en el suelo.
  * @param {number} sx
  * @param {number} y
@@ -196,7 +208,7 @@ function drawActor(a, cx){
     if (a.d.look === 'horse') blit(trojanSprite((t >> 4) % 2), sx, sy - 6 + bob, a.face, 20, 44, fl, alpha);
     else if (a.d.look === 'coin') blit(coinGhostSprite((t >> 4) % 2), sx, sy - 10 + bob, a.face, 18, 42, fl, alpha);
     else blit(ghostSprite((t >> 4) % 2), sx, sy - 10 + bob, a.face, 18, 40, fl, alpha);
-    if (a.state === 'windup' && (t >> 2) % 2) { r(sx - 1, sy - 62, 3, 6, C.r); r(sx - 1, sy - 54, 3, 2, C.r); }
+    if (a.state === 'windup') windupCue(sx, sy - 62);
     return;
   }
   if (a.kind === 'mimico' || a.kind === 'phishing') {
@@ -224,7 +236,7 @@ function drawActor(a, cx){
     if (a.state === 'rise') { ctx.globalAlpha = Math.min(1, a.t/45); }
     blit(podSprite(((t + a.seed*3) >> 3) % 2), sx, sy, a.face, 13, 22, fl);
     ctx.globalAlpha = 1;
-    if (a.state === 'windup' && (t >> 2) % 2) { r(sx - 1, sy - 30, 3, 5, C.r); }
+    if (a.state === 'windup') windupCue(sx, sy - 32);
     return;
   }
   if (a.d && a.d.slime) {
@@ -232,7 +244,7 @@ function drawActor(a, cx){
     const pose = (a.state === 'down' && a.lying) ? 'flat' : a.state === 'windup' ? 'wind' : (a.state === 'attack' || a.state === 'down' || a.state === 'thrown') ? 'jump' : ((t + (a.seed || 0)*5) >> 3) % 2 ? 'n' : 'wind';
     const hop = a.state === 'attack' ? Math.sin(Math.min(1, a.t/10)*Math.PI)*8 : 0;
     blit(slimeSprite(!!a.d.small, pose, a.d.look), sx, sy - hop, a.face, 20, 34, fl);
-    if (a.state === 'windup' && (t >> 2) % 2) { r(sx - 1, sy - 34, 3, 6, C.r); r(sx - 1, sy - 26, 3, 2, C.r); }
+    if (a.state === 'windup') windupCue(sx, sy - 34);
     return;
   }
   if (a.kind === 'hidra') {
@@ -240,7 +252,11 @@ function drawActor(a, cx){
     if (!(a.state === 'dying' && (t >> 2) % 2)) blit(hydraBodySprite(), sx, sy + Math.sin(t/30)*1.5, 1, 55, 72, fl);
     return;
   }
-  if (a.kind === 'cabeza') { shadow(sx + (a.ox || 0), a.y, 22); drawHead(a, sx, sy, fl); return; }
+  if (a.kind === 'cabeza') {
+    shadow(sx + (a.ox || 0), a.y, 22); drawHead(a, sx, sy, fl);
+    if (krakenGuarded(a)) { ctx.strokeStyle = 'rgba(94,200,242,' + (.45 + .25*Math.sin(t/5)) + ')'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(Math.round(sx + (a.ox || 0) - 14), Math.round(sy - 22), 22, 16, 0, 0, Math.PI*2); ctx.stroke(); }
+    return;
+  }
   const isP = isHero(a);
   if (isP && a.out) return;
   if (isP && a.duck > 0) { a.duck--; if ((t >> 2) % 2) { ctx.globalAlpha = .35; shadow(sx, a.y, 40); ctx.globalAlpha = 1; } const ds = itemSprite('patito'); ctx.drawImage(ds.c, Math.round(sx - 30), Math.round(sy - 66 + Math.sin(t/6)*2)); }
@@ -282,7 +298,7 @@ function drawActor(a, cx){
     ctx.fillStyle = 'rgba(255,210,63,' + (pulse + .2) + ')';
     for (let yy = 0; yy < 8; yy++) ctx.fillRect(gx - 4 + (yy % 2)*4, Math.round(sy - 72 + yy*9), 4, 1);
   }
-  if (!isP && a.state === 'windup' && (t >> 2) % 2) { r(sx + a.face*4 - 1, sy - 64, 3, 6, C.r); r(sx + a.face*4 - 1, sy - 56, 3, 2, C.r); }
+  if (!isP && a.state === 'windup') windupCue(sx + a.face*4, sy - 64);
   if (isP && a.state === 'stuck') {
     const k = a.mash || 0;
     r(sx - 7, sy - 92, 14, 11, '#ffd23f'); r(sx - 5, sy - 98, 10, 7, '#ffd23f'); r(sx - 3, sy - 96, 6, 5, '#0b0912'); r(sx - 1, sy - 88, 2, 4, '#3a2a10');
@@ -344,6 +360,11 @@ function hpBar(p, x, y, w){
   r(x - 1, y - 1, w + 2, 8, '#16241b'); r(x, y, w, 6, '#2a0f16');
   const hw = Math.round(w*p.hp/p.max), hc = p.hp > 30 ? [NEON, '#1f7a46'] : ['#ff5d73', '#8a2c3c'];
   r(x, y, hw, 6, hc[0]); r(x, y + 4, hw, 2, hc[1]); r(x, y, hw, 1, '#e9fff4');
+  if (OPTS.bigCues) {
+    // Vida en número y, si es baja, rayas: no depende de distinguir verde y rojo.
+    if (p.hp <= 30) for (let i = 0; i < hw; i += 4) r(x + i, y, 2, 6, '#ffffff');
+    txt(String(Math.ceil(p.hp)), x + w - 1, y - 1, '#ffffff', { right:true, outline:true });
+  }
 }
 /**
  * Panel compacto de un jugador para el cooperativo.
@@ -549,7 +570,11 @@ function drawScene(){
     }
     r(f.x - cx, f.y, f.big ? 3 : 2, f.big ? 3 : 2, f.col);
   }
-  for (const d of drops) { const x = Math.round(d.x - cx); shadow(x, d.y, 6 + Math.max(0, 14 - d.z/12)); ctx.drawImage(coinSprite().c, x - 6, Math.round(d.y - d.z - 6)); }
+  for (const d of drops) {
+    const x = Math.round(d.x - cx); shadow(x, d.y, 6 + Math.max(0, 14 - d.z/12));
+    if (OPTS.bigCues) { ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(x, Math.round(d.y), 12, 4, 0, 0, Math.PI*2); ctx.stroke(); }
+    ctx.drawImage(coinSprite().c, x - 6, Math.round(d.y - d.z - 6));
+  }
   drawLights(cx);
   for (const s of eshots) { const x = Math.round(s.x - cx), y = Math.round(s.y - s.z); r(x - 4, y - 4, 8, 8, OUTLINE); r(x - 3, y - 3, 6, 6, '#ff8a3d'); r(x - 1, y - 2, 2, 3, '#ffffff'); r(x - 1, y + 2, 2, 1, '#ffffff'); }
   for (const s of texts) { if (s.life < 12 && (s.life >> 1) % 2) continue; const x = clamp(s.x - cx, 2, W - 2 - 8*s.s.length); txt(s.s, x, s.y, s.col, { outline:true }); }

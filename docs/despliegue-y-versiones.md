@@ -22,7 +22,7 @@ gitGraph
 | `development` | Integración | PR desde `feature/*`, `fix/*` o `docs/*` |
 | `feature/*`, `fix/*`, `docs/*` | Un cambio concreto | Commits |
 
-Se recomienda proteger `main` y `development` en *Settings → Branches*: exigir PR y que pasen los jobs **Lint**, **Unit tests** y **Smoke test (Chromium)**.
+Se recomienda proteger `main` y `development` en *Settings → Branches*: exigir PR y que pasen los jobs **Lint**, **Unit tests**, **Smoke test (Chromium)**, **Smoke test (Firefox)** y **Smoke test (WebKit / Safari)**.
 
 ## Integración continua
 
@@ -35,7 +35,8 @@ flowchart LR
 ```
 
 - **Lint** y **Unit tests** corren en paralelo.
-- **Smoke test (Chromium)** solo corre si los dos pasan.
+- **Smoke test (Chromium)** solo corre si los dos pasan: todas las partidas, con tres semillas.
+- **Smoke test (Firefox)** y **Smoke test (WebKit / Safari)** corren a la vez que el de Chromium, con una selección corta (`QUICK=1`, una semilla) y servidos por http, como en GitHub Pages: con `file://`, WebKit bloquea las fuentes de otro origen.
 - Un push nuevo a la misma rama cancela la ejecución anterior.
 
 ## Publicación en GitHub Pages

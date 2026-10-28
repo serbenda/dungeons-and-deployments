@@ -160,3 +160,13 @@ test('cada héroe tiene esqueleto, frases, descripción y está en la selección
     for (const ln of game.ev(`HERO_INFO.${k}`)) assert.ok(ln.length <= 32, `${k}: «${ln}» no cabe en la ficha`);
   }
 });
+
+test('AVISOS GRANDES se activa en Opciones y se guarda', () => {
+  const game = loadGame();
+  assert.equal(game.ev('OPTS.bigCues'), false);
+  game.ev("state = 'options'; optSel = OPT_ROWS.findIndex(r => r.label === 'AVISOS GRANDES')");
+  game.press('atk');
+  assert.equal(game.ev('OPTS.bigCues'), true);
+  assert.equal(game.ev("JSON.parse(localStorage.getItem('dnd-arcade-options')).bigCues"), true);
+  assert.equal(game.ev('typeof windupCue'), 'function');
+});

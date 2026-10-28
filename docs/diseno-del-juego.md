@@ -191,7 +191,10 @@ La misma mecánica que la Hidra RAID con otras cabezas: **AUTENTICACIÓN**, **MF
 
 ### Kraken del Clúster (Kubernetes)
 
-Otra variante de la Hidra (`KRAKEN`): tentáculos **NODO 1**, **CONTROL PLANE** y **NODO 2**. Mientras viva el control plane, los nodos se vuelven a programar («RESCHEDULING»).
+Variante de la Hidra (`KRAKEN`) con una regla propia: tentáculos **NODO 1**, **CONTROL PLANE** y **NODO 2**.
+
+- Mientras viva el control plane, los nodos caídos se vuelven a programar a los 7 segundos («RESCHEDULING»).
+- El control plane tiene un *taint* (`TAINT: NoSchedule`, anillo azul): **solo recibe daño mientras los dos nodos estén caídos a la vez** (`krakenGuarded()`). Hay que drenar los nodos y rematarlo antes de que se reprogramen.
 
 ### El Autoescalador (Serverless)
 
