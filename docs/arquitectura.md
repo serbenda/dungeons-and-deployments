@@ -17,8 +17,8 @@ flowchart LR
   EN --> CB
   U --> SEC[Secciones y oleadas<br>game-data.js · state.js]
   U --> MU[Música<br>music.js]
-  D[draw<br>scene.js · hud.js · draw.js] --> LV[Mazmorra e iluminación<br>level.js]
-  D --> SP[Sprites<br>characters.js · monsters.js]
+  D[draw<br>scene.js · hud.js · draw.js] --> LV[Decorados e iluminación<br>level.js · caves.js · cloud.js]
+  D --> SP[Sprites<br>characters.js · monsters.js<br>caves.js · cloud.js]
   SP --> PX[Motor de píxeles<br>pixel.js]
   LV --> PX
   M[main.js] -->|60 por segundo| U
@@ -96,7 +96,7 @@ La lógica avanza siempre a 60 actualizaciones por segundo, aunque la pantalla v
 Hay tres mecanismos que alteran el paso del tiempo dentro de `updatePlay()`:
 
 - `hitstop`: congela unas actualizaciones al golpear, para dar sensación de impacto.
-- `slowmo`: cámara lenta (solo una de cada tres actualizaciones) al vencer al dragón.
+- `slowmo`: cámara lenta (solo una de cada tres actualizaciones) al vencer a un jefe final: el Dragón Negro, el Lich COBOL o la Factura de Fin de Mes.
 - `state = 'story'` o `'pause'`: la partida se detiene por completo.
 
 ## Máquina de estados
@@ -140,7 +140,7 @@ stateDiagram-v2
 
 | Estado | Actualiza | Dibuja |
 |---|---|---|
-| `title` | Menú JUGAR · OPCIONES · LOGROS; a los 9 s pasa a la demo del ranking | `drawTitle()` |
+| `title` | Menú `titleMenu()`: CONTINUAR (si hay partida guardada) · JUGAR · MODO JEFES · OPCIONES · LOGROS; a los 9 s pasa a la demo del ranking | `drawTitle()` |
 | `options` | `updateOptions()` | `drawOptions()` |
 | `keys` | `updateKeys()` | `drawKeys()` |
 | `logros` | `updateAchievements()` | `drawAchievements()` |
@@ -202,7 +202,7 @@ La etapa es una lista de secciones (`SECTIONS` en `data/game-data.js`). Cuando `
 5. Después de la última, si hay `miniboss`, lo crea con su diálogo.
 6. Cuando todo está limpio, muestra `close`, desbloquea la cámara y aparece «GO!».
 
-La última sección (`boss: true`) crea el jefe final de la etapa (`STAGES[i].boss`): el Dragón Negro, el Lich COBOL o la Factura de Fin de Mes. Al vencerlo, si nadie ha continuado aparece El Revisor (`spawnRevisor()`); si no, o al vencerlo a él, el diálogo final da paso a `stageClear()`, que calcula los bonus y desbloquea los logros de final de etapa.
+La última sección (`boss: true`) crea el jefe final de la etapa (`STAGES[i].boss`): el Dragón Negro, el Lich COBOL o la Factura de Fin de Mes. Al vencerlo, el diálogo final (`outro`, `final` o `epilogo`) da paso a `stageClear()`, que calcula los bonus y desbloquea los logros de final de etapa. Solo en la etapa 1, si nadie ha continuado (`revisorUnlocked()`), antes de ese final aparece El Revisor (`spawnRevisor()`), y el final llega al vencerlo a él.
 
 ## Etapas
 
@@ -217,7 +217,7 @@ Las tres etapas tienen la misma longitud (`LEVEL_END`), así que comparten coord
 
 ## Modo jefes
 
-`startBossRush()` empieza una partida normal y cambia `SECTIONS` por `RUSH`: seis secciones sin oleadas (`waves:[[]]`), cada una con su etapa, su cámara y su jefe. Así la lógica de secciones de `updatePlay()` sirve tal cual: al llegar a la cámara bloquea la pantalla y, como no hay oleadas, saca enseguida al jefe. Cuando el jefe cae (o la sección se cierra), en vez de avanzar la cámara se llama a `rushNext()`, que cambia de etapa si toca, limpia la pantalla, coloca la cámara y a los jugadores y cura 30. Tras el último, `rushClear()` calcula los bonus. `startStory()` se salta las viñetas en este modo.
+`startBossRush()` empieza una partida normal y cambia `SECTIONS` por `RUSH`: nueve secciones sin oleadas (`waves:[[]]`), cada una con su etapa, su cámara y su jefe. Así la lógica de secciones de `updatePlay()` sirve tal cual: al llegar a la cámara bloquea la pantalla y, como no hay oleadas, saca enseguida al jefe. Cuando el jefe cae (o la sección se cierra), en vez de avanzar la cámara se llama a `rushNext()`, que cambia de etapa si toca, limpia la pantalla, coloca la cámara y a los jugadores y cura 30. Tras el último, `rushClear()` calcula los bonus. En este modo `startStory()` solo muestra la viñeta de entrada (`jefes`) y se salta las demás, llamando directamente a lo que iba después.
 
 ## Persistencia
 
@@ -229,7 +229,7 @@ Solo se guarda en el navegador:
 | `dnd-arcade-ranking-jefes` | Top 5 del modo jefes (JSON) |
 | `dnd-arcade-save` | Punto de control al empezar la etapa 2 o 3 (JSON) |
 | `dnd-arcade-best` | Mejor puntuación (compatibilidad con versiones anteriores) |
-| `dnd-arcade-options` | Opciones: volúmenes, dificultad, destellos, vibración y teclas (JSON) |
+| `dnd-arcade-options` | Opciones: volúmenes, dificultad, destellos, vibración, avisos grandes y teclas (JSON) |
 | `dnd-arcade-logros` | Logros desbloqueados con su fecha (JSON) |
 
 Todos los accesos van en `try/catch`: en modo incógnito o con el almacenamiento bloqueado el juego funciona igual, sin guardar.

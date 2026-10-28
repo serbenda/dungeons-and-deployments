@@ -9,7 +9,7 @@ try { best = parseInt(localStorage.getItem('dnd-arcade-best') || '0', 10) || 0; 
 
 /** Jugadores de la partida (1 o 2). P es el jugador «actual»: el que se está actualizando o, si no, el 1. */
 let PLAYERS = [];
-/** Etapa en curso: 0 Las Catacumbas, 1 Las Cuevas (índice de STAGES). */
+/** Etapa en curso: 0 Las Catacumbas, 1 Las Cuevas, 2 La Nube (índice de STAGES). */
 let stageIdx = 0;
 /** Estadísticas de la partida para la pantalla final y los logros. */
 let RUN = null;

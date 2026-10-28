@@ -33,6 +33,7 @@ function damage(tg, dmg, src, opt){
   if (!ok) return ok;
   if (isHero(tg)) {
     if (tg.slot === 0) haptic(opt && opt.knock ? 60 : 25);
+    sfx('hurt');
     if (tg.chain >= 5) addText('COMBO ROTO', tg.x - 40, tg.y - 84, C.r, 40);
     tg.chain = 0; tg.chainT = 0;
     if (RUN) RUN.hitsTaken++;

@@ -23,6 +23,25 @@ body:
         3. ...
     validations:
       required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Dónde
+      options:
+        - "Etapa 1: Las Catacumbas"
+        - "Etapa 2: Las Cuevas"
+        - "Etapa 3: La Nube"
+        - Modo jefes
+        - Menús (título, selección, opciones, logros, ranking)
+    validations:
+      required: true
+  - type: dropdown
+    id: players
+    attributes:
+      label: Jugadores
+      options:
+        - Un jugador
+        - Dos jugadores (cooperativo)
   - type: input
     id: seed
     attributes:

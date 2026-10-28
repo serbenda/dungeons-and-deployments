@@ -16,7 +16,7 @@ const RUSH = [
   { stage:2, cam:2040, mission:'JEFE 8/9 AUTOESCALADOR', miniboss:'autoscaler', waves:[[]] },
   { stage:2, cam:LEVEL_END, mission:'JEFE 9/9 LA FACTURA', boss:true }
 ];
-/** Modo de la partida en curso: 'arcade' (las dos etapas) o 'jefes'. */
+/** Modo de la partida en curso: 'arcade' (las tres etapas) o 'jefes'. */
 let playMode = 'arcade';
 
 /**

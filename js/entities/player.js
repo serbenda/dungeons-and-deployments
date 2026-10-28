@@ -22,7 +22,7 @@ function tryPickup(){
   if (it.k === 'stack') {
     score += 500; sfx('special'); shake = 8; hitstop = 6; unlock('stack');
     addText('COPIAR Y PEGAR DE STACK OVERFLOW', camX + 32, 70, '#f48024', 100);
-    for (const e of foes.slice()) if (alive(e) && e.x > camX - 10 && e.x < camX + W + 10 && e.kind !== 'dragon' && !(e.kind === 'golem' && !e.angry)) damage(e, 28, P, { knock:true, pierce:true });
+    for (const e of foes.slice()) if (alive(e) && e.x > camX - 10 && e.x < camX + W + 10 && e !== boss && e.kind !== 'dragon' && !(e.kind === 'golem' && !e.angry)) damage(e, 28, P, { knock:true, pierce:true });
     if (boss && alive(boss)) damage(boss, 28, P, {});
     burst(P.x, P.y - 30, '#f48024', 30, 3, 'rgb(244,128,36)');
     P.state = 'pick'; P.t = 0; return true;

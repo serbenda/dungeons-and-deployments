@@ -63,6 +63,8 @@ function batSprite(f){
 
 ### Dibujar un sprite: `blit()`
 
+En `js/render/draw.js`, con el resto de primitivas de pantalla (`r()`, `txt()`, `goldText()`, `shadow()`):
+
 ```js
 blit(spr, sx, sy, face, ox, base, flash, alpha)
 ```
@@ -84,7 +86,7 @@ guerrero: { scale: 1.12, style: 'warrior', weapon: 'sword', cols: { skin, armor,
 - `weapon`: arma por defecto (ver `paintWeapon()`).
 - `shield`: escudo redondo (`true`) o muro de ladrillos en llamas (`'wall'`, el Firewall).
 
-`RIGS.clerigo` (Clériga) no se usa en el juego actual: queda como base para un futuro héroe.
+`RIGS.clerigo` (Clériga) no es un personaje jugable: es la base de El Revisor (`RIGS.revisor` la copia con otra escala y otros colores).
 
 ### `POSES`: el movimiento
 
@@ -99,7 +101,7 @@ Cada pose da ángulos en grados:
 | `wpn` | Giro extra del arma |
 | `down` | Tumbado en el suelo |
 
-Los ángulos se miden desde la vertical hacia abajo (0°) y crecen hacia delante (90°). `D(a)` convierte un ángulo en vector y `add(punto, vector, longitud)` avanza sobre él.
+Los ángulos se miden desde la vertical hacia abajo (0°) y crecen hacia delante (90°). `D(a)` convierte un ángulo en vector y `add(punto, vector, longitud)` avanza sobre él (`js/core/pixel.js`).
 
 ### Poses mezcladas
 
@@ -113,15 +115,17 @@ Las mezclas se cachean en `POSES` y sus sprites en `SPR`, así que el coste solo
 
 ### Qué pose toca: `rigPose(a)`
 
-Traduce el estado de un actor (`walk`, `punch`, `jump`, `grab`...) y su tiempo en él (`a.t`) en un nombre de pose. Para añadir una animación nueva: crea la pose en `POSES` y devuélvela desde `rigPose()` para el estado que corresponda.
+En `js/render/draw.js`, junto a `breathe()` y `drawActor()`. Traduce el estado de un actor (`walk`, `punch`, `jump`, `grab`...) y su tiempo en él (`a.t`) en un nombre de pose. Para añadir una animación nueva: crea la pose en `POSES` y devuélvela desde `rigPose()` para el estado que corresponda.
 
 ## Monstruos
 
-`js/sprites/monsters.js` pinta a mano los que no son humanoides: gólem, dragón (180×124, con fotogramas de alas, boca, mordisco, cola, vuelo y mareo), slime, murciélago, fantasma, mímico, pod, tótem, objetos y llamas. Los jefes del Sprint 2 (cuerpo y cabezas de la Hidra) están en `js/entities/bosses.js`.
+`js/sprites/monsters.js` pinta a mano los que no son humanoides: gólem, dragón (180×124, con fotogramas de alas, boca, mordisco, cola, vuelo y mareo), slime, murciélago, fantasma, mímico, pod, tótem, objetos y llamas. El cuerpo y las cabezas de la Hidra RAID (`hydraBodySprite()`, `headSprite()`), que también usan el Cancerbero y el Kraken con otros colores, están junto a su lógica en `js/entities/bosses.js`.
 
 `js/sprites/cloud.js` añade los de la etapa 3: lambda en frío, NAT Gateway (moneda fantasma), la Factura de Fin de Mes (120×120, con tres caras) y las monedas que caen. El elemental YAML usa el sprite del slime con otra paleta (`look:'yaml'`).
 
 `js/sprites/caves.js` añade los de la etapa 2: el ojo de la consulta N+1, la campana del falso positivo, el cofre phishing, el troyano y la copia en cinta (con bobinas que giran). Los humanoides nuevos (kobold, troll, Troll DBA, ransomware, gnomo y Lich COBOL) no tienen dibujo propio: `reRig(base, cambios, colores)` reutiliza el esqueleto y el estilo de otro personaje con otra escala y otra paleta. Para dibujar un monstruo volador o fantasmal con otro aspecto basta con `look` en `FOES` (`'eye'`, `'bell'`, `'horse'`, `'phish'`).
+
+`js/sprites/cloud.js` hace lo mismo con los humanoides de La Nube: sidecar pegajoso, operador de K8s, instancia zombi, el Autoescalador y sus réplicas son esqueletos recoloreados con `reRig()`.
 
 ## La mazmorra (`js/world/level.js`)
 
@@ -165,19 +169,22 @@ La etapa 2 sigue el mismo esquema: `buildCaves()` pinta una vez el canvas `LEVEL
 Se dibuja después de los actores:
 
 1. Una viñeta oscura precalculada (`VIG`).
-2. Con `globalCompositeOperation = 'lighter'` (mezcla aditiva) se suman degradados radiales: antorchas y braseros (con parpadeo), charcos de ácido, rayos de las vidrieras, el aliento del dragón y las partículas con `glow`. En Las Cuevas, `caveLights()` suma los cristales, las pantallas, el brillo verde del Mainframe y el tinte rojo de la cripta.
+2. Con `globalCompositeOperation = 'lighter'` (mezcla aditiva) se suman degradados radiales: antorchas y braseros (con parpadeo), charcos de ácido, rayos de las vidrieras, el aliento del dragón y las partículas con `glow`. En Las Cuevas, `caveLights()` suma los cristales, las pantallas, el brillo verde del Mainframe y el tinte rojo de la cripta; en La Nube, `skyLights()` añade los relámpagos de los símbolos λ y un tinte dorado desde la Torre de Facturación.
 3. Encima, las llamas y unas motas de polvo en suspensión.
 
 ## Efectos
 
 | Efecto | Dónde |
 |---|---|
-| Partículas (`burst`), destellos de impacto (`spark`), anillos de los especiales | `js/core/utils.js`, dibujados en `draw()` |
-| Estela del arma | `slashArc()` |
-| Destello blanco del golpe final y cámara lenta | `flashT` y `slowmo` en `draw()` |
+| Partículas (`burst`), destellos de impacto (`spark`), anillos de los especiales | `js/core/utils.js`, dibujados en `drawScene()` (`js/render/scene.js`) |
+| Estela del arma | `slashArc()` (`js/render/draw.js`) |
+| Destello blanco del golpe final y cámara lenta | `flashT` y `slowmo` en `drawScene()` (`js/render/scene.js`) |
 | Temblor de pantalla | `shake` |
 | Textos flotantes (daño, `SIGKILL`...) | `addText()` |
+| Aviso de ataque enemigo | Marca roja que parpadea; con AVISOS GRANDES, `windupCue()` dibuja un triángulo amarillo fijo con «!» |
 
 ## Interfaz
+
+El HUD y los menús están en `js/render/hud.js`: `drawHUD()` (un panel por jugador, puntos y vidas), `hpBar()` (con AVISOS GRANDES añade el número y rayas por debajo de 30), `bossBar()`, `drawTitle()` y `drawSelect()`. La escena completa de cada estado la compone `drawScene()` en `js/render/scene.js`.
 
 Toda la interfaz usa `panel()` (borde verde neón) y la fuente Press Start 2P a 8 y 16 píxeles (`F8`, `F16`). Los títulos usan `goldText()`, con degradado dorado. Los retratos (`portrait()`) recortan la cabeza del sprite usando el `meta` que devuelve `paintRig()`.

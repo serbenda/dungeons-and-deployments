@@ -32,8 +32,8 @@ Cada dispositivo tiene un nombre: `kb` (teclado), `kb2` (grupo B del teclado), `
 | Z, J, Espacio | `atk` |
 | X, K | `jump` |
 | C, L | `special` |
-| Enter, Esc | `start` |
-| 2 | `start` del jugador 2 (unirse) |
+| Enter, Intro del teclado numérico, Esc | `start` |
+| 2, 2 del teclado numérico | `start` del jugador 2 (unirse) |
 | M | `mute` |
 
 Con un jugador, todas las teclas lo manejan. **Dos jugadores en un teclado**: al pulsar 2, el grupo B (WASD, J, K, L) pasa a ser del jugador 2 y el jugador 1 se queda con flechas, Z, X, C y Enter.
@@ -100,7 +100,7 @@ A (atacar), B (saltar), SP (especial), START, SONIDO y PANTALLA. Cada botón cap
 
 ### Toques en la pantalla
 
-Fuera de la partida, tocar la pantalla hace de botón A: empieza, pasa diálogos, inserta crédito, vuelve del ranking. En la selección, tocar un héroe lo elige y volver a tocarlo lo confirma. Durante la partida no hace nada, para evitar acciones accidentales.
+Fuera de la partida, tocar la pantalla hace de botón A: empieza, pasa diálogos, inserta crédito, vuelve del ranking. En la selección, tocar un héroe lo elige y volver a tocarlo lo confirma. Durante la partida, en la pausa y en la pantalla de iniciales no hace nada, para evitar acciones accidentales (las iniciales se escriben con la cruceta y A).
 
 ### Extras
 

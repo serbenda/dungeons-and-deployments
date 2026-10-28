@@ -2,6 +2,19 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.8.2] - 2026-10-28
+
+### Corregido
+- La opción EFECTOS ya cambia el volumen de los efectos de sonido (antes solo se guardaba) y, a 0, los silencia.
+- Recibir un golpe vuelve a tener su sonido propio.
+- Con AVISOS GRANDES, las cabezas de la Hidra RAID, el Cancerbero y el Kraken también avisan con el triángulo «!» en vez de la marca roja que parpadea.
+- El pergamino de Stack Overflow ya no golpea dos veces al Lich COBOL ni a la Factura de Fin de Mes (les quitaba 56 en vez de 28).
+
+### Cambiado
+- La prueba de humo reinicia la semilla aleatoria al empezar cada partida, para que un fallo se pueda reproducir siempre igual.
+- Documentación revisada de arriba abajo contra el código: archivos tras la división de jefes y dibujo, protección de ramas, releases publicadas, cómo publicar una versión, tiempos y número de pruebas, prueba de humo en tres navegadores, opciones, puntos de los jefes de las etapas 2 y 3 y escalado de la vida de los enemigos.
+- La plantilla de fallos pregunta la etapa (o el modo) y el número de jugadores, y la de PR recuerda probar con mando y añadir los archivos nuevos al service worker.
+
 ## [0.8.1] - 2026-10-28
 
 ### Cambiado

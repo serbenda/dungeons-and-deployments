@@ -8,20 +8,20 @@ npm run lint && npm test && npm run test:e2e
 
 ## Añadir un enemigo humanoide
 
-Ejemplo: un «Troll del Legacy».
+Ejemplo inventado: un «Ogro del Monolito» (`ogro`). El Troll del Legacy de Las Cuevas se hizo así, pero con `reRig()` sobre el orco (`js/sprites/caves.js`).
 
 1. **Aspecto**, en `RIGS` (`js/sprites/characters.js`):
    ```js
-   troll: { scale: 1.3, style: 'orc', weapon: 'axe', cols: { skin: '#6a7a5a', skinS: '#4a5a3a', ... } },
+   ogro: { scale: 1.3, style: 'orc', weapon: 'axe', cols: { skin: '#6a7a5a', skinS: '#4a5a3a', ... } },
    ```
-   Reutiliza un `style` existente o añade el tuyo en `paintRig()`.
+   Reutiliza un `style` existente o añade el tuyo en `paintRig()`. Si solo cambian el tamaño, el arma o los colores de otro personaje, usa `reRig('orco', { scale: 1.3 }, { skin: '#6a7a5a' })`.
 2. **Datos**, en `FOES` (`js/data/game-data.js`):
    ```js
-   troll: { name: 'TROLL DEL LEGACY', short: 'TROLL', rig: 'troll', hp: 90, spd: .7, dmg: 11, wind: 20, score: 500 },
+   ogro: { name: 'OGRO DEL MONOLITO', short: 'OGRO', rig: 'ogro', hp: 90, spd: .7, dmg: 11, wind: 20, score: 500 },
    ```
-3. **Que cuente en las oleadas**: añade `troll: 1` a `GRUNTS` (`js/core/utils.js`).
-4. **Mensaje al eliminarlo** (opcional): `troll: ['COBOL COMPILADO']` en `KILL_BY`.
-5. **Ponlo en una oleada** de `SECTIONS`: `['troll', 1]`.
+3. **Que cuente en las oleadas**: añade `ogro: 1` a `GRUNTS` (`js/core/utils.js`).
+4. **Mensaje al eliminarlo** (opcional): `ogro: ['MONOLITO TROCEADO']` en `KILL_BY` (`js/core/utils.js`).
+5. **Ponlo en una oleada** de las secciones de su etapa (`SECTIONS_1`, `SECTIONS_2` o `SECTIONS_3`): `['ogro', 1]`.
 
 La IA genérica de `updateFoe()` ya lo hace acercarse, esperar turno y golpear. Las pruebas unitarias comprueban que el `rig` y el tipo existan.
 
@@ -29,26 +29,27 @@ La IA genérica de `updateFoe()` ya lo hace acercarse, esperar turno y golpear. 
 
 1. Pinta su sprite en `js/sprites/monsters.js` con `sprite('clave|' + fotograma, w, h, S => { ... })`.
 2. Añade sus datos a `FOES` con alguna marca propia (por ejemplo `bouncy: true`) y su tipo a `GRUNTS`.
-3. En `drawActor()` (`js/render/draw.js`), añade un caso antes de los humanoides:
+3. En `drawActor()` (`js/render/draw.js`), añade un caso antes de los humanoides. Si solo cambia el aspecto de un volador o fantasma que ya existe, basta con `look` en `FOES` (ver [Gráficos](graficos.md#monstruos)):
    ```js
    if (a.kind === 'rebote') { shadow(sx, a.y, 18); blit(reboteSprite((t >> 3) % 2), sx, sy, a.face, 16, 30, fl); return; }
    ```
 4. Si su comportamiento es distinto, enrútalo al principio de `updateFoe()` (`js/entities/enemies.js`) hacia una función propia, como hace `updateBat()`.
-5. Si tiene una medida de colisión distinta, ajústala en `halfW()`.
+5. Si tiene una medida de colisión distinta, ajústala en `halfW()` (`js/core/utils.js`).
 
 ## Añadir un jefe de sección
 
 Ejemplo real: el Minotauro del Firewall.
 
 1. Datos en `FOES` con `boss: true` y `nograb: true`. Los jefes no se aturden ni se derriban hasta morir.
-2. IA en `js/entities/bosses.js` (`updateMinotaur()`) y enrútala en `updateFoe()`.
+2. IA en el archivo de jefes de su etapa (`js/entities/bosses.js`, `bosses-caves.js` o `bosses-cloud.js`; mira `updateMinotaur()` de ejemplo) y enrútala en `updateFoe()`. Si creas un archivo nuevo, añádelo a `index.html` y a `ASSETS` en `sw.js`.
 3. En la sección, `miniboss: 'nombre'`. En `updatePlay()` (`js/game/loop.js`), el bloque `sec.miniboss` lo crea al acabar las oleadas; añade ahí tu caso.
-4. Su diálogo en `STORIES` y su barra de vida en `bossBar()`.
-5. Una prueba unitaria de su mecánica principal en `tests/game.test.js`.
+4. Su diálogo en `STORIES` (`js/ui/story.js`) y su barra de vida en `bossBar()` (`js/render/hud.js`).
+5. Si debe salir en el modo jefes, una entrada en `RUSH` (`js/game/bossrush.js`) con su etapa y su cámara.
+6. Una prueba unitaria de su mecánica principal en el archivo de pruebas de su etapa (`tests/game.test.js`, `tests/etapa2.test.js` o `tests/etapa3.test.js`).
 
 ## Añadir una sección (ticket)
 
-En `SECTIONS`, en orden de `cam`:
+En las secciones de su etapa (`SECTIONS_1`, `SECTIONS_2` o `SECTIONS_3`, en `js/data/game-data.js`), en orden de `cam`:
 
 ```js
 { cam: 3000, mission: 'DB-042 DEADLOCK', close: 'COMMIT; ROLLBACK;', waves: [
@@ -63,7 +64,7 @@ En `SECTIONS`, en orden de `cam`:
 - Lado de aparición: `1` derecha, `-1` izquierda, `0` sale del suelo.
 - Extras opcionales: `golem`, `mimics: [[x, y]]`, `totem: [x, y]`, `miniboss`.
 
-Si la sección necesita decorado nuevo, añádelo en `buildLevel()` y, si cambia de zona, en `ZONE`.
+Si la sección necesita decorado nuevo, añádelo en el `build` de su etapa (`buildLevel()`, `buildCaves()` o `buildSky()`) y, si cambia de zona, en su función de zonas (`ZONE1`, `ZONE2` o `ZONE3`).
 
 ## Añadir un objeto
 
@@ -95,11 +96,11 @@ Ejemplo real: la Pícara del Frontend.
 
 1. **Aspecto** en `RIGS` (`js/sprites/characters.js`). Si su estilo es nuevo (`style:'rogue'`), añade sus colores de piernas y brazos en `legC` y `armC` de `paintRig()`, sus detalles del torso y su cabeza. Si su arma es nueva, añádela en `paintWeapon()`.
 2. **Datos** en `HEROES`, su posición en `HERO_ORDER` y su ficha de tres líneas en `HERO_INFO` (`js/data/game-data.js`).
-3. **Frases** en `HERO_LINES` (`js/ui/story.js`): `intro`, `mino`, `dragon` y `outro`.
+3. **Frases** en `HERO_LINES` (`js/ui/story.js`): `intro`, `mino`, `dragon`, `outro`, `cuevas`, `lich`, `nube` y `factura` (la prueba de héroes completos exige todas).
 4. **Especial**: el texto en `doSpecial()` y el efecto en el caso `special` de `updatePlayer()` (por ejemplo, `picaraDash()` o `bardDaily()`).
 5. Añádelo a `TEAMS` en `tools/smoke-test.js` para que la CI juegue con él. La prueba unitaria «cada héroe tiene esqueleto, frases, descripción...» comprueba que no falte nada.
 
-La selección se adapta sola: muestra los héroes de `HERO_ORDER` en columnas. Con más de cuatro, habrá que estrechar las tarjetas en `drawSelect()`.
+La selección se adapta sola: muestra los héroes de `HERO_ORDER` en columnas. Con más de cuatro, habrá que estrechar las tarjetas en `drawSelect()` (`js/render/hud.js`). Cada línea de `HERO_INFO` debe tener como mucho 32 caracteres.
 
 ## Añadir un logro
 
@@ -122,7 +123,9 @@ Ejemplos reales: Las Cuevas y La Nube.
 3. **Enemigos y jefes**: como en las recetas anteriores. El jefe final se crea en `updatePlay()` según `STAGES[stageIdx].boss`, y al morir llama a `startStory(..., stageClear)`.
 4. **Música**: un tema por zona en `T` (`js/audio/music.js`); `musicFor()` usa el nombre de la zona.
 5. **Historia**: la viñeta de entrada en `STORIES` y una frase por héroe en `HERO_LINES`.
-6. **Pruebas**: `tests/etapa2.test.js` comprueba la coherencia de todas las etapas (y en `tools/smoke-test.js` sube el número de la última etapa); el bot de `tools/smoke-test.js` juega todas seguidas.
+6. **Modo jefes**: añade sus jefes a `RUSH` (`js/game/bossrush.js`).
+7. **Pruebas**: `tests/etapa2.test.js` comprueba la coherencia de todas las etapas. En `tools/smoke-test.js`, sube el número de la última etapa en la condición de éxito (`r.stage === 3`); el bot juega todas seguidas.
+8. **Documentación**: su tabla de secciones y enemigos en [Diseño del juego](diseno-del-juego.md), su decorado en [Gráficos](graficos.md) y sus temas en [Audio](audio.md).
 
 ## Añadir un archivo de código
 
@@ -130,4 +133,4 @@ Ejemplos reales: Las Cuevas y La Nube.
 2. Añade su `<script>` en `index.html` en el punto correcto del orden.
 3. Añádelo a `ASSETS` en `sw.js`.
 
-`npm run lint` falla si te olvidas de alguno de los dos.
+`npm run lint` falla si te olvidas de alguno de los dos. Sube también `CACHE_VERSION` en `sw.js` para que los jugadores reciban el archivo nuevo, y añade el archivo al [mapa de archivos](arquitectura.md#mapa-de-archivos).

@@ -13,8 +13,9 @@ Si no estás de acuerdo, no envíes la Pull Request: abre un issue con la idea.
 
 - `main` es lo que está publicado en GitHub Pages. No se trabaja directamente sobre ella.
 - `development` es la rama de integración.
-- Para cada cambio, crea una rama desde `development` con un prefijo: `feature/`, `fix/` o `docs/`. Por ejemplo, `feature/jefe-virtualizacion`.
+- Para cada cambio, crea una rama desde `development` con un prefijo: `feature/`, `fix/`, `mejora/` o `docs/`. Por ejemplo, `feature/jefe-virtualizacion`.
 - Abre la Pull Request contra `development`. De `development` a `main` se pasa con otra PR cuando hay una versión lista.
+- Las dos ramas están protegidas: solo aceptan cambios por PR y con los cinco checks de la CI en verde (Lint, Unit tests y la prueba de humo en Chromium, Firefox y WebKit). No admiten push forzado. Los detalles están en [Despliegue y versiones](docs/despliegue-y-versiones.md#protección-de-ramas).
 
 ## Antes de abrir la PR
 
@@ -23,8 +24,10 @@ npm install
 npx playwright install chromium
 npm run lint        # estructura del proyecto y ESLint
 npm test            # pruebas unitarias
-npm run test:e2e    # el bot juega la etapa completa
+npm run test:e2e    # el bot juega las tres etapas y el modo jefes
 ```
+
+Si tu cambio puede afectar a un navegador concreto, prueba también `BROWSER=firefox` o `BROWSER=webkit` (ver [Pruebas](docs/pruebas.md#prueba-de-humo-end-to-end)).
 
 Si el cambio añade lógica nueva, añade también su prueba en `tests/`. Las [recetas](docs/recetas.md) explican paso a paso los cambios más habituales.
 
@@ -46,4 +49,4 @@ En castellano, en imperativo y con una primera línea corta: «Añade el jefe de
 
 ## Versiones
 
-Anota los cambios visibles en `CHANGELOG.md`, en la sección «Sin publicar», y sube la versión de `package.json` al publicar en `main`.
+Anota los cambios visibles en `CHANGELOG.md`, en la sección «Sin publicar». Al publicar en `main` se sube la versión de `package.json` y `CACHE_VERSION` en `sw.js`, y se crea la release. El paso a paso está en [Despliegue y versiones](docs/despliegue-y-versiones.md#publicar-una-versión).
