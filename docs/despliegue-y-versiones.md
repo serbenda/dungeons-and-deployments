@@ -128,7 +128,7 @@ Si una versión nunca llegó a `main` por separado (porque se publicó junto con
 
 | Release | Commit en `main` | Incluye |
 |---|---|---|
-| [v0.8.2](https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.8.2) | — | Documentación revisada contra el código; EFECTOS, sonido al recibir golpes, avisos grandes en la Hidra y el pergamino contra jefes finales |
+| [v0.8.2](https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.8.2) | `1871d9a` | Documentación revisada contra el código; EFECTOS, sonido al recibir golpes, avisos grandes en la Hidra y el pergamino contra jefes finales |
 | [v0.8.1](https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.8.1) | `8075cf5` | GIF y capturas más ligeros; jefes y dibujo repartidos en archivos |
 | [v0.8.0](https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.8.0) | `2d3ebf7` | Avisos grandes, CI en Firefox y WebKit, Kraken con *taint*, textos de la página |
 | [v0.7.0](https://github.com/serbenda/dungeons-and-deployments/releases/tag/v0.7.0) | `4f9e453` | Partida guardada |
