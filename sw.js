@@ -10,7 +10,7 @@
 // (npm run lint comprueba que coincide con index.html) y sube CACHE_VERSION.
 'use strict';
 
-const CACHE_VERSION = 'v0.8.2';
+const CACHE_VERSION = 'v0.9.0';
 const APP_CACHE = `dnd-app-${CACHE_VERSION}`;
 const FONT_CACHE = 'dnd-fonts-v1';
 
