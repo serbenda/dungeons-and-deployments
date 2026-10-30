@@ -42,6 +42,7 @@ function mkPlayer(heroKey, slot, x, y){
  * @param {string|string[]} heroKeys Héroe del jugador 1, o [héroe 1, héroe 2] en cooperativo.
  */
 function startGame(heroKeys){
+  try { globalThis.goatcounter?.count?.({ path: 'partida/dungeons-and-deployments', title: 'Partida empezada', event: true }); } catch { /* sin contador de visitas */ }
   const keys = Array.isArray(heroKeys) ? heroKeys : [heroKeys];
   PLAYERS = keys.map((k, i) => mkPlayer(k, i, 60 - i*24, 150 + i*18));
   P = PLAYERS[0];
