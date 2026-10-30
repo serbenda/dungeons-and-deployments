@@ -2,6 +2,11 @@
 
 Los cambios visibles de cada versión. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [Sin publicar]
+
+### Añadido
+- Contador de visitas y de partidas empezadas con GoatCounter, sin cookies. Las cifras se ven en [serbenda.github.io/serbenda](https://serbenda.github.io/serbenda/#visitas).
+
 ## [0.8.2] - 2026-10-28
 
 ### Corregido
